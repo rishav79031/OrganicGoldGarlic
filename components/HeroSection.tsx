@@ -5,14 +5,20 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-// Tasteful, minimally distributed 🧄 emojis floating gently in background
+// Elegantly distributed 🧄 emojis with larger sizes, subtle white-scaling, and varied float rhythms
 const EMOJI_PARTICLES = [
-  { id: 1, left: "6%", top: "18%", size: "text-2xl sm:text-3xl", duration: 7, delay: 0 },
-  { id: 2, left: "88%", top: "15%", size: "text-xl sm:text-2xl", duration: 8.5, delay: 1.2 },
-  { id: 3, left: "80%", top: "72%", size: "text-3xl sm:text-4xl", duration: 7.8, delay: 0.5 },
-  { id: 4, left: "10%", top: "75%", size: "text-2xl", duration: 8, delay: 2 },
-  { id: 5, left: "48%", top: "8%", size: "text-xl", duration: 9, delay: 1.8 },
-  { id: 6, left: "30%", top: "85%", size: "text-2xl", duration: 7.2, delay: 2.8 },
+  { id: 1, left: "4%", top: "14%", size: "text-4xl sm:text-5xl", duration: 7.5, delay: 0, opacity: "opacity-45" },
+  { id: 2, left: "86%", top: "12%", size: "text-3xl sm:text-4xl", duration: 8.5, delay: 1.2, opacity: "opacity-40" },
+  { id: 3, left: "74%", top: "68%", size: "text-5xl sm:text-6xl", duration: 7.8, delay: 0.5, opacity: "opacity-50" },
+  { id: 4, left: "8%", top: "64%", size: "text-4xl sm:text-5xl", duration: 8, delay: 2, opacity: "opacity-40" },
+  { id: 5, left: "48%", top: "6%", size: "text-3xl sm:text-4xl", duration: 9, delay: 1.8, opacity: "opacity-35" },
+  { id: 6, left: "26%", top: "82%", size: "text-4xl sm:text-5xl", duration: 7.2, delay: 2.8, opacity: "opacity-45" },
+  { id: 7, left: "91%", top: "44%", size: "text-4xl sm:text-5xl", duration: 8.2, delay: 1.5, opacity: "opacity-45" },
+  { id: 8, left: "2%", top: "38%", size: "text-3xl sm:text-4xl", duration: 9.5, delay: 3.2, opacity: "opacity-35" },
+  { id: 9, left: "62%", top: "88%", size: "text-4xl sm:text-5xl", duration: 8.8, delay: 0.8, opacity: "opacity-40" },
+  { id: 10, left: "38%", top: "45%", size: "text-2xl sm:text-3xl", duration: 10, delay: 2.4, opacity: "opacity-30" },
+  { id: 11, left: "82%", top: "86%", size: "text-3xl sm:text-4xl", duration: 7.6, delay: 3.5, opacity: "opacity-40" },
+  { id: 12, left: "18%", top: "18%", size: "text-3xl sm:text-4xl", duration: 8.4, delay: 1, opacity: "opacity-35" },
 ];
 
 export default function HeroSection() {
@@ -22,8 +28,8 @@ export default function HeroSection() {
     const handleMouse = (e: MouseEvent) => {
       if (!parallaxRef.current) return;
       const { innerWidth, innerHeight } = window;
-      const x = (e.clientX / innerWidth - 0.5) * 16;
-      const y = (e.clientY / innerHeight - 0.5) * 16;
+      const x = (e.clientX / innerWidth - 0.5) * 18;
+      const y = (e.clientY / innerHeight - 0.5) * 18;
       parallaxRef.current.style.transform = `translate(${x}px, ${y}px)`;
     };
     window.addEventListener("mousemove", handleMouse);
@@ -48,17 +54,18 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Minimally Distributed 🧄 Emojis Floating Gently (Clean & Minimal) */}
+      {/* Floating Whitescaled 🧄 Emojis (Bigger, 12 distributed particles) */}
       <div ref={parallaxRef} className="absolute inset-0 pointer-events-none z-0">
         {EMOJI_PARTICLES.map((item) => (
           <div
             key={item.id}
-            className={`absolute ${item.size} select-none opacity-25 hover:opacity-40 transition-opacity`}
+            className={`absolute ${item.size} ${item.opacity} select-none transition-transform`}
             style={{
               left: item.left,
               top: item.top,
               animation: `floatSmooth ${item.duration}s ease-in-out ${item.delay}s infinite`,
-              filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.6))",
+              // Whitescale filter: makes the garlic emoji bright white-tinted with soft shadow
+              filter: "brightness(1.35) contrast(0.9) drop-shadow(0 8px 16px rgba(255,255,255,0.18)) drop-shadow(0 4px 12px rgba(0,0,0,0.7))",
             }}
           >
             🧄

@@ -44,7 +44,7 @@ export default function AboutPage() {
           <div className="relative">
             <div className="relative w-full h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border-4 border-gold/40 shadow-2xl">
               <Image
-                src="/product-pack.jpg"
+                src="/product.jpg"
                 alt="Organic Gold Garlic Brand Pack"
                 fill
                 className="object-cover"

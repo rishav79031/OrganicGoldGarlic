@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://organicgoldgarlic.in"),
   title: "Organic Fresh Gold Garlic – Premium Peeled Garlic | Araria, Bihar",
   description:
     "Buy premium quality fresh peeled garlic from Araria, Bihar. 100% natural, pure & ready to use. Available in 250g (₹100) and 1kg (₹200) packs. Bulk order enquiries welcome.",

@@ -5,16 +5,14 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-// High-definition transparent PNG peeled garlic cloves extracted from authentic photography
-const REAL_CLOVES = [
-  { id: 1, src: "/clove-1.png", width: 140, height: 92, left: "4%", top: "14%", duration: 7, delay: 0, rotate: 14, scale: 1 },
-  { id: 2, src: "/clove-2.png", width: 130, height: 89, left: "84%", top: "12%", duration: 8.5, delay: 1.2, rotate: -20, scale: 0.95 },
-  { id: 3, src: "/clove-4.png", width: 165, height: 108, left: "74%", top: "64%", duration: 7.8, delay: 0.5, rotate: 26, scale: 1.1 },
-  { id: 4, src: "/clove-3.png", width: 125, height: 104, left: "8%", top: "68%", duration: 6.8, delay: 1.8, rotate: -16, scale: 0.9 },
-  { id: 5, src: "/clove-6.png", width: 110, height: 110, left: "46%", top: "6%", duration: 9, delay: 2.5, rotate: 32, scale: 0.85 },
-  { id: 6, src: "/clove-5.png", width: 115, height: 134, left: "24%", top: "80%", duration: 7.2, delay: 0.8, rotate: -28, scale: 0.9 },
-  { id: 7, src: "/clove-7.png", width: 115, height: 107, left: "88%", top: "46%", duration: 9.5, delay: 2, rotate: 15, scale: 0.88 },
-  { id: 8, src: "/clove-1.png", width: 105, height: 69, left: "2%", top: "42%", duration: 8, delay: 3, rotate: -8, scale: 0.8 },
+// Tasteful, minimally distributed 🧄 emojis floating gently in background
+const EMOJI_PARTICLES = [
+  { id: 1, left: "6%", top: "18%", size: "text-2xl sm:text-3xl", duration: 7, delay: 0 },
+  { id: 2, left: "88%", top: "15%", size: "text-xl sm:text-2xl", duration: 8.5, delay: 1.2 },
+  { id: 3, left: "80%", top: "72%", size: "text-3xl sm:text-4xl", duration: 7.8, delay: 0.5 },
+  { id: 4, left: "10%", top: "75%", size: "text-2xl", duration: 8, delay: 2 },
+  { id: 5, left: "48%", top: "8%", size: "text-xl", duration: 9, delay: 1.8 },
+  { id: 6, left: "30%", top: "85%", size: "text-2xl", duration: 7.2, delay: 2.8 },
 ];
 
 export default function HeroSection() {
@@ -24,8 +22,8 @@ export default function HeroSection() {
     const handleMouse = (e: MouseEvent) => {
       if (!parallaxRef.current) return;
       const { innerWidth, innerHeight } = window;
-      const x = (e.clientX / innerWidth - 0.5) * 20;
-      const y = (e.clientY / innerHeight - 0.5) * 20;
+      const x = (e.clientX / innerWidth - 0.5) * 16;
+      const y = (e.clientY / innerHeight - 0.5) * 16;
       parallaxRef.current.style.transform = `translate(${x}px, ${y}px)`;
     };
     window.addEventListener("mousemove", handleMouse);
@@ -39,45 +37,31 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-28 sm:pt-32 pb-16 bg-[#08130b]"
+      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-28 sm:pt-32 pb-16 bg-[#08130b]"
     >
       {/* Luxury Golden Atmospheric Glows */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-30"
+        className="absolute inset-0 pointer-events-none opacity-25"
         style={{
           backgroundImage:
             "radial-gradient(circle at 25% 45%, #C9A227 0%, transparent 55%), radial-gradient(circle at 75% 40%, #F5E6B2 0%, transparent 50%), radial-gradient(circle at 50% 90%, #ECC452 0%, transparent 60%)",
         }}
       />
 
-      {/* Floating Real PNG Peeled Garlic Cloves Layer */}
+      {/* Minimally Distributed 🧄 Emojis Floating Gently (Clean & Minimal) */}
       <div ref={parallaxRef} className="absolute inset-0 pointer-events-none z-0">
-        {REAL_CLOVES.map((clove) => (
+        {EMOJI_PARTICLES.map((item) => (
           <div
-            key={clove.id}
-            className="absolute transition-transform duration-300"
+            key={item.id}
+            className={`absolute ${item.size} select-none opacity-25 hover:opacity-40 transition-opacity`}
             style={{
-              left: clove.left,
-              top: clove.top,
-              animation: `floatSmooth ${clove.duration}s ease-in-out ${clove.delay}s infinite`,
+              left: item.left,
+              top: item.top,
+              animation: `floatSmooth ${item.duration}s ease-in-out ${item.delay}s infinite`,
+              filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.6))",
             }}
           >
-            <div
-              style={{
-                transform: `rotate(${clove.rotate}deg) scale(${clove.scale})`,
-                filter: "drop-shadow(0 14px 28px rgba(0,0,0,0.65)) drop-shadow(0 2px 8px rgba(201,162,39,0.3))",
-              }}
-              className="hover:scale-110 transition-transform duration-300"
-            >
-              <Image
-                src={clove.src}
-                alt="Peeled Garlic Clove"
-                width={clove.width}
-                height={clove.height}
-                className="select-none pointer-events-none object-contain"
-                priority
-              />
-            </div>
+            🧄
           </div>
         ))}
       </div>
@@ -152,7 +136,7 @@ export default function HeroSection() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="text-white/75 text-sm sm:text-base lg:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed font-light mb-8"
             >
-              Buy premium peeled garlic and organic bulk peeled garlic online. Hand-harvested, hygienically peeled with zero bleaching or chemicals. Direct from farm to kitchen and restaurants.
+              Buy premium peeled garlic and organic bulk peeled garlic online. Hand-harvested from local farms, hygienically peeled with zero chemicals, and vacuum-sealed ready for kitchens and restaurants.
             </motion.p>
 
             {/* Pricing Strip: Bulk Supply marked as "Enquire" + Market Rate Note */}
@@ -213,7 +197,7 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right Column: Hero Mockup with the Kitchen Counter WebP Image */}
+          {/* Right Column: Hero Mockup */}
           <div className="lg:col-span-5 flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.94 }}
@@ -227,7 +211,7 @@ export default function HeroSection() {
               <div className="relative rounded-[32px] overflow-hidden border-2 border-gold/50 shadow-2xl bg-black/50 group">
                 <div className="relative w-full h-[410px] sm:h-[470px]">
                   <Image
-                    src="/product-pack-kitchen.webp"
+                    src="/story-4-packed-ready.webp"
                     alt="Organic Gold Garlic - Peeled Garlic Package in Kitchen"
                     fill
                     sizes="(max-width: 768px) 100vw, 440px"

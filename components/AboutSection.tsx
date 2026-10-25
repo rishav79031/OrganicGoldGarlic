@@ -3,140 +3,120 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+const STORY_STEPS = [
+  {
+    step: "01",
+    tag: "The Harvest",
+    title: "Direct from Regional Bihar Farms",
+    desc: "Whole, organically nurtured garlic bulbs are hand-harvested at peak pungency from local farms in Araria and Seemanchal, ensuring rich allicin and natural aroma.",
+    image: "/story-1-farm-harvest.webp",
+  },
+  {
+    step: "02",
+    tag: "Grading & Touchless Peeling",
+    title: "Hygienically Sorted & Air-Peeled",
+    desc: "Each bulb is split and gently peeled using sanitary, high-velocity air vortex technology. No chemical soaking, no bleaching — retaining full natural nutrition.",
+    image: "/story-2-sorting-peeling.webp",
+  },
+  {
+    step: "03",
+    tag: "Quality Inspection",
+    title: "Plump, Blemish-Free Cloves",
+    desc: "Every batch undergoes rigorous quality checks. Only clean, firm, golden-white cloves make the cut for kitchens and restaurants.",
+    image: "/story-3-pure-cloves.webp",
+  },
+  {
+    step: "04",
+    tag: "Sealed & Dispatched",
+    title: "Vacuum-Packed & Pan-India Delivery",
+    desc: "Sealed in food-grade, airtight barrier pouches that preserve 100% farm freshness. Ready to cook right into your gravies, marinades, and dishes.",
+    image: "/story-4-packed-ready.webp",
+  },
+];
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 35 },
   visible: { opacity: 1, y: 0 },
 };
 
 export default function AboutSection() {
   return (
-    <section id="about" className="py-24 bg-cream relative overflow-hidden">
-      {/* Decorative background */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+    <section id="about" className="py-24 sm:py-32 bg-[#fbfaf5] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Section Header */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16 sm:mb-20"
+        >
+          <span className="inline-block text-[#93782b] font-bold text-xs uppercase tracking-[0.25em] px-3.5 py-1 bg-gold/15 rounded-full border border-gold/30 mb-3">
+            Our Journey &bull; Farm to Kitchen
+          </span>
+          <h2 className="font-brand text-3xl sm:text-5xl lg:text-6xl font-normal text-[#14301c] leading-tight mb-4">
+            How Organic Gold Garlic <br className="hidden sm:inline" />
+            <span className="italic font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gold-dark via-amber-600 to-gold-dark">
+              Reaches Your Table
+            </span>
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base font-light leading-relaxed">
+            From the fertile soil of Bihar to your culinary creations — follow the 4-step story of uncompromised purity, hygienic peeling, and freshness.
+          </p>
+        </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Image side */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="relative"
-          >
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-square max-w-md mx-auto">
-              <Image
-                src="/product.jpg"
-                alt="Fresh premium garlic from Bihar"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                      <span className="text-2xl">🧄</span>
-                    </div>
-                    <div>
-                      <p className="font-serif font-bold text-primary text-sm">
-                        Organic Fresh Gold Garlic
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        Araria, Bihar, India
-                      </p>
-                    </div>
+        {/* 4-Step Visual Story Cards Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
+          {STORY_STEPS.map((item, idx) => (
+            <motion.div
+              key={item.step}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: idx * 0.12 }}
+              className="group bg-white rounded-3xl p-5 border border-gold/20 hover:border-gold/60 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                {/* Photo in WebP */}
+                <div className="relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-5 bg-amber-50/50">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#08130b]/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-gold/30">
+                    <span className="text-gold font-brand text-xs font-bold tracking-widest">{item.step}</span>
                   </div>
                 </div>
+
+                {/* Tag & Title */}
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#93782b] block mb-1">
+                  {item.tag}
+                </span>
+                <h3 className="font-brand text-xl font-bold text-[#14301c] leading-snug mb-2">
+                  {item.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-gray-600 text-xs sm:text-sm font-light leading-relaxed">
+                  {item.desc}
+                </p>
               </div>
-            </div>
 
-            {/* Floating accent */}
-            <div
-              className="absolute -top-6 -right-6 w-24 h-24 bg-gold/20 rounded-full"
-              style={{ animation: "float 7s ease-in-out infinite" }}
-            />
-            <div
-              className="absolute -bottom-6 -left-6 w-16 h-16 bg-primary/20 rounded-full"
-              style={{ animation: "float 9s ease-in-out 2s infinite" }}
-            />
-          </motion.div>
-
-          {/* Text side */}
-          <div>
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7 }}
-            >
-              <span className="inline-block text-gold font-semibold text-sm tracking-widest uppercase mb-3">
-                Our Story
-              </span>
-              <h2 className="font-serif text-4xl sm:text-5xl font-bold text-primary mb-6 leading-tight">
-                From Bihar&apos;s Heart to Your Kitchen
-              </h2>
+              {/* Bottom Micro Line */}
+              <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                <span>Phase {item.step}</span>
+                <span className="text-gold-dark font-bold">100% Natural</span>
+              </div>
             </motion.div>
-
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-              className="space-y-4 text-gray-600 text-base leading-relaxed mb-8"
-            >
-              <p>
-                Nestled in the fertile plains of Araria, Bihar, Organic Fresh
-                Gold Garlic was born from a simple passion — delivering the
-                purest, freshest peeled garlic directly to your doorstep, without
-                compromise.
-              </p>
-              <p>
-                Our garlic is cultivated using traditional, chemical-free farming
-                methods passed down through generations. Every clove is hand-picked
-                at peak ripeness, carefully peeled, and hygienically packed to
-                preserve its natural aroma, flavor, and nutritional benefits.
-              </p>
-              <p>
-                We believe you deserve garlic that is truly natural — no
-                preservatives, no chemicals, no shortcuts. Just pure, golden
-                goodness from the earth.
-              </p>
-            </motion.div>
-
-            {/* Key points */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="grid grid-cols-2 gap-4"
-            >
-              {[
-                { icon: "🌱", title: "Chemical Free", desc: "Zero pesticides or additives" },
-                { icon: "🤲", title: "Hand-Picked", desc: "Selected at peak quality" },
-                { icon: "📦", title: "Hygienic Packing", desc: "Food-safe sealed packaging" },
-                { icon: "🏡", title: "Farm Direct", desc: "Straight from Bihar farms" },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="flex items-start gap-3 bg-white rounded-2xl p-4 shadow-sm border border-gold/10 hover:border-gold/30 transition-colors"
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                  <div>
-                    <p className="font-semibold text-primary text-sm">{item.title}</p>
-                    <p className="text-gray-500 text-xs mt-0.5">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
+          ))}
         </div>
+
       </div>
     </section>
   );

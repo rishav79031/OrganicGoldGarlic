@@ -5,9 +5,41 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import type { Metadata } from "next";
 
+const SITE_URL = "https://organicgoldgarlic.com";
+
 export const metadata: Metadata = {
-  title: "About Us | Organic Gold Garlic - Buy Peeled Garlic",
-  description: "Learn about Organic Gold Garlic in Araria, Bihar. We supply clean, chemical-free peeled garlic with Pan-India delivery and competitive wholesale rates for restaurants and homes.",
+  title: "About Us – Pure & Clean Peeled Garlic | Organic Gold Garlic",
+  description:
+    "Learn about Organic Gold Garlic in Araria, Bihar. We supply clean, chemical-free peeled garlic with Pan-India delivery and competitive wholesale rates for restaurants and homes.",
+  alternates: {
+    canonical: `${SITE_URL}/about`,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: `${SITE_URL}/about`,
+    siteName: "Organic Gold Garlic",
+    title: "About Organic Gold Garlic – Farm-to-Table Peeled Garlic",
+    description:
+      "From fertile soils in Araria, Bihar to kitchens across India. Discover our commitment to hygiene, authentic flavor, and 100% preservative-free garlic.",
+    images: [
+      {
+        url: `${SITE_URL}/og-about.jpg`,
+        secureUrl: `${SITE_URL}/og-about.jpg`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
+        alt: "Organic Gold Garlic - Kitchen Preparation & Farm Story",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Organic Gold Garlic – Pure & Clean Peeled Garlic",
+    description:
+      "100% natural, hygienic peeled garlic from Araria, Bihar. Fast doorstep delivery across India.",
+    images: [`${SITE_URL}/og-about.jpg`],
+  },
 };
 
 export default function AboutPage() {

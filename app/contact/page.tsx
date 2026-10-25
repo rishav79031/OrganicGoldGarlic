@@ -5,9 +5,41 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import EnquirySection from "@/components/EnquirySection";
 import type { Metadata } from "next";
 
+const SITE_URL = "https://organicgoldgarlic.com";
+
 export const metadata: Metadata = {
-  title: "Contact Us & Facility Address | Organic Fresh Gold Garlic - Araria",
-  description: "Get in touch with Organic Fresh Gold Garlic in Araria Shivpuri Ward 09, Bihar (854311). Call or WhatsApp +91 7488503664 for retail, orders, and bulk enquiries.",
+  title: "Contact Us & Facility Address | Organic Gold Garlic – Araria, Bihar",
+  description:
+    "Get in touch with Organic Gold Garlic in Shivpuri Ward 09, Araria, Bihar (854311). Call or WhatsApp +91 74885 03664 for retail packs, restaurant orders, and bulk supply.",
+  alternates: {
+    canonical: `${SITE_URL}/contact`,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: `${SITE_URL}/contact`,
+    siteName: "Organic Gold Garlic",
+    title: "Contact Organic Gold Garlic – Araria, Bihar",
+    description:
+      "Call or WhatsApp +91 74885 03664. Direct peeled garlic supply from Shivpuri Ward 09, Araria, Bihar – 854311.",
+    images: [
+      {
+        url: `${SITE_URL}/og-share.jpg`,
+        secureUrl: `${SITE_URL}/og-share.jpg`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
+        alt: "Organic Gold Garlic - Contact & Facility in Araria, Bihar",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact Organic Gold Garlic – Araria, Bihar",
+    description:
+      "Direct contact & facility location: Shivpuri Ward 09, Araria, Bihar. Phone / WhatsApp: +91 74885 03664.",
+    images: [`${SITE_URL}/og-share.jpg`],
+  },
 };
 
 export default function ContactPage() {

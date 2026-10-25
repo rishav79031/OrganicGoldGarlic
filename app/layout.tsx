@@ -3,30 +3,38 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
+const SITE_URL = "https://organicgoldgarlic.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://organicgoldgarlic.com"),
-  title: "Buy Peeled Garlic | Buy Organic Peeled Garlic & Bulk Peeled Garlic | Organic Gold Garlic",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Organic Gold Garlic – Buy Premium Peeled Garlic Online | Pan-India Delivery",
+    template: "%s | Organic Gold Garlic",
+  },
   description:
-    "Buy peeled garlic online from Organic Gold Garlic. 100% natural, fresh, chemical-free peeled garlic. 250g @ ₹100, 1kg @ ₹200. Buy bulk peeled garlic at competitive wholesale rates with Pan-India delivery for restaurants & hotels.",
+    "Buy premium 100% natural, fresh peeled garlic cloves from Organic Gold Garlic. Hygienic, preservative-free, ready to cook. Direct dispatch from Araria, Bihar across India for homes, caterers, and restaurants.",
   keywords: [
     "buy peeled garlic",
     "buy organic peeled garlic",
     "buy bulk peeled garlic",
-    "peeled garlic online",
+    "peeled garlic online India",
     "fresh peeled garlic supplier",
     "restaurant garlic delivery",
     "bulk garlic wholesale India",
     "organic garlic supplier",
-    "ready to use peeled garlic",
+    "ready to cook peeled garlic",
     "vacuum packed peeled garlic",
-    "peeled garlic Bihar",
-    "peeled garlic price per kg",
-    "commercial peeled garlic",
+    "peeled garlic Bihar Araria",
     "garlic cloves wholesale",
   ],
-  authors: [{ name: "Organic Gold Garlic" }],
+  authors: [{ name: "Organic Gold Garlic", url: SITE_URL }],
   creator: "Organic Gold Garlic",
   publisher: "Organic Gold Garlic",
+  formatDetection: {
+    telephone: true,
+    email: true,
+    address: true,
+  },
   robots: {
     index: true,
     follow: true,
@@ -35,34 +43,37 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
   alternates: {
-    canonical: "https://organicgoldgarlic.com",
+    canonical: SITE_URL,
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://organicgoldgarlic.com",
+    url: SITE_URL,
     siteName: "Organic Gold Garlic",
-    title: "Buy Peeled Garlic | Buy Organic Peeled Garlic & Bulk Peeled Garlic",
+    title: "Organic Gold Garlic – 100% Fresh & Pure Peeled Garlic",
     description:
-      "Order fresh, chemical-free peeled garlic. 250g @ ₹100, 1kg @ ₹200. Buy bulk peeled garlic with Pan-India delivery, competitive rates & reliable restaurant supply.",
+      "Direct farm-fresh hygienic peeled garlic. 100% chemical-free, vacuum-sealed for aroma and shelf life. Doorstep dispatch across India.",
     images: [
       {
-        url: "/product-pack.jpg",
+        url: `${SITE_URL}/og-share.jpg`,
+        secureUrl: `${SITE_URL}/og-share.jpg`,
         width: 1200,
         height: 630,
-        alt: "Organic Gold Garlic - Buy Premium Peeled Garlic",
+        type: "image/jpeg",
+        alt: "Organic Gold Garlic - Fresh Peeled Garlic Packs (250g, 1kg & Bulk Supply)",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Buy Peeled Garlic | Organic Gold Garlic",
+    title: "Organic Gold Garlic – 100% Fresh & Pure Peeled Garlic",
     description:
-      "Buy organic peeled garlic & bulk peeled garlic online. Pan-India delivery, competitive wholesale rates for restaurants & caterers.",
-    images: ["/product-pack.jpg"],
+      "Buy fresh peeled garlic online. 100% natural, hygienic vacuum-sealed cloves with Pan-India dispatch from Araria, Bihar.",
+    images: [`${SITE_URL}/og-share.jpg`],
   },
   icons: {
     icon: "/logo.png",
@@ -79,6 +90,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Extra social tags for WhatsApp, Instagram, and Facebook scrapers */}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/jpeg" />
+
         {/* Structured Data Schema for Rich Google Search Snippets */}
         <script
           type="application/ld+json"
@@ -87,7 +103,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Product",
               name: "Organic Gold Garlic - Peeled Garlic",
-              image: "https://organicgoldgarlic.com/product-pack.jpg",
+              image: `${SITE_URL}/og-share.jpg`,
               description:
                 "Buy fresh peeled garlic and organic bulk peeled garlic with Pan-India delivery and competitive wholesale rates for restaurants and homes.",
               brand: {
@@ -98,18 +114,16 @@ export default function RootLayout({
                 {
                   "@type": "Offer",
                   name: "250g Peeled Garlic Pack",
-                  price: "100",
                   priceCurrency: "INR",
                   availability: "https://schema.org/InStock",
-                  url: "https://organicgoldgarlic.com/#products",
+                  url: `${SITE_URL}/#products`,
                 },
                 {
                   "@type": "Offer",
                   name: "1kg Peeled Garlic Pack",
-                  price: "200",
                   priceCurrency: "INR",
                   availability: "https://schema.org/InStock",
-                  url: "https://organicgoldgarlic.com/#products",
+                  url: `${SITE_URL}/#products`,
                 },
                 {
                   "@type": "Offer",
@@ -120,7 +134,7 @@ export default function RootLayout({
                   },
                   description: "Enquire for wholesale commercial rates with Pan-India delivery",
                   availability: "https://schema.org/InStock",
-                  url: "https://organicgoldgarlic.com/#enquiry",
+                  url: `${SITE_URL}/#enquiry`,
                 },
               ],
             }),

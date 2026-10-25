@@ -9,12 +9,40 @@ import EnquirySection from "@/components/EnquirySection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
+const SITE_URL = "https://organicgoldgarlic.com";
+
 export const metadata: Metadata = {
   title: "Organic Gold Garlic – Buy Premium Peeled Garlic Online | Pan-India Delivery",
   description:
-    "Buy premium quality fresh peeled garlic from Organic Gold Garlic. 100% natural, pure & ready to use. 250g @ ₹100, 1kg @ ₹200. Buy bulk peeled garlic with Pan-India delivery & competitive restaurant rates.",
+    "Buy premium quality fresh peeled garlic from Organic Gold Garlic. 100% natural, pure & ready to cook. Vacuum-sealed 250g, 1kg & bulk commercial supply with Pan-India delivery from Araria, Bihar.",
   alternates: {
-    canonical: "https://organicgoldgarlic.com",
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: SITE_URL,
+    siteName: "Organic Gold Garlic",
+    title: "Organic Gold Garlic – 100% Pure & Fresh Peeled Garlic Online",
+    description:
+      "Buy 100% chemical-free peeled garlic cloves. Vacuum packed for maximum freshness & aroma. Pan-India delivery for kitchens & restaurants.",
+    images: [
+      {
+        url: `${SITE_URL}/og-share.jpg`,
+        secureUrl: `${SITE_URL}/og-share.jpg`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
+        alt: "Organic Gold Garlic - Premium Peeled Garlic Packs",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Organic Gold Garlic – Buy Peeled Garlic Online",
+    description:
+      "100% pure peeled garlic cloves with fast doorstep delivery across India.",
+    images: [`${SITE_URL}/og-share.jpg`],
   },
 };
 

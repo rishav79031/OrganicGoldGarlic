@@ -5,46 +5,17 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-// Subtle floating garlic shapes for organic atmospheric depth
-const CLOVES = [
-  { id: 1, size: 52, left: "6%", top: "18%", duration: 9, rotate: 12 },
-  { id: 2, size: 42, left: "88%", top: "15%", duration: 11, rotate: -25 },
-  { id: 3, size: 64, left: "75%", top: "68%", duration: 10, rotate: 30 },
-  { id: 4, size: 46, left: "10%", top: "72%", duration: 8.5, rotate: -15 },
-  { id: 5, size: 38, left: "48%", top: "8%", duration: 12, rotate: 40 },
-  { id: 6, size: 48, left: "26%", top: "82%", duration: 9.5, rotate: -35 },
+// Realistic photograph-based peeled garlic cloves with dynamic floating animations
+const PHOTO_CLOVES = [
+  { id: 1, src: "/clove-1.png", width: 95, height: 58, left: "7%", top: "16%", duration: 8.5, delay: 0, rotate: 12 },
+  { id: 2, src: "/clove-2.png", width: 85, height: 68, left: "86%", top: "14%", duration: 10, delay: 1.5, rotate: -22 },
+  { id: 3, src: "/clove-4.png", width: 110, height: 72, left: "76%", top: "66%", duration: 9.5, delay: 0.8, rotate: 28 },
+  { id: 4, src: "/clove-3.png", width: 88, height: 68, left: "11%", top: "70%", duration: 8, delay: 2.2, rotate: -15 },
+  { id: 5, src: "/clove-6.png", width: 75, height: 75, left: "48%", top: "8%", duration: 11, delay: 3, rotate: 35 },
+  { id: 6, src: "/clove-5.png", width: 70, height: 75, left: "28%", top: "82%", duration: 9, delay: 1, rotate: -30 },
+  { id: 7, src: "/clove-7.png", width: 78, height: 72, left: "90%", top: "48%", duration: 11.5, delay: 2.5, rotate: 18 },
+  { id: 8, src: "/clove-2.png", width: 68, height: 54, left: "4%", top: "44%", duration: 10.5, delay: 3.5, rotate: -10 },
 ];
-
-function FloatingClove({ size, opacity }: { size: number; opacity: number }) {
-  return (
-    <svg
-      width={size}
-      height={size * 1.3}
-      viewBox="0 0 100 130"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ opacity, filter: "drop-shadow(0px 8px 16px rgba(0,0,0,0.35))" }}
-    >
-      <defs>
-        <radialGradient id="cloveGlow" cx="40%" cy="32%" r="65%">
-          <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="50%" stopColor="#FFF7DE" />
-          <stop offset="90%" stopColor="#ECC452" />
-          <stop offset="100%" stopColor="#C9A227" />
-        </radialGradient>
-      </defs>
-      <path
-        d="M 50 14 C 70 36, 85 68, 78 102 C 70 124, 38 128, 26 112 C 12 96, 17 64, 35 36 C 42 24, 46 18, 50 14 Z"
-        fill="url(#cloveGlow)"
-      />
-      <path
-        d="M 44 28 C 56 46, 65 72, 60 98 C 58 106, 50 112, 40 110 C 35 98, 33 68, 38 42 Z"
-        fill="white"
-        fillOpacity="0.45"
-      />
-    </svg>
-  );
-}
 
 export default function HeroSection() {
   const parallaxRef = useRef<HTMLDivElement>(null);
@@ -53,8 +24,8 @@ export default function HeroSection() {
     const handleMouse = (e: MouseEvent) => {
       if (!parallaxRef.current) return;
       const { innerWidth, innerHeight } = window;
-      const x = (e.clientX / innerWidth - 0.5) * 16;
-      const y = (e.clientY / innerHeight - 0.5) * 16;
+      const x = (e.clientX / innerWidth - 0.5) * 20;
+      const y = (e.clientY / innerHeight - 0.5) * 20;
       parallaxRef.current.style.transform = `translate(${x}px, ${y}px)`;
     };
     window.addEventListener("mousemove", handleMouse);
@@ -66,29 +37,43 @@ export default function HeroSection() {
       id="home"
       className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-28 sm:pt-32 pb-16 bg-[#08130b]"
     >
-      {/* Luxury Golden Atmospheric Radial Glows */}
+      {/* Luxury Golden Radial Atmospheric Glows */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-20"
+        className="absolute inset-0 pointer-events-none opacity-25"
         style={{
           backgroundImage:
             "radial-gradient(circle at 25% 45%, #C9A227 0%, transparent 55%), radial-gradient(circle at 75% 40%, #F5E6B2 0%, transparent 50%), radial-gradient(circle at 50% 90%, #ECC452 0%, transparent 60%)",
         }}
       />
 
-      {/* Floating Cloves Layer */}
+      {/* Floating REALISTIC Peeled Garlic Cloves Layer */}
       <div ref={parallaxRef} className="absolute inset-0 pointer-events-none z-0">
-        {CLOVES.map((clove) => (
+        {PHOTO_CLOVES.map((clove) => (
           <div
             key={clove.id}
-            className="absolute"
+            className="absolute transition-transform duration-300"
             style={{
               left: clove.left,
               top: clove.top,
-              transform: `rotate(${clove.rotate}deg)`,
-              animation: `floatSmooth ${clove.duration}s ease-in-out infinite`,
+              animation: `floatSmooth ${clove.duration}s ease-in-out ${clove.delay}s infinite`,
             }}
           >
-            <FloatingClove size={clove.size} opacity={0.35} />
+            <div
+              style={{
+                transform: `rotate(${clove.rotate}deg)`,
+                filter: "drop-shadow(0 12px 24px rgba(0,0,0,0.5)) drop-shadow(0 2px 6px rgba(201,162,39,0.25))",
+              }}
+              className="hover:scale-110 transition-transform duration-300"
+            >
+              <Image
+                src={clove.src}
+                alt="Realistic Peeled Garlic Clove"
+                width={clove.width}
+                height={clove.height}
+                className="select-none pointer-events-none object-contain"
+                priority
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -195,7 +180,7 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right Column: Premium Hero Mockup with Gold Halo */}
+          {/* Right Column: Premium Hero Mockup with Real Falling Cloves Composition */}
           <div className="lg:col-span-5 flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.94 }}

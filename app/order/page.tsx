@@ -6,14 +6,14 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 const PACK_OPTIONS = [
-  { id: "250g", name: "250g Fresh Peeled Pack", sub: "Kitchen Pack", note: "Price confirmed in invoice" },
-  { id: "1kg", name: "1 kg Value Pack", sub: "Chef & Family Pack", popular: true, note: "Price confirmed in invoice" },
-  { id: "Bulk", name: "Bulk Commercial Pack", sub: "Restaurants & Catering (10kg+)", note: "Wholesale rate in invoice" },
+  { id: "250g", name: "250g Fresh Peeled Pack", sub: "Kitchen Pack" },
+  { id: "1kg", name: "1 kg Value Pack", sub: "Chef & Family Pack", popular: true },
+  { id: "Bulk", name: "Bulk Commercial Pack", sub: "Restaurants & Catering (10kg+)" },
 ];
 
 export default function OrderPage() {
   const [selectedPack, setSelectedPack] = useState("1kg");
-  const [quantity, setQuantity] = useState(2);
+  const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<{
     orderNumber: string;
@@ -163,10 +163,7 @@ export default function OrderPage() {
                         </span>
                       )}
                       <p className="font-brand font-bold text-base text-gray-900">{pack.name}</p>
-                      <p className="text-xs text-gray-500 mb-2">{pack.sub}</p>
-                      <span className="inline-block text-xs font-semibold text-gold-dark bg-gold/10 px-2 py-1 rounded-md">
-                        {pack.note}
-                      </span>
+                      <p className="text-xs text-gray-500">{pack.sub}</p>
                     </button>
                   ))}
                 </div>
@@ -180,19 +177,25 @@ export default function OrderPage() {
                   </label>
                   <span className="text-xs text-gray-500">Number of packs or kg required</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-9 h-9 rounded-full bg-white border border-gray-300 flex items-center justify-center font-bold text-lg hover:border-gold shadow-sm"
+                    className="w-10 h-10 rounded-xl bg-white border border-gray-300 flex items-center justify-center font-bold text-lg hover:border-gold shadow-sm transition-colors text-gray-700"
                   >
                     -
                   </button>
-                  <span className="font-brand text-xl font-bold w-12 text-center text-primary">{quantity}</span>
+                  <input
+                    type="number"
+                    min={1}
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-20 h-10 text-center font-brand text-lg font-bold rounded-xl border border-gray-300 bg-white text-primary focus:outline-none focus:border-gold shadow-sm"
+                  />
                   <button
                     type="button"
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-9 h-9 rounded-full bg-white border border-gray-300 flex items-center justify-center font-bold text-lg hover:border-gold shadow-sm"
+                    className="w-10 h-10 rounded-xl bg-white border border-gray-300 flex items-center justify-center font-bold text-lg hover:border-gold shadow-sm transition-colors text-gray-700"
                   >
                     +
                   </button>
@@ -218,7 +221,7 @@ export default function OrderPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Phone Number (WhatsApp) *</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Phone Number *</label>
                     <input
                       type="tel"
                       required

@@ -20,7 +20,7 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
   }
 }
 
-const validStatuses = ["Pending", "Contacted", "Confirmed", "Completed"] as const;
+const validStatuses = ["Pending", "Answered", "Contacted", "Confirmed", "Completed"] as const;
 const statusSchema = z.object({
   status: z.enum(validStatuses),
 });

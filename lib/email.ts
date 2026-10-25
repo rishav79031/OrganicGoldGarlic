@@ -75,11 +75,11 @@ export async function sendOrderStatusEmail(order: OrderEmailPayload) {
         break;
 
       case "Order Processed":
-        subject = `[Order Processed] #${order.orderNumber} - Packed & Sealed`;
+        subject = `[Order Completed] #${order.orderNumber} - Fully Processed & Closed`;
         messageBody = `
           <p>Dear ${order.customerName},</p>
-          <p>Your garlic cloves have been cleanly peeled, quality-inspected, and vacuum-sealed for maximum aroma and shelf-life.</p>
-          <p>Handing over to courier logistics.</p>
+          <p>Your order <strong>#${order.orderNumber}</strong> has been fully processed, delivered, and successfully completed.</p>
+          <p>Thank you for choosing Organic Gold Garlic! If you need another fresh farm pack or bulk order refill, message us anytime on WhatsApp: +91 74885 03664.</p>
         `;
         break;
 

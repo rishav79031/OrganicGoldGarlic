@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import ProductsSection from "@/components/ProductsSection";
 import AboutSection from "@/components/AboutSection";
 import VideoSection from "@/components/VideoSection";
-import ProductsSection from "@/components/ProductsSection";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import EnquirySection from "@/components/EnquirySection";
 import ContactSection from "@/components/ContactSection";
@@ -22,13 +22,29 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#fbfaf5] overflow-x-hidden">
       <Navbar />
+      
+      {/* 1. Hero Section */}
       <HeroSection />
-      <AboutSection />
-      <VideoSection />
+
+      {/* 2. Buy Section (Products Section immediately after Hero) */}
       <ProductsSection />
+
+      {/* 3. Farm-to-Table Journey Section (AboutSection) placed after Buy */}
+      <AboutSection />
+
+      {/* 4. Commercial Video Section with Fast-Start Optimization */}
+      <VideoSection />
+
+      {/* 5. Why Choose Us */}
       <WhyChooseUs />
+
+      {/* 6. Bulk Order Enquiry Form */}
       <EnquirySection />
+
+      {/* 7. Contact Details */}
       <ContactSection />
+
+      {/* 8. Footer */}
       <Footer />
     </main>
   );

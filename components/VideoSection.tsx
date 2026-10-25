@@ -48,34 +48,36 @@ export default function VideoSection() {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold/15 text-gold-light border border-gold/30 text-xs font-bold uppercase tracking-[0.2em] mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-            <span>Behind The Scenes</span>
+            <span>Behind The Scenes Commercial</span>
           </div>
 
           <h2 className="font-brand text-3xl sm:text-5xl lg:text-6xl font-normal leading-tight mb-4">
-            Our Automated <br className="hidden sm:inline" />
+            Culinary Grade <br className="hidden sm:inline" />
             <span className="italic font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gold via-yellow-100 to-gold">
-              Garlic Peeling Process
+              Peeled Garlic in Motion
             </span>
           </h2>
 
           <p className="text-white/70 max-w-2xl mx-auto text-sm sm:text-base font-light leading-relaxed">
-            Witness how whole garlic bulbs are hygienically split, cleaned, gently air-peeled, and vacuum packed — delivering untouched purity from Bihar to your kitchen.
+            Watch our farm-fresh peeled garlic cloves ready for professional chefs and home kitchens. Fast-loading, highly optimized streaming.
           </p>
         </motion.div>
 
-        {/* 16:9 Responsive Modern Cinematic Player */}
+        {/* 16:9 Responsive Modern Cinematic Player with Fast-Start Stream */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative rounded-3xl sm:rounded-[36px] overflow-hidden border-2 border-gold/40 shadow-2xl bg-black/80 max-w-5xl mx-auto group"
+          className="relative rounded-3xl sm:rounded-[36px] overflow-hidden border-2 border-gold/40 shadow-2xl bg-black/90 max-w-5xl mx-auto group"
         >
           {/* Responsive 16:9 Aspect Ratio Container */}
           <div className="relative w-full aspect-video">
             <video
               ref={videoRef}
-              src="/garlic-processing.mp4"
+              src="/garlic-commercial-optimized.mp4"
+              poster="/product-pack-kitchen.webp"
+              preload="metadata"
               playsInline
               autoPlay
               muted
@@ -91,7 +93,7 @@ export default function VideoSection() {
             {/* Floating Top Badge */}
             <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-xs text-white/90">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-              <span className="text-[11px] uppercase tracking-wider font-semibold">Live Processing Animation</span>
+              <span className="text-[11px] uppercase tracking-wider font-semibold">Organic Gold Garlic Film</span>
             </div>
 
             {/* Custom Interactive Player Controls */}
@@ -120,7 +122,7 @@ export default function VideoSection() {
                 )}
               </button>
 
-              {/* Mute / Unmute & Quality Stamp */}
+              {/* Mute / Unmute & Quality Badge */}
               <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={toggleMute}
@@ -140,7 +142,7 @@ export default function VideoSection() {
                 </button>
 
                 <span className="hidden sm:inline-block text-[11px] uppercase tracking-widest text-gold-light/80 bg-black/60 px-3 py-1.5 rounded-full border border-white/10">
-                  100% Touchless Peeling
+                  Fast-Stream Optimized &bull; 720p HD
                 </span>
               </div>
             </div>
@@ -148,24 +150,24 @@ export default function VideoSection() {
           </div>
         </motion.div>
 
-        {/* 3 Step Process Highlights beneath Video */}
+        {/* 3 Value Pillars */}
         <div className="grid sm:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto text-center sm:text-left">
           <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
-            <span className="text-gold font-brand text-2xl font-bold block mb-1">01. Sorting</span>
+            <span className="text-gold font-brand text-2xl font-bold block mb-1">Pan-India Reach</span>
             <p className="text-xs text-white/70 leading-relaxed font-light">
-              Healthy bulbs handpicked and separated to remove stems and dry outer husks.
+              Doorstep supply across Bihar, Bengal, Delhi NCR, Mumbai & all major Indian hubs.
             </p>
           </div>
           <div className="p-5 rounded-2xl bg-white/[0.03] border border-gold/30">
-            <span className="text-gold font-brand text-2xl font-bold block mb-1">02. Air Peeling</span>
+            <span className="text-gold font-brand text-2xl font-bold block mb-1">Chef&apos;s Preference</span>
             <p className="text-xs text-white/70 leading-relaxed font-light">
-              High-velocity sanitary air vortex gently peels cloves without bruising or chemicals.
+              Zero water retention or chemical bleaching — delivers authentic pungent aroma.
             </p>
           </div>
           <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
-            <span className="text-gold font-brand text-2xl font-bold block mb-1">03. Vacuum Sealed</span>
+            <span className="text-gold font-brand text-2xl font-bold block mb-1">Time & Cost Saver</span>
             <p className="text-xs text-white/70 leading-relaxed font-light">
-              Airtight vacuum sealing locks in the fresh natural aroma for instant kitchen use.
+              Save up to 40% kitchen preparation labor costs in high-volume food service.
             </p>
           </div>
         </div>

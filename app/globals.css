@@ -7,6 +7,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -15,6 +16,7 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   h1,
@@ -39,35 +41,34 @@
   }
 }
 
-@layer utilities {
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #d4af37 0%, #f7e7a9 35%, #c59b27 70%, #9a7818 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+/* Steady Smooth Falling Garlic Animation */
+@keyframes steadyFall {
+  0% {
+    transform: translateY(-80px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.45;
+  }
+  90% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
   }
 }
 
-@keyframes floatSmooth {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(3deg);
-  }
+.animate-steady-fall {
+  animation: steadyFall linear infinite;
+  will-change: transform, opacity;
 }
 
-.animate-float-smooth {
-  animation: floatSmooth 7s ease-in-out infinite;
+/* Hide scrollbars for slick mobile horizontal carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #fbfaf5;
-}
-::-webkit-scrollbar-thumb {
-  background: #2a4732;
-  border-radius: 3px;
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

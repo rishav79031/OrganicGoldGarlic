@@ -13,13 +13,12 @@ const products = [
     badge: "Popular Pack",
     badgeColor: "bg-gold text-white",
     image: "/product-pack-studio.webp",
-    description:
-      "Carefully sorted, freshly peeled garlic cloves. Vacuum sealed for daily culinary use in home kitchens and small cafes.",
+    description: "Freshly peeled, vacuum sealed cloves for home cooking and daily curries.",
     features: [
       "100% natural peeled garlic",
       "No chemicals or bleaching",
-      "Ready to cook right from packet",
-      "Airtight hygienic vacuum pouch"
+      "Ready to cook straight from pouch",
+      "Airtight hygienic vacuum seal"
     ],
     border: "border-gold/30 hover:border-gold",
     glow: "shadow-gold/10",
@@ -34,13 +33,12 @@ const products = [
     badge: "Best Value",
     badgeColor: "bg-primary text-white",
     image: "/product-pack-kitchen.webp",
-    description:
-      "Our most recommended pack for large households, restaurants, caterers, and daily cooking lovers. Maximum freshness with bulk savings.",
+    description: "Our most economical pack for large families, chefs, caterers, and foodies.",
     features: [
       "High yield jumbo garlic cloves",
-      "Freshly peeled and packed same day",
-      "Direct farm sourced from Araria",
-      "Keeps crisp and aromatic"
+      "Freshly peeled and packed daily",
+      "Direct farm harvest from Bihar",
+      "Retains crisp aroma and punch"
     ],
     border: "border-primary/40 hover:border-primary",
     glow: "shadow-primary/10",
@@ -50,19 +48,18 @@ const products = [
     id: "bulk",
     name: "Commercial & Bulk Orders",
     price: "Custom Quote",
-    priceSub: "Competitive Rate • Enquire for Price",
+    priceSub: "Competitive Wholesale Rate",
     originalPrice: null,
     weight: "10 kg / 50 kg / 100+ kg",
     badge: "Pan-India Restaurant Supply",
     badgeColor: "bg-gradient-to-r from-amber-600 to-yellow-600 text-white",
     image: "/peeled-garlic-bowl.webp",
-    description:
-      "Exclusive volume rates for cloud kitchens, hotels, food processors, retail chains & supermarkets. Custom pouching & bulk crates available with Pan-India delivery.",
+    description: "Volume supply for cloud kitchens, restaurants, food manufacturers & retail chains.",
     features: [
-      "Tiered discount pricing on high volume",
-      "Continuous daily or weekly supply",
-      "Competitive wholesale institutional rates",
-      "Pan-India doorstep delivery to your kitchen"
+      "Tiered discount pricing on bulk",
+      "Scheduled continuous weekly supply",
+      "Competitive wholesale rates",
+      "Pan-India doorstep refrigerated logistics"
     ],
     border: "border-gold hover:border-gold-dark ring-2 ring-gold/20",
     glow: "shadow-gold/25",
@@ -72,7 +69,7 @@ const products = [
 ];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
 };
 
@@ -80,7 +77,7 @@ export default function ProductsSection() {
   return (
     <section
       id="products"
-      className="py-24 bg-gradient-to-b from-[#fbfaf5] via-amber-50/20 to-[#fbfaf5] relative overflow-hidden"
+      className="py-16 sm:py-24 bg-gradient-to-b from-[#fbfaf5] via-amber-50/20 to-[#fbfaf5] relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -90,122 +87,126 @@ export default function ProductsSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10 sm:mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold/15 text-gold-dark text-xs font-bold tracking-[0.2em] uppercase mb-3 border border-gold/30">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/15 text-gold-dark text-[11px] font-bold tracking-[0.2em] uppercase mb-2 sm:mb-3 border border-gold/30">
             <span>✨ Farm-Fresh Peeled Garlic</span>
           </div>
-          <h2 className="font-brand text-3xl sm:text-5xl font-bold text-primary mb-4">
-            Buy Premium Peeled Garlic Packs
+          <h2 className="font-brand text-3xl sm:text-5xl font-bold text-primary mb-3">
+            Buy Premium Peeled Garlic
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg font-light leading-relaxed">
-            Choose from kitchen convenience sizes to wholesale restaurant supply. Handpicked, hygienic, and ready to cook.
+          <p className="text-gray-600 max-w-xl mx-auto text-xs sm:text-base font-light leading-relaxed">
+            Hygienically sorted and air-peeled. Order individual family packs or commercial wholesale supply.
           </p>
         </motion.div>
 
-        {/* Triple Banner Showcase */}
+        {/* Wholesale & Retail Featured Showcase Banner (Refined for Mobile & Desktop) */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="mb-14 rounded-3xl overflow-hidden border border-gold/30 shadow-xl relative h-48 sm:h-64 lg:h-80"
+          className="mb-10 sm:mb-14 rounded-3xl overflow-hidden border border-gold/30 shadow-xl relative bg-[#08130b]"
         >
-          <Image
-            src="/product-banner-triple.webp"
-            alt="Buy Peeled Garlic Packs - Organic Gold Garlic"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 flex items-center justify-between px-6 sm:px-12 text-white">
-            <div>
-              <span className="text-xs uppercase tracking-[0.25em] text-gold-light font-medium block mb-1">
-                Wholesale & Retail
-              </span>
-              <h3 className="font-brand text-2xl sm:text-4xl font-bold">
-                Fresh & Clean Peeled Garlic
-              </h3>
+          <div className="relative w-full h-56 sm:h-72 lg:h-80">
+            <Image
+              src="/product-banner-triple.webp"
+              alt="Wholesale & Retail Fresh Peeled Garlic"
+              fill
+              sizes="100vw"
+              className="object-cover opacity-85"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/40 to-black/75 flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 sm:p-10 text-white">
+              <div className="max-w-md">
+                <span className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] text-gold-light font-bold mb-1.5 px-2.5 py-0.5 rounded bg-gold/20 border border-gold/30">
+                  Wholesale &bull; Retail &bull; Foodservice
+                </span>
+                <h3 className="font-brand text-2xl sm:text-4xl font-bold leading-tight mb-2">
+                  Fresh & Clean Peeled Garlic
+                </h3>
+                <p className="text-white/80 text-xs sm:text-sm font-light leading-relaxed">
+                  Available in standard 250g & 1kg consumer pouches or custom 10kg+ bulk crates with Pan-India dispatch.
+                </p>
+              </div>
+
+              <div className="mt-4 sm:mt-0 flex gap-2 w-full sm:w-auto">
+                <a
+                  href="#enquiry"
+                  className="w-full sm:w-auto text-center px-6 py-2.5 rounded-full bg-gold hover:bg-gold-light text-[#08130b] text-xs uppercase tracking-widest font-bold shadow-lg transition-colors"
+                >
+                  Bulk Enquiry &rarr;
+                </a>
+              </div>
             </div>
-            <a
-              href="#enquiry"
-              className="hidden sm:inline-block px-6 py-2.5 rounded-full bg-gold hover:bg-gold-light text-[#08130b] text-xs uppercase tracking-widest font-bold shadow-lg transition-colors"
-            >
-              Order Now &rarr;
-            </a>
           </div>
         </motion.div>
 
-        {/* Product Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-8 items-stretch">
+        {/* Product Cards: Horizontal Swipe Carousel on Mobile, 3-Col Grid on Desktop */}
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
           {products.map((product, index) => (
             <motion.div
               key={product.id}
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7, delay: index * 0.15 }}
-              className={`relative flex flex-col justify-between rounded-3xl bg-white border-2 ${product.border} p-6 sm:p-7 shadow-xl ${product.glow} transition-all duration-300 hover:-translate-y-2`}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className={`min-w-[85vw] sm:min-w-0 snap-center flex flex-col justify-between rounded-3xl bg-white border-2 ${product.border} p-5 sm:p-7 shadow-lg ${product.glow} transition-all duration-300`}
             >
-              {/* Badge */}
-              <div className="flex justify-between items-start mb-4">
-                <span className={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider ${product.badgeColor}`}>
-                  {product.badge}
-                </span>
-                <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md">
-                  {product.weight}
-                </span>
-              </div>
-
-              {/* Product Pack Photo in WebP */}
-              <div className="relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-amber-50 to-emerald-50 border border-gold/15 group">
-                <Image
-                  src={product.image}
-                  alt={`${product.name} - Buy Peeled Garlic`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                
-                <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-lg border border-gold/30">
-                  <span className="text-xs font-bold text-primary">100% Pure 🧄</span>
+              <div>
+                {/* Badge Row */}
+                <div className="flex justify-between items-start mb-3">
+                  <span className={`text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider ${product.badgeColor}`}>
+                    {product.badge}
+                  </span>
+                  <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md">
+                    {product.weight}
+                  </span>
                 </div>
-              </div>
 
-              {/* Product Info */}
-              <div className="flex-1">
-                <h3 className="font-brand text-2xl font-bold text-primary mb-1">
+                {/* Product Photo */}
+                <div className="relative w-full h-48 sm:h-56 rounded-2xl overflow-hidden mb-4 bg-amber-50/40 border border-gold/15">
+                  <Image
+                    src={product.image}
+                    alt={`${product.name} - Buy Peeled Garlic`}
+                    fill
+                    sizes="(max-width: 768px) 85vw, 33vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                </div>
+
+                {/* Info */}
+                <h3 className="font-brand text-xl sm:text-2xl font-bold text-primary mb-1">
                   {product.name}
                 </h3>
 
-                {/* Price Display */}
-                <div className="my-3 py-2 border-y border-gold/15 flex items-baseline gap-2">
-                  <span className={`font-brand font-bold ${product.isBulk ? "text-xl text-gold-dark" : "text-3xl text-primary"}`}>
+                {/* Price */}
+                <div className="my-2.5 py-2 border-y border-gold/15 flex items-baseline gap-2">
+                  <span className={`font-brand font-bold ${product.isBulk ? "text-lg text-gold-dark" : "text-2xl sm:text-3xl text-primary"}`}>
                     {product.price}
                   </span>
                   {product.originalPrice && (
-                    <span className="text-sm text-gray-400 line-through">
+                    <span className="text-xs sm:text-sm text-gray-400 line-through">
                       {product.originalPrice}
                     </span>
                   )}
                   {product.priceSub && (
-                    <span className="text-xs font-semibold text-gold-dark block mt-0.5">
+                    <span className="text-[11px] font-semibold text-gold-dark block">
                       {product.priceSub}
                     </span>
                   )}
                 </div>
 
-                <p className="text-gray-600 text-sm leading-relaxed mb-5">
+                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-4">
                   {product.description}
                 </p>
 
-                {/* Bullet Features */}
-                <ul className="space-y-2 mb-6">
+                {/* Features */}
+                <ul className="space-y-1.5 mb-5">
                   {product.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                    <li key={feat} className="flex items-start gap-1.5 text-xs text-gray-700">
                       <span className="text-gold-dark font-bold mt-0.5">✓</span>
                       <span>{feat}</span>
                     </li>
@@ -213,13 +214,13 @@ export default function ProductsSection() {
                 </ul>
               </div>
 
-              {/* Actions */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
+              {/* Action Button */}
+              <div className="pt-2 border-t border-gray-100">
                 <a
                   href={`https://wa.me/917488503664?text=${encodeURIComponent(product.orderMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-md hover:shadow-lg uppercase tracking-wider ${
+                  className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-md uppercase tracking-wider ${
                     product.isBulk
                       ? "bg-gradient-to-r from-gold-dark to-amber-600 hover:from-amber-600 hover:to-gold-dark"
                       : "bg-primary hover:bg-primary-dark"
@@ -235,32 +236,11 @@ export default function ProductsSection() {
           ))}
         </div>
 
-        {/* Bottom Banner */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mt-14 bg-gradient-to-r from-[#08130b] via-primary-dark to-[#08130b] text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-2 border-gold/40 shadow-xl"
-        >
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">🏆</span>
-              <h3 className="font-brand text-xl sm:text-2xl font-bold text-gold-light">
-                Restaurant, Hotel or Cloud Kitchen?
-              </h3>
-            </div>
-            <p className="text-white/80 text-xs sm:text-sm max-w-2xl leading-relaxed font-light">
-              We offer competitive wholesale rates, scheduled weekly deliveries, and Pan-India distribution directly from our peeling unit.
-            </p>
-          </div>
-          <a
-            href="tel:7488503664"
-            className="shrink-0 px-6 py-3 bg-gold hover:bg-gold-light text-[#08130b] font-bold rounded-full shadow-lg transition-all text-xs uppercase tracking-widest"
-          >
-            Call: +91 74885 03664
-          </a>
-        </motion.div>
+        {/* Mobile Swipe Hint */}
+        <div className="sm:hidden text-center mt-3 text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+          <span>&larr; Swipe packs to explore &rarr;</span>
+        </div>
+
       </div>
     </section>
   );

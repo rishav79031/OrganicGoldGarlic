@@ -10,11 +10,13 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("rishav79031@gmail.com");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMessage(null);
     setLoading(true);
     try {
       const res = await fetch("/api/admin/login", {
@@ -29,10 +31,21 @@ export default function AdminLoginPage() {
         router.refresh();
       } else {
         const data = (await res.json()) as { error?: string };
-        toast.error(data.error ?? "Invalid credentials");
+        const msg = data.error ?? "Invalid credentials. Please check your password.";
+        setErrorMessage(msg);
+        toast.error(msg, {
+          icon: "⚠️",
+          style: {
+            background: "#450a0a",
+            color: "#fecaca",
+            border: "1px solid #ef4444",
+          },
+        });
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      const msg = "Something went wrong. Please check your network and try again.";
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -102,10 +115,17 @@ export default function AdminLoginPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMessage(null);
+                }}
                 placeholder="Enter your password"
                 required
-                className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold"
+                className={`w-full px-4 py-3 pr-11 border rounded-xl text-gray-800 text-sm focus:outline-none transition-colors ${
+                  errorMessage
+                    ? "border-red-400 focus:border-red-500 bg-red-50/20"
+                    : "border-gray-200 focus:border-gold"
+                }`}
               />
               <button
                 type="button"
@@ -129,6 +149,13 @@ export default function AdminLoginPage() {
               </button>
             </div>
           </div>
+
+          {errorMessage && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <span className="text-base shrink-0">⚠️</span>
+              <span className="font-medium">{errorMessage}</span>
+            </div>
+          )}
 
           <button
             type="submit"

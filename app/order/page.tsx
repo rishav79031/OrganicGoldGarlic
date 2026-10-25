@@ -6,9 +6,9 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 const PACK_OPTIONS = [
-  { id: "250g", name: "250g Fresh Peeled Pack", price: 100, priceDisplay: "₹100", sub: "Kitchen Pack" },
-  { id: "1kg", name: "1 kg Value Pack", price: 200, priceDisplay: "₹200", sub: "Chef & Family Pack", popular: true },
-  { id: "Bulk", name: "Bulk Commercial Pack", price: 180, priceDisplay: "₹180 / kg", sub: "Restaurants & Catering (10kg+)" },
+  { id: "250g", name: "250g Fresh Peeled Pack", sub: "Kitchen Pack", note: "Price confirmed in invoice" },
+  { id: "1kg", name: "1 kg Value Pack", sub: "Chef & Family Pack", popular: true, note: "Price confirmed in invoice" },
+  { id: "Bulk", name: "Bulk Commercial Pack", sub: "Restaurants & Catering (10kg+)", note: "Wholesale rate in invoice" },
 ];
 
 export default function OrderPage() {
@@ -17,9 +17,9 @@ export default function OrderPage() {
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<{
     orderNumber: string;
-    totalAmount: number;
     customerName: string;
     product: string;
+    quantity: number;
   } | null>(null);
 
   const [formData, setFormData] = useState({
@@ -34,7 +34,6 @@ export default function OrderPage() {
   });
 
   const currentPack = PACK_OPTIONS.find((p) => p.id === selectedPack) ?? PACK_OPTIONS[1];
-  const totalAmount = currentPack.price * quantity;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,8 +51,6 @@ export default function OrderPage() {
           ...formData,
           product: currentPack.name,
           quantity,
-          totalAmount,
-          paymentStatus: "COD",
         }),
       });
 
@@ -62,9 +59,9 @@ export default function OrderPage() {
         toast.success(data.message);
         setOrderSuccess({
           orderNumber: data.order.orderNumber,
-          totalAmount: data.order.totalAmount,
           customerName: data.order.customerName,
           product: data.order.product,
+          quantity: data.order.quantity,
         });
       } else {
         toast.error(data.error || "Could not place order. Please try again.");
@@ -105,26 +102,30 @@ export default function OrderPage() {
               ✓
             </div>
             <span className="text-xs uppercase tracking-widest text-emerald-700 font-bold block mb-1">
-              Order Confirmed & Logged
+              Order Received & Registered
             </span>
             <h2 className="font-brand text-2xl sm:text-4xl font-bold text-primary mb-2">
               Order #{orderSuccess.orderNumber}
             </h2>
-            <p className="text-gray-600 text-sm max-w-md mx-auto mb-6">
+            <p className="text-gray-600 text-sm max-w-md mx-auto mb-2">
               Thank you, <strong className="text-gray-800">{orderSuccess.customerName}</strong>! Your order for{" "}
-              <strong>{orderSuccess.product}</strong> (₹{orderSuccess.totalAmount}) is registered in our dispatch system.
+              <strong>{orderSuccess.product} ({orderSuccess.quantity} {orderSuccess.quantity > 1 ? "packs" : "pack"})</strong> has been received by our dispatch team.
             </p>
+            <div className="bg-amber-50 border border-gold/30 rounded-2xl p-4 max-w-md mx-auto mb-6 text-xs text-amber-900">
+              <span className="font-bold block mb-1">📜 Price Confirmation</span>
+              Price will be confirmed in your official invoice shortly. You will also receive dispatch tracking upon shipping.
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
               <a
                 href={`https://wa.me/917488503664?text=${encodeURIComponent(
-                  `Hi Organic Gold Garlic, I just placed Order #${orderSuccess.orderNumber} for ${orderSuccess.product} (Total: ₹${orderSuccess.totalAmount}). Please confirm dispatch details.`
+                  `Hi Organic Gold Garlic, I just placed Order #${orderSuccess.orderNumber} for ${orderSuccess.product} (Qty: ${orderSuccess.quantity}). Please share the confirmed invoice and dispatch update.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold uppercase tracking-wider shadow-lg flex items-center justify-center gap-2"
               >
-                Track on WhatsApp &rarr;
+                Track on WhatsApp →
               </a>
               <Link
                 href="/"
@@ -163,7 +164,9 @@ export default function OrderPage() {
                       )}
                       <p className="font-brand font-bold text-base text-gray-900">{pack.name}</p>
                       <p className="text-xs text-gray-500 mb-2">{pack.sub}</p>
-                      <p className="text-lg font-bold text-primary">{pack.priceDisplay}</p>
+                      <span className="inline-block text-xs font-semibold text-gold-dark bg-gold/10 px-2 py-1 rounded-md">
+                        {pack.note}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -230,7 +233,7 @@ export default function OrderPage() {
                     <label className="block text-xs font-medium text-gray-600 mb-1">Email Address (Optional)</label>
                     <input
                       type="email"
-                      placeholder="For invoice & delivery updates"
+                      placeholder="For automated invoice & dispatch notifications"
                       value={formData.customerEmail}
                       onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-gold"
@@ -274,13 +277,18 @@ export default function OrderPage() {
               {/* Step 4: Summary & Submit */}
               <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <span className="text-xs text-gray-500 uppercase tracking-wider block">Estimated Total</span>
-                  <div className="flex items-baseline gap-2">
-                    <strong className="text-3xl font-brand font-bold text-primary">₹{totalAmount}</strong>
-                    <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded">
-                      Pay on Delivery (Cash / UPI)
+                  <span className="text-xs text-gray-500 uppercase tracking-wider block font-semibold">Pricing Note</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <strong className="text-base sm:text-lg font-brand font-bold text-primary">
+                      Price will be confirmed in invoice
+                    </strong>
+                    <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded w-fit">
+                      Direct Farm Rates
                     </span>
                   </div>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    Invoice with exact mandi rates & logistics will be dispatched to your phone/email.
+                  </p>
                 </div>
 
                 <button
@@ -288,7 +296,7 @@ export default function OrderPage() {
                   disabled={loading}
                   className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-bold uppercase tracking-widest shadow-xl transition-all disabled:opacity-50"
                 >
-                  {loading ? "Confirming Order..." : "Place Order Now →"}
+                  {loading ? "Registering Order..." : "Place Order Now →"}
                 </button>
               </div>
 

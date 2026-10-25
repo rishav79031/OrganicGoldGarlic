@@ -26,6 +26,12 @@ interface OrderItem {
   totalAmount: number;
   status: string;
   paymentStatus: string;
+  invoiceNumber?: string | null;
+  invoiceAmount?: number | null;
+  invoiceDate?: string | null;
+  courierName?: string | null;
+  trackingNumber?: string | null;
+  shippingDetails?: string | null;
   notes: string | null;
   createdAt: string;
 }
@@ -47,14 +53,27 @@ interface DashboardStats {
   totalEnquiries: number;
   pendingEnquiries: number;
   totalOrders: number;
-  pendingOrders: number;
-  confirmedOrders: number;
-  processingOrders: number;
-  shippedOrders: number;
-  deliveredOrders: number;
-  cancelledOrders: number;
+  orderReceivedCount: number;
+  orderAcceptedCount: number;
+  invoiceGeneratedCount: number;
+  paymentReceivedCount: number;
+  orderProcessedCount: number;
+  shippedCount: number;
+  deliveredCount: number;
+  cancelledCount: number;
   totalRevenue: number;
 }
+
+const SHOPIFY_STATUSES = [
+  "Order Received",
+  "Order Accepted",
+  "Invoice Generated",
+  "Payment Received",
+  "Order Processed",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+] as const;
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "add-order" | "enquiries" | "users" | "settings">("dashboard");
@@ -67,6 +86,25 @@ export default function AdminDashboard() {
   const [orderFilter, setOrderFilter] = useState("All");
   const router = useRouter();
 
+  // Invoice Modal State
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<OrderItem | null>(null);
+  const [invoiceForm, setInvoiceForm] = useState({
+    invoiceNumber: "",
+    invoiceAmount: 0,
+    notes: "",
+  });
+
+  // Invoice Preview / Print Modal State
+  const [previewInvoiceOrder, setPreviewInvoiceOrder] = useState<OrderItem | null>(null);
+
+  // Shipping Modal State
+  const [selectedOrderForShipping, setSelectedOrderForShipping] = useState<OrderItem | null>(null);
+  const [shippingForm, setShippingForm] = useState({
+    courierName: "Delhivery Express",
+    trackingNumber: "",
+    shippingDetails: "Standard refrigerated / express garlic parcel dispatch.",
+  });
+
   // Add Order Form State
   const [newOrder, setNewOrder] = useState({
     customerName: "",
@@ -74,11 +112,11 @@ export default function AdminDashboard() {
     customerEmail: "",
     deliveryAddress: "",
     city: "Araria",
-    product: "1 kg Pack",
+    product: "1 kg Value Pack",
     quantity: 1,
-    totalAmount: 200,
-    status: "Confirmed",
-    paymentStatus: "COD",
+    totalAmount: 0,
+    status: "Order Received",
+    paymentStatus: "Pending",
     notes: "",
   });
 
@@ -114,7 +152,7 @@ export default function AdminDashboard() {
       if (statsData.user) setUser(statsData.user);
       if (statsData.stats) setStats(statsData.stats);
 
-      const ordersRes = await fetch(`/api/admin/orders?status=${orderFilter}`);
+      const ordersRes = await fetch(`/api/admin/orders?status=${encodeURIComponent(orderFilter)}`);
       const ordersData = await ordersRes.json();
       if (ordersData.orders) setOrders(ordersData.orders);
 
@@ -144,6 +182,20 @@ export default function AdminDashboard() {
   }
 
   async function updateOrderStatus(orderId: number, newStatus: string) {
+    const targetOrder = orders.find((o) => o.id === orderId);
+
+    // If changing to Invoice Generated and no invoice exists, prompt invoice modal
+    if (newStatus === "Invoice Generated" && !targetOrder?.invoiceNumber) {
+      openInvoiceModal(targetOrder!);
+      return;
+    }
+
+    // If changing to Shipped, prompt shipping modal
+    if (newStatus === "Shipped") {
+      openShippingModal(targetOrder!);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
@@ -152,13 +204,88 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message);
+        toast.success(data.message || `Order status updated to ${newStatus}`);
         loadDashboardData();
       } else {
-        toast.error(data.error);
+        toast.error(data.error || "Failed to update order status");
       }
     } catch {
       toast.error("Failed to update status");
+    }
+  }
+
+  function openInvoiceModal(order: OrderItem) {
+    setSelectedOrderForInvoice(order);
+    const defaultAmount = order.invoiceAmount || order.totalAmount || (order.quantity * 200);
+    setInvoiceForm({
+      invoiceNumber: order.invoiceNumber || `INV-${order.orderNumber.replace("OGG-", "")}`,
+      invoiceAmount: defaultAmount,
+      notes: order.notes || "Official tax & mandi invoice generated.",
+    });
+  }
+
+  async function handleGenerateInvoiceSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedOrderForInvoice) return;
+
+    try {
+      const res = await fetch(`/api/admin/orders/${selectedOrderForInvoice.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "Invoice Generated",
+          invoiceNumber: invoiceForm.invoiceNumber,
+          invoiceAmount: Number(invoiceForm.invoiceAmount),
+          notes: invoiceForm.notes,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Invoice ${invoiceForm.invoiceNumber} generated & sent to customer!`);
+        setSelectedOrderForInvoice(null);
+        loadDashboardData();
+      } else {
+        toast.error(data.error || "Failed to generate invoice");
+      }
+    } catch {
+      toast.error("Failed to generate invoice");
+    }
+  }
+
+  function openShippingModal(order: OrderItem) {
+    setSelectedOrderForShipping(order);
+    setShippingForm({
+      courierName: order.courierName || "Delhivery Logistics",
+      trackingNumber: order.trackingNumber || `AWB-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      shippingDetails: order.shippingDetails || "Refrigerated hygienic packing for farm fresh delivery.",
+    });
+  }
+
+  async function handleSaveShippingSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedOrderForShipping) return;
+
+    try {
+      const res = await fetch(`/api/admin/orders/${selectedOrderForShipping.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "Shipped",
+          courierName: shippingForm.courierName,
+          trackingNumber: shippingForm.trackingNumber,
+          shippingDetails: shippingForm.shippingDetails,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Order marked as Shipped! Tracking emailed to customer.`);
+        setSelectedOrderForShipping(null);
+        loadDashboardData();
+      } else {
+        toast.error(data.error || "Failed to save shipping details");
+      }
+    } catch {
+      toast.error("Failed to save shipping details");
     }
   }
 
@@ -179,11 +306,11 @@ export default function AdminDashboard() {
           customerEmail: "",
           deliveryAddress: "",
           city: "Araria",
-          product: "1 kg Pack",
+          product: "1 kg Value Pack",
           quantity: 1,
-          totalAmount: 200,
-          status: "Confirmed",
-          paymentStatus: "COD",
+          totalAmount: 0,
+          status: "Order Received",
+          paymentStatus: "Pending",
           notes: "",
         });
         setActiveTab("orders");
@@ -248,7 +375,7 @@ export default function AdminDashboard() {
         toast.error(data.error);
       }
     } catch {
-      toast.error("Verification failed");
+      toast.error("Failed to reset password");
     }
   }
 
@@ -273,97 +400,91 @@ export default function AdminDashboard() {
     }
   }
 
+  function getStatusBadgeClass(status: string) {
+    switch (status) {
+      case "Order Received":
+        return "bg-amber-50 text-amber-800 border-amber-300";
+      case "Order Accepted":
+        return "bg-blue-50 text-blue-800 border-blue-300";
+      case "Invoice Generated":
+        return "bg-yellow-50 text-yellow-800 border-yellow-400";
+      case "Payment Received":
+        return "bg-teal-50 text-teal-800 border-teal-300";
+      case "Order Processed":
+        return "bg-purple-50 text-purple-800 border-purple-300";
+      case "Shipped":
+        return "bg-indigo-50 text-indigo-800 border-indigo-300";
+      case "Delivered":
+        return "bg-emerald-50 text-emerald-800 border-emerald-300";
+      case "Cancelled":
+        return "bg-red-50 text-red-800 border-red-300";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-300";
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[#f7f6f0] text-gray-800 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#f8f9fa] flex flex-col md:flex-row text-gray-800">
       
-      {/* Collapsible Modern Sidebar */}
+      {/* SIDEBAR NAVIGATION */}
       <aside
         className={`${
           sidebarOpen ? "w-64" : "w-20"
-        } transition-all duration-300 bg-[#08130b] text-white flex flex-col justify-between shrink-0 border-r border-gold/20 select-none`}
+        } transition-all duration-300 bg-[#08130b] text-white flex flex-col justify-between p-4 sticky top-0 h-screen z-40 border-r border-gold/20`}
       >
         <div>
-          {/* Brand & Collapse Toggle */}
-          <div className="p-4 border-b border-white/10 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 overflow-hidden">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden border border-gold/60 shrink-0">
-                <Image src="/logo.png" alt="Organic Gold Garlic" fill className="object-contain" />
+          {/* Logo Brand */}
+          <div className="flex items-center gap-3 pb-6 border-b border-white/10">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gold shrink-0">
+              <Image src="/logo.png" alt="Organic Gold Garlic" fill className="object-contain" />
+            </div>
+            {sidebarOpen && (
+              <div className="overflow-hidden">
+                <h1 className="font-logo text-xs font-bold tracking-widest text-gold uppercase truncate">
+                  Organic Gold Garlic
+                </h1>
+                <span className="text-[10px] text-gray-400 tracking-wider uppercase block">
+                  Shopify Order System
+                </span>
               </div>
-              {sidebarOpen && (
-                <div className="leading-tight">
-                  <span className="font-logo text-xs font-bold text-white tracking-widest uppercase block">
-                    Gold Garlic
-                  </span>
-                  <span className="text-[9px] text-gold-light uppercase tracking-wider block">
-                    Admin Portal
-                  </span>
-                </div>
-              )}
-            </Link>
-
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-              title={sidebarOpen ? "Collapse Menu" : "Expand Menu"}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sidebarOpen ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 5l7 7-7 7M5 5l7 7-7 7"} />
-              </svg>
-            </button>
+            )}
           </div>
 
-          {/* Current User Badge */}
-          {sidebarOpen && user && (
-            <div className="p-3 mx-3 my-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-between text-xs">
-              <div className="overflow-hidden">
-                <p className="font-semibold text-white truncate">{user.name}</p>
-                <p className="text-[10px] text-gold-light font-medium uppercase tracking-wider">{user.role}</p>
-              </div>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            </div>
-          )}
-
-          {/* Navigation Links */}
-          <nav className="p-3 space-y-1.5">
+          {/* Nav Items */}
+          <nav className="mt-6 space-y-1 text-xs">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
-                activeTab === "dashboard"
-                  ? "bg-gold text-[#08130b] font-bold shadow-md"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium ${
+                activeTab === "dashboard" ? "bg-gold text-[#08130b] font-bold shadow" : "text-gray-300 hover:bg-white/5"
               }`}
             >
               <span className="text-base">📊</span>
-              {sidebarOpen && <span>Dashboard</span>}
+              {sidebarOpen && <span>Overview</span>}
             </button>
 
             <button
               onClick={() => setActiveTab("orders")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
-                activeTab === "orders"
-                  ? "bg-gold text-[#08130b] font-bold shadow-md"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium ${
+                activeTab === "orders" ? "bg-gold text-[#08130b] font-bold shadow" : "text-gray-300 hover:bg-white/5"
               }`}
             >
               <span className="text-base">📦</span>
               {sidebarOpen && (
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between flex-1">
                   <span>Orders</span>
-                  {stats?.pendingOrders ? (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500 text-white font-bold">
-                      {stats.pendingOrders}
+                  {stats && stats.totalOrders > 0 && (
+                    <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                      {stats.totalOrders}
                     </span>
-                  ) : null}
+                  )}
                 </div>
               )}
             </button>
 
             <button
               onClick={() => setActiveTab("add-order")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
-                activeTab === "add-order"
-                  ? "bg-gold text-[#08130b] font-bold shadow-md"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium ${
+                activeTab === "add-order" ? "bg-gold text-[#08130b] font-bold shadow" : "text-gray-300 hover:bg-white/5"
               }`}
             >
               <span className="text-base">➕</span>
@@ -372,87 +493,88 @@ export default function AdminDashboard() {
 
             <button
               onClick={() => setActiveTab("enquiries")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
-                activeTab === "enquiries"
-                  ? "bg-gold text-[#08130b] font-bold shadow-md"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium ${
+                activeTab === "enquiries" ? "bg-gold text-[#08130b] font-bold shadow" : "text-gray-300 hover:bg-white/5"
               }`}
             >
-              <span className="text-base">✉️</span>
+              <span className="text-base">💬</span>
               {sidebarOpen && (
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between flex-1">
                   <span>Enquiries</span>
-                  {stats?.pendingEnquiries ? (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500 text-white font-bold">
+                  {stats && stats.pendingEnquiries > 0 && (
+                    <span className="bg-red-500/20 text-red-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
                       {stats.pendingEnquiries}
                     </span>
-                  ) : null}
+                  )}
                 </div>
               )}
             </button>
 
-            {/* Users & Authorization (Superadmin & Admin only) */}
-            {(user?.role === "Superadmin" || user?.role === "Admin") && (
-              <button
-                onClick={() => setActiveTab("users")}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
-                  activeTab === "users"
-                    ? "bg-gold text-[#08130b] font-bold shadow-md"
-                    : "text-gray-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <span className="text-base">👥</span>
-                {sidebarOpen && <span>Users & Roles</span>}
-              </button>
-            )}
+            <button
+              onClick={() => setActiveTab("users")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium ${
+                activeTab === "users" ? "bg-gold text-[#08130b] font-bold shadow" : "text-gray-300 hover:bg-white/5"
+              }`}
+            >
+              <span className="text-base">👥</span>
+              {sidebarOpen && <span>Team & Access</span>}
+            </button>
 
-            {/* Settings (Superadmin only) */}
             {user?.role === "Superadmin" && (
               <button
                 onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
-                  activeTab === "settings"
-                    ? "bg-gold text-[#08130b] font-bold shadow-md"
-                    : "text-gray-300 hover:bg-white/10 hover:text-white"
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium ${
+                  activeTab === "settings" ? "bg-gold text-[#08130b] font-bold shadow" : "text-gray-300 hover:bg-white/5"
                 }`}
               >
                 <span className="text-base">⚙️</span>
-                {sidebarOpen && <span>Settings</span>}
+                {sidebarOpen && <span>Settings & OTP</span>}
               </button>
             )}
           </nav>
         </div>
 
-        {/* Footer of Sidebar */}
-        <div className="p-3 border-t border-white/10 space-y-2">
-          <Link
-            href="/"
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <span>🌐</span>
-            {sidebarOpen && <span>Visit Website</span>}
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-          >
-            <span>🚪</span>
-            {sidebarOpen && <span>Logout</span>}
-          </button>
+        {/* Footer Sidebar / User Info */}
+        <div className="pt-4 border-t border-white/10">
+          {sidebarOpen && user && (
+            <div className="mb-3 px-2">
+              <p className="text-xs font-bold text-white truncate">{user.name}</p>
+              <span className="text-[10px] text-gold uppercase tracking-wider block font-semibold">{user.role}</span>
+              <span className="text-[9px] text-gray-400 truncate block">{user.email}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white text-xs"
+              title="Toggle sidebar"
+            >
+              {sidebarOpen ? "◀ Collapse" : "▶"}
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 text-xs font-medium"
+              title="Sign out"
+            >
+              {sidebarOpen ? "Sign Out" : "🚪"}
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-7xl">
         
-        {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-gray-200 gap-4">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
           <div>
             <h1 className="font-brand text-2xl sm:text-3xl font-bold text-primary capitalize">
               {activeTab === "dashboard" ? "Admin Overview" : activeTab.replace("-", " ")}
             </h1>
             <p className="text-xs text-gray-500 mt-0.5">
-              Organic Gold Garlic &bull; Shivpuri Ward 09, Araria &bull; Pan-India Dispatch System
+              Organic Gold Garlic &bull; Shivpuri Ward 09, Araria, Bihar &bull; Pan-India Dispatch System
             </p>
           </div>
 
@@ -482,55 +604,71 @@ export default function AdminDashboard() {
               <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
                 <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Total Revenue</span>
                 <p className="text-2xl sm:text-3xl font-brand font-bold text-primary mt-1">₹{stats?.totalRevenue ?? 0}</p>
-                <span className="text-[11px] text-emerald-600 font-medium">From fulfilled orders</span>
+                <span className="text-[11px] text-emerald-600 font-medium">Invoiced & fulfilled orders</span>
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
                 <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Total Orders</span>
                 <p className="text-2xl sm:text-3xl font-brand font-bold text-primary mt-1">{stats?.totalOrders ?? 0}</p>
-                <span className="text-[11px] text-gray-500 font-medium">{stats?.deliveredOrders ?? 0} Delivered</span>
+                <span className="text-[11px] text-gray-500 font-medium">{stats?.deliveredCount ?? 0} Delivered</span>
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Pending Orders</span>
-                <p className="text-2xl sm:text-3xl font-brand font-bold text-amber-600 mt-1">{stats?.pendingOrders ?? 0}</p>
-                <span className="text-[11px] text-amber-600 font-medium">Awaiting confirmation</span>
+                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Awaiting Invoice</span>
+                <p className="text-2xl sm:text-3xl font-brand font-bold text-amber-600 mt-1">
+                  {(stats?.orderReceivedCount ?? 0) + (stats?.orderAcceptedCount ?? 0)}
+                </p>
+                <span className="text-[11px] text-amber-600 font-medium">Ready for invoice creation</span>
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Enquiries</span>
+                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Direct Enquiries</span>
                 <p className="text-2xl sm:text-3xl font-brand font-bold text-primary mt-1">{stats?.totalEnquiries ?? 0}</p>
                 <span className="text-[11px] text-red-500 font-medium">{stats?.pendingEnquiries ?? 0} Pending callbacks</span>
               </div>
             </div>
 
-            {/* Order Status Breakdown Cards */}
+            {/* Shopify Standard Order Status Pipeline */}
             <div>
-              <h3 className="font-brand text-lg font-bold text-primary mb-3">Order Status Pipeline</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div className="bg-white p-4 rounded-xl border border-amber-200 text-center">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium block">Pending</span>
-                  <strong className="text-xl font-bold text-amber-600">{stats?.pendingOrders ?? 0}</strong>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-brand text-lg font-bold text-primary">Shopify Order Lifecycle Pipeline</h3>
+                <span className="text-xs text-gray-400 font-medium">7 E-Commerce Stages</span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+                <div className="bg-white p-3.5 rounded-xl border border-amber-200 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">1. Received</span>
+                  <strong className="text-lg font-bold text-amber-600">{stats?.orderReceivedCount ?? 0}</strong>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-blue-200 text-center">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium block">Confirmed</span>
-                  <strong className="text-xl font-bold text-blue-600">{stats?.confirmedOrders ?? 0}</strong>
+
+                <div className="bg-white p-3.5 rounded-xl border border-blue-200 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">2. Accepted</span>
+                  <strong className="text-lg font-bold text-blue-600">{stats?.orderAcceptedCount ?? 0}</strong>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-purple-200 text-center">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium block">Processing</span>
-                  <strong className="text-xl font-bold text-purple-600">{stats?.processingOrders ?? 0}</strong>
+
+                <div className="bg-white p-3.5 rounded-xl border border-yellow-300 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">3. Invoiced</span>
+                  <strong className="text-lg font-bold text-yellow-700">{stats?.invoiceGeneratedCount ?? 0}</strong>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-indigo-200 text-center">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium block">Shipped</span>
-                  <strong className="text-xl font-bold text-indigo-600">{stats?.shippedOrders ?? 0}</strong>
+
+                <div className="bg-white p-3.5 rounded-xl border border-teal-200 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">4. Paid</span>
+                  <strong className="text-lg font-bold text-teal-600">{stats?.paymentReceivedCount ?? 0}</strong>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-emerald-200 text-center">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium block">Delivered</span>
-                  <strong className="text-xl font-bold text-emerald-600">{stats?.deliveredOrders ?? 0}</strong>
+
+                <div className="bg-white p-3.5 rounded-xl border border-purple-200 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">5. Processed</span>
+                  <strong className="text-lg font-bold text-purple-600">{stats?.orderProcessedCount ?? 0}</strong>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-200 text-center">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium block">Cancelled</span>
-                  <strong className="text-xl font-bold text-gray-400">{stats?.cancelledOrders ?? 0}</strong>
+
+                <div className="bg-white p-3.5 rounded-xl border border-indigo-200 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">6. Shipped</span>
+                  <strong className="text-lg font-bold text-indigo-600">{stats?.shippedCount ?? 0}</strong>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-emerald-200 text-center shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">7. Delivered</span>
+                  <strong className="text-lg font-bold text-emerald-600">{stats?.deliveredCount ?? 0}</strong>
                 </div>
               </div>
             </div>
@@ -540,7 +678,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-brand text-lg font-bold text-primary">Recent Orders</h3>
                 <button onClick={() => setActiveTab("orders")} className="text-xs text-gold-dark font-bold hover:underline">
-                  View All Orders &rarr;
+                  Manage All Orders &rarr;
                 </button>
               </div>
 
@@ -554,7 +692,7 @@ export default function AdminDashboard() {
                         <th className="pb-3">Order #</th>
                         <th className="pb-3">Customer</th>
                         <th className="pb-3">Product</th>
-                        <th className="pb-3">Amount</th>
+                        <th className="pb-3">Invoice Amount</th>
                         <th className="pb-3">Status</th>
                       </tr>
                     </thead>
@@ -564,9 +702,11 @@ export default function AdminDashboard() {
                           <td className="py-3 font-semibold text-primary">{ord.orderNumber}</td>
                           <td className="py-3 font-medium text-gray-800">{ord.customerName} ({ord.customerPhone})</td>
                           <td className="py-3 text-gray-600">{ord.product} &times; {ord.quantity}</td>
-                          <td className="py-3 font-bold text-gray-900">₹{ord.totalAmount}</td>
+                          <td className="py-3 font-bold text-gray-900">
+                            {ord.invoiceAmount ? `₹${ord.invoiceAmount}` : <span className="text-gray-400 font-normal">Pending Invoice</span>}
+                          </td>
                           <td className="py-3">
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(ord.status)}`}>
                               {ord.status}
                             </span>
                           </td>
@@ -587,13 +727,13 @@ export default function AdminDashboard() {
             
             {/* Filter Pills */}
             <div className="flex flex-wrap items-center gap-2">
-              {["All", "Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"].map((st) => (
+              {["All", ...SHOPIFY_STATUSES].map((st) => (
                 <button
                   key={st}
                   onClick={() => setOrderFilter(st)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-colors ${
                     orderFilter === st
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-white shadow-sm"
                       : "bg-white border border-gray-200 text-gray-600 hover:border-gold"
                   }`}
                 >
@@ -615,15 +755,21 @@ export default function AdminDashboard() {
                         <th className="pb-3">Customer & Contact</th>
                         <th className="pb-3">Address</th>
                         <th className="pb-3">Product & Qty</th>
-                        <th className="pb-3">Total</th>
+                        <th className="pb-3">Invoice & Total</th>
                         <th className="pb-3">Status</th>
-                        <th className="pb-3">Action</th>
+                        <th className="pb-3 text-right">Actions & Documents</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {orders.map((ord) => (
                         <tr key={ord.id} className="hover:bg-gray-50/50">
-                          <td className="py-3.5 font-bold text-primary">{ord.orderNumber}</td>
+                          <td className="py-3.5 font-bold text-primary">
+                            <span>{ord.orderNumber}</span>
+                            <span className="block text-[10px] text-gray-400 font-normal">
+                              {new Date(ord.createdAt).toLocaleDateString()}
+                            </span>
+                          </td>
+
                           <td className="py-3.5">
                             <strong className="text-gray-900 block">{ord.customerName}</strong>
                             <a
@@ -636,39 +782,101 @@ export default function AdminDashboard() {
                             >
                               💬 {ord.customerPhone}
                             </a>
+                            {ord.customerEmail && (
+                              <span className="text-[10px] text-gray-500 block truncate">{ord.customerEmail}</span>
+                            )}
                           </td>
-                          <td className="py-3.5 max-w-[180px] text-gray-500 truncate" title={ord.deliveryAddress}>
+
+                          <td className="py-3.5 max-w-[160px] text-gray-500 truncate" title={ord.deliveryAddress}>
                             {ord.deliveryAddress}, {ord.city}
                           </td>
+
                           <td className="py-3.5 text-gray-700">
                             {ord.product} &times; <strong>{ord.quantity}</strong>
                           </td>
-                          <td className="py-3.5 font-bold text-gray-900">₹{ord.totalAmount}</td>
+
+                          <td className="py-3.5">
+                            {ord.invoiceAmount ? (
+                              <div>
+                                <strong className="text-gray-900 font-bold block">₹{ord.invoiceAmount}</strong>
+                                <span className="text-[10px] text-gold-dark font-medium block">
+                                  #{ord.invoiceNumber}
+                                </span>
+                              </div>
+                            ) : (
+                              <div>
+                                <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-[10px] font-semibold block w-fit">
+                                  Price in Invoice
+                                </span>
+                              </div>
+                            )}
+                          </td>
+
                           <td className="py-3.5">
                             <select
                               value={ord.status}
                               onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                              className="px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-gold"
+                              className="px-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-gold"
                             >
-                              <option value="Pending">Pending</option>
-                              <option value="Confirmed">Confirmed</option>
-                              <option value="Processing">Processing</option>
-                              <option value="Shipped">Shipped</option>
-                              <option value="Delivered">Delivered</option>
-                              <option value="Cancelled">Cancelled</option>
+                              {SHOPIFY_STATUSES.map((st) => (
+                                <option key={st} value={st}>
+                                  {st}
+                                </option>
+                              ))}
                             </select>
+
+                            {ord.trackingNumber && (
+                              <div className="mt-1 text-[10px] text-indigo-700 font-mono">
+                                🚚 {ord.courierName}: {ord.trackingNumber}
+                              </div>
+                            )}
                           </td>
-                          <td className="py-3.5">
-                            <a
-                              href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}. Dispatch from Araria, Bihar.`
-                              )}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-2.5 py-1 rounded bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-[10px] uppercase tracking-wider"
-                            >
-                              Notify
-                            </a>
+
+                          <td className="py-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                              {/* Generate or Re-generate Invoice */}
+                              <button
+                                onClick={() => openInvoiceModal(ord)}
+                                className="px-2.5 py-1 rounded-md bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                title="Generate or Edit Invoice"
+                              >
+                                {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
+                              </button>
+
+                              {/* View / Print Invoice */}
+                              {ord.invoiceNumber && (
+                                <button
+                                  onClick={() => setPreviewInvoiceOrder(ord)}
+                                  className="px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                  title="View and Print Invoice"
+                                >
+                                  📄 Print
+                                </button>
+                              )}
+
+                              {/* Add / Edit Shipping Details */}
+                              <button
+                                onClick={() => openShippingModal(ord)}
+                                className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                title="Add Courier Tracking"
+                              >
+                                🚚 Ship
+                              </button>
+
+                              {/* WhatsApp Notify */}
+                              <a
+                                href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                  `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
+                                    ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
+                                  }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-2 py-1 rounded bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-[10px] uppercase tracking-wider"
+                              >
+                                💬
+                              </a>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -681,10 +889,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 3: ADD ORDER (MANUAL ENTRY) */}
+        {/* TAB 3: ADD ORDER (OFFLINE / PHONE / FARM VISIT) */}
         {activeTab === "add-order" && (
           <div className="max-w-2xl mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-            <h2 className="font-brand text-xl font-bold text-primary mb-2">Record Offline / Telephone Order</h2>
+            <h2 className="font-brand text-xl font-bold text-primary mb-2">Record Direct Order</h2>
             <p className="text-xs text-gray-500 mb-6">Manually record orders taken over telephone, WhatsApp, or farm visits.</p>
 
             <form onSubmit={handleCreateOrder} className="space-y-4 text-xs">
@@ -730,18 +938,12 @@ export default function AdminDashboard() {
                   <label className="block text-gray-600 font-semibold mb-1">Product Pack</label>
                   <select
                     value={newOrder.product}
-                    onChange={(e) => {
-                      const p = e.target.value;
-                      let rate = 200;
-                      if (p.includes("250g")) rate = 100;
-                      if (p.includes("Bulk")) rate = 180;
-                      setNewOrder({ ...newOrder, product: p, totalAmount: rate * newOrder.quantity });
-                    }}
+                    onChange={(e) => setNewOrder({ ...newOrder, product: e.target.value })}
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-gold"
                   >
-                    <option value="250g Pack">250g Pack (₹100)</option>
-                    <option value="1 kg Pack">1 kg Pack (₹200)</option>
-                    <option value="Bulk Supply (10kg+)">Bulk Commercial (Custom)</option>
+                    <option value="250g Fresh Peeled Pack">250g Fresh Peeled Pack</option>
+                    <option value="1 kg Value Pack">1 kg Value Pack</option>
+                    <option value="Bulk Commercial Pack (10kg+)">Bulk Commercial Pack (10kg+)</option>
                   </select>
                 </div>
 
@@ -751,23 +953,22 @@ export default function AdminDashboard() {
                     type="number"
                     min={1}
                     value={newOrder.quantity}
-                    onChange={(e) => {
-                      const q = Number(e.target.value) || 1;
-                      const unitRate = newOrder.product.includes("250g") ? 100 : newOrder.product.includes("Bulk") ? 180 : 200;
-                      setNewOrder({ ...newOrder, quantity: q, totalAmount: unitRate * q });
-                    }}
+                    onChange={(e) => setNewOrder({ ...newOrder, quantity: Number(e.target.value) || 1 })}
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-gold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-gray-600 font-semibold mb-1">Total Amount (₹)</label>
-                  <input
-                    type="number"
-                    value={newOrder.totalAmount}
-                    onChange={(e) => setNewOrder({ ...newOrder, totalAmount: Number(e.target.value) || 0 })}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-gold font-bold text-primary"
-                  />
+                  <label className="block text-gray-600 font-semibold mb-1">Initial Status</label>
+                  <select
+                    value={newOrder.status}
+                    onChange={(e) => setNewOrder({ ...newOrder, status: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-gold font-medium"
+                  >
+                    {SHOPIFY_STATUSES.map((st) => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -776,7 +977,7 @@ export default function AdminDashboard() {
                   type="submit"
                   className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold uppercase tracking-wider text-xs shadow-md transition-all"
                 >
-                  Save & Log Order &rarr;
+                  Save & Log Order →
                 </button>
               </div>
             </form>
@@ -935,7 +1136,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
               <h3 className="font-brand text-lg font-bold text-primary mb-1">Email Forwarding Configuration</h3>
               <p className="text-xs text-gray-500 mb-6">
-                Enquiries, new orders, and status updates are forwarded automatically to these destinations.
+                Enquiries, new orders, invoices, and shipping tracking updates are forwarded automatically to these destinations.
               </p>
 
               <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
@@ -970,7 +1171,7 @@ export default function AdminDashboard() {
                     className="w-4 h-4 text-primary rounded"
                   />
                   <label htmlFor="notifyStatus" className="text-gray-700 font-medium">
-                    Send email alert whenever order status changes (Shipped, Delivered, etc.)
+                    Send automated customer email on every status change (Invoiced, Shipped, Delivered, etc.)
                   </label>
                 </div>
 
@@ -995,7 +1196,7 @@ export default function AdminDashboard() {
                     onClick={handleSendOtp}
                     className="px-5 py-2.5 rounded-xl border border-gold/70 text-gold-dark font-bold text-xs uppercase tracking-wider hover:bg-gold hover:text-white transition-colors"
                   >
-                    Request 6-Digit Email OTP &rarr;
+                    Request 6-Digit Email OTP →
                   </button>
                 </div>
               ) : (
@@ -1045,6 +1246,306 @@ export default function AdminDashboard() {
         )}
 
       </main>
+
+      {/* MODAL 1: GENERATE INVOICE */}
+      {selectedOrderForInvoice && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-gold/30 animate-fadeIn">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-gold-dark block">
+                  Official Mandi Billing
+                </span>
+                <h3 className="font-brand text-xl font-bold text-primary">
+                  Generate Invoice for #{selectedOrderForInvoice.orderNumber}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForInvoice(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleGenerateInvoiceSubmit} className="mt-5 space-y-4 text-xs">
+              <div className="bg-amber-50/70 p-3 rounded-xl border border-gold/20 text-gray-700">
+                <p><strong>Customer:</strong> {selectedOrderForInvoice.customerName} ({selectedOrderForInvoice.customerPhone})</p>
+                <p><strong>Item:</strong> {selectedOrderForInvoice.product} &times; {selectedOrderForInvoice.quantity}</p>
+                <p><strong>Delivery:</strong> {selectedOrderForInvoice.deliveryAddress}, {selectedOrderForInvoice.city}</p>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Invoice Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={invoiceForm.invoiceNumber}
+                  onChange={(e) => setInvoiceForm({ ...invoiceForm, invoiceNumber: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border rounded-xl text-sm font-mono font-bold text-gray-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Confirmed Total Amount (₹) *</label>
+                <input
+                  type="number"
+                  min={1}
+                  required
+                  value={invoiceForm.invoiceAmount}
+                  onChange={(e) => setInvoiceForm({ ...invoiceForm, invoiceAmount: Number(e.target.value) || 0 })}
+                  className="w-full px-3.5 py-2.5 border rounded-xl text-base font-bold text-primary"
+                />
+                <span className="text-[10px] text-gray-500 mt-1 block">
+                  Includes wholesale garlic rates + logistics calculation.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Invoice Terms / Notes</label>
+                <textarea
+                  rows={2}
+                  value={invoiceForm.notes}
+                  onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForInvoice(null)}
+                  className="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-semibold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-xs uppercase tracking-wider shadow"
+                >
+                  Issue Invoice & Notify Customer →
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: SHIPPING DETAILS & DISPATCH */}
+      {selectedOrderForShipping && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-indigo-200 animate-fadeIn">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-700 block">
+                  Dispatch & Courier Logistics
+                </span>
+                <h3 className="font-brand text-xl font-bold text-primary">
+                  Ship Order #{selectedOrderForShipping.orderNumber}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForShipping(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveShippingSubmit} className="mt-5 space-y-4 text-xs">
+              <div className="bg-indigo-50/70 p-3 rounded-xl border border-indigo-200 text-gray-700">
+                <p><strong>Customer:</strong> {selectedOrderForShipping.customerName}</p>
+                <p><strong>Destination:</strong> {selectedOrderForShipping.deliveryAddress}, {selectedOrderForShipping.city}</p>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Courier Partner *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Delhivery, DTDC, Blue Dart, Speed Post"
+                  value={shippingForm.courierName}
+                  onChange={(e) => setShippingForm({ ...shippingForm, courierName: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Tracking Number / AWB # *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="AWB123456789"
+                  value={shippingForm.trackingNumber}
+                  onChange={(e) => setShippingForm({ ...shippingForm, trackingNumber: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border rounded-xl text-sm font-mono font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Shipping Details / Transit Notes</label>
+                <textarea
+                  rows={2}
+                  value={shippingForm.shippingDetails}
+                  onChange={(e) => setShippingForm({ ...shippingForm, shippingDetails: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForShipping(null)}
+                  className="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-semibold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider shadow"
+                >
+                  Mark Shipped & Dispatch Email →
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: INVOICE PREVIEW / PRINT */}
+      {previewInvoiceOrder && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl border border-gray-200 animate-fadeIn my-8">
+            
+            {/* Header with Print and Close */}
+            <div className="flex items-center justify-between pb-6 border-b border-gray-200 print:hidden">
+              <span className="text-xs font-bold text-gold-dark uppercase tracking-widest">
+                Printable Tax & Commercial Invoice
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold uppercase tracking-wider shadow flex items-center gap-1.5"
+                >
+                  🖨️ Print Invoice
+                </button>
+                <button
+                  onClick={() => setPreviewInvoiceOrder(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Invoice Printable Sheet */}
+            <div className="pt-6">
+              {/* Brand Header */}
+              <div className="flex justify-between items-start pb-6 border-b-2 border-gold/40">
+                <div>
+                  <h2 className="font-logo text-xl font-bold text-primary tracking-widest uppercase">
+                    ORGANIC GOLD GARLIC
+                  </h2>
+                  <p className="text-xs text-gray-500 font-light mt-0.5">
+                    Premium Hygienic Peeled Garlic Processing & Wholesale Supply
+                  </p>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Shivpuri Ward No. 09, Araria, Bihar – 854311<br />
+                    Phone / WhatsApp: +91 74885 03664 &bull; Email: rishav79031@gmail.com
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="inline-block bg-primary text-gold text-xs font-bold px-3 py-1 rounded uppercase tracking-widest mb-2">
+                    OFFICIAL INVOICE
+                  </span>
+                  <p className="text-sm font-bold text-gray-900 font-mono">
+                    {previewInvoiceOrder.invoiceNumber || `INV-${previewInvoiceOrder.orderNumber}`}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Date: {new Date(previewInvoiceOrder.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Order Ref: #{previewInvoiceOrder.orderNumber}
+                  </p>
+                </div>
+              </div>
+
+              {/* Billed To / Shipped To */}
+              <div className="grid grid-cols-2 gap-6 py-6 border-b border-gray-100 text-xs">
+                <div>
+                  <span className="font-bold text-gray-400 uppercase tracking-wider block mb-1">Billed To</span>
+                  <p className="font-bold text-gray-900 text-sm">{previewInvoiceOrder.customerName}</p>
+                  <p className="text-gray-600">{previewInvoiceOrder.customerPhone}</p>
+                  {previewInvoiceOrder.customerEmail && (
+                    <p className="text-gray-600">{previewInvoiceOrder.customerEmail}</p>
+                  )}
+                </div>
+                <div>
+                  <span className="font-bold text-gray-400 uppercase tracking-wider block mb-1">Dispatch Destination</span>
+                  <p className="text-gray-700">{previewInvoiceOrder.deliveryAddress}</p>
+                  <p className="text-gray-700">{previewInvoiceOrder.city}, Bihar</p>
+                  {previewInvoiceOrder.courierName && (
+                    <p className="text-indigo-600 font-medium mt-1">
+                      Courier: {previewInvoiceOrder.courierName} ({previewInvoiceOrder.trackingNumber})
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Line Items Table */}
+              <div className="py-6">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b-2 border-gray-200 text-gray-500 uppercase tracking-wider font-semibold">
+                      <th className="pb-2">Description</th>
+                      <th className="pb-2 text-center">Quantity</th>
+                      <th className="pb-2 text-right">Total (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    <tr>
+                      <td className="py-3 font-medium text-gray-800">
+                        {previewInvoiceOrder.product}
+                        <span className="block text-[11px] text-gray-500">
+                          Freshly Peeled Garlic &bull; Vacuum Packed &bull; 100% Preservative Free
+                        </span>
+                      </td>
+                      <td className="py-3 text-center font-bold text-gray-700">{previewInvoiceOrder.quantity}</td>
+                      <td className="py-3 text-right font-bold text-gray-900">
+                        ₹{previewInvoiceOrder.invoiceAmount ?? previewInvoiceOrder.totalAmount}
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-200">
+                      <td colSpan={2} className="pt-4 text-right font-bold text-sm text-gray-800">
+                        Grand Total:
+                      </td>
+                      <td className="pt-4 text-right font-bold text-lg text-primary">
+                        ₹{previewInvoiceOrder.invoiceAmount ?? previewInvoiceOrder.totalAmount}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {/* Footer Note */}
+              <div className="pt-6 border-t border-gray-200 text-[11px] text-gray-500 flex justify-between items-end">
+                <div>
+                  <p className="font-semibold text-gray-700">Payment Terms: Cash on Delivery / UPI</p>
+                  <p>Thank you for choosing Organic Gold Garlic, Araria.</p>
+                </div>
+                <div className="text-right">
+                  <div className="w-32 border-b border-gray-400 mb-1"></div>
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400">Authorized Signatory</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

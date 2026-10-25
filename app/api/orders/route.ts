@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendOrderStatusEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,8 +15,6 @@ export async function POST(request: NextRequest) {
       pincode,
       product,
       quantity = 1,
-      totalAmount = 0,
-      paymentStatus = "Pending",
       notes,
     } = body;
 
@@ -43,23 +42,25 @@ export async function POST(request: NextRequest) {
         pincode: pincode?.trim() || null,
         product,
         quantity: Number(quantity) || 1,
-        totalAmount: Number(totalAmount) || 0,
-        status: "Pending",
-        paymentStatus,
+        totalAmount: 0, // Price confirmed in official invoice
+        status: "Order Received",
+        paymentStatus: "Pending",
         notes: notes?.trim() || null,
       },
     });
 
-    // Email Forwarding logic: fetch settings
-    try {
-      const emailSetting = await prisma.setting.findUnique({
-        where: { key: "forward_orders_email" },
-      });
-      const forwardTo = emailSetting?.value || "rishav79031@gmail.com";
-      console.log(`[EMAIL FORWARDING] New Order ${orderNumber} notification dispatched to ${forwardTo}`);
-    } catch (e) {
-      console.warn("Could not read email forwarding setting:", e);
-    }
+    // Automated customer & superadmin email notification
+    await sendOrderStatusEmail({
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      customerPhone: order.customerPhone,
+      product: order.product,
+      quantity: order.quantity,
+      deliveryAddress: order.deliveryAddress,
+      city: order.city,
+      status: "Order Received",
+    });
 
     return NextResponse.json({
       success: true,

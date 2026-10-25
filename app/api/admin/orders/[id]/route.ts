@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { sendOrderStatusEmail } from "@/lib/email";
 
 export async function PATCH(
   request: NextRequest,
@@ -18,34 +19,58 @@ export async function PATCH(
 
   try {
     const body = await request.json();
-    const { status, paymentStatus, notes } = body;
+    const {
+      status,
+      paymentStatus,
+      notes,
+      invoiceNumber,
+      invoiceAmount,
+      invoiceDate,
+      courierName,
+      trackingNumber,
+      shippingDetails,
+    } = body;
 
     const data: Record<string, unknown> = {};
     if (status) data.status = status;
     if (paymentStatus) data.paymentStatus = paymentStatus;
     if (notes !== undefined) data.notes = notes;
+    if (invoiceNumber !== undefined) data.invoiceNumber = invoiceNumber;
+    if (invoiceAmount !== undefined) {
+      data.invoiceAmount = Number(invoiceAmount);
+      data.totalAmount = Number(invoiceAmount);
+    }
+    if (invoiceDate !== undefined) data.invoiceDate = invoiceDate ? new Date(invoiceDate) : new Date();
+    if (courierName !== undefined) data.courierName = courierName;
+    if (trackingNumber !== undefined) data.trackingNumber = trackingNumber;
+    if (shippingDetails !== undefined) data.shippingDetails = shippingDetails;
 
     const updated = await prisma.order.update({
       where: { id },
       data,
     });
 
-    // Check email forwarding on status change
-    if (status) {
+    // Automated Email Dispatch on Status Change or Invoice/Shipping details update
+    if (status || invoiceNumber || trackingNumber) {
       try {
-        const setting = await prisma.setting.findUnique({
-          where: { key: "notify_status_change" },
+        await sendOrderStatusEmail({
+          orderNumber: updated.orderNumber,
+          customerName: updated.customerName,
+          customerEmail: updated.customerEmail,
+          customerPhone: updated.customerPhone,
+          product: updated.product,
+          quantity: updated.quantity,
+          deliveryAddress: updated.deliveryAddress,
+          city: updated.city,
+          status: updated.status,
+          invoiceNumber: updated.invoiceNumber,
+          invoiceAmount: updated.invoiceAmount,
+          courierName: updated.courierName,
+          trackingNumber: updated.trackingNumber,
+          shippingDetails: updated.shippingDetails,
         });
-        if (setting?.value === "true") {
-          const emailSetting = await prisma.setting.findUnique({
-            where: { key: "forward_orders_email" },
-          });
-          console.log(
-            `[STATUS NOTIFICATION] Order ${updated.orderNumber} changed to "${status}". Email sent to ${emailSetting?.value || "rishav79031@gmail.com"}`
-          );
-        }
-      } catch (e) {
-        console.warn("Status notification error:", e);
+      } catch (emailErr) {
+        console.warn("Failed to dispatch order status email:", emailErr);
       }
     }
 

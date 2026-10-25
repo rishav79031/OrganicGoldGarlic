@@ -21,8 +21,8 @@ model Enquiry {
 }
 
 model Order {
-  id              Int      @id @default(autoincrement())
-  orderNumber     String   @unique
+  id              Int       @id @default(autoincrement())
+  orderNumber     String    @unique
   customerName    String
   customerPhone   String
   customerEmail   String?
@@ -31,13 +31,19 @@ model Order {
   state           String?
   pincode         String?
   product         String
-  quantity        Int      @default(1)
-  totalAmount     Float    @default(0)
-  status          String   @default("Pending") // Pending, Confirmed, Processing, Shipped, Delivered, Cancelled
-  paymentStatus   String   @default("Pending") // Pending, Paid, COD
+  quantity        Int       @default(1)
+  totalAmount     Float     @default(0) // Confirmed in invoice
+  status          String    @default("Order Received") // Order Received, Order Accepted, Invoice Generated, Payment Received, Order Processed, Shipped, Delivered, Cancelled
+  paymentStatus   String    @default("Pending") // Pending, Paid, COD
+  invoiceNumber   String?
+  invoiceAmount   Float?
+  invoiceDate     DateTime?
+  courierName     String?
+  trackingNumber  String?
+  shippingDetails String?
   notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model User {

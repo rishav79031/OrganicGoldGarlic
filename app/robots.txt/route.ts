@@ -6,11 +6,13 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://organicgoldgarlic.in/sitemap.xml`;
+Sitemap: https://organicgoldgarlic.com/sitemap.xml
+`;
 
   return new NextResponse(robots, {
     headers: {
-      "Content-Type": "text/plain",
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, s-maxage=86400, stale-while-revalidate",
     },
   });
 }

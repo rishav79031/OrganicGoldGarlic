@@ -112,13 +112,13 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="w-full mt-2 bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl uppercase tracking-wider text-xs transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Authenticating..." : "Sign In to Admin Panel &rarr;"}
+            {loading ? "Authenticating..." : "Sign In to Admin Panel →"}
           </button>
         </form>
 
         <div className="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
           <Link href="/" className="hover:text-gold transition-colors">
-            &larr; Back to Live Website
+            ← Back to Live Website
           </Link>
           <span>&copy; {new Date().getFullYear()}</span>
         </div>

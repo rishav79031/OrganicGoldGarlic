@@ -288,7 +288,7 @@ export default function OrderPage() {
                   disabled={loading}
                   className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-bold uppercase tracking-widest shadow-xl transition-all disabled:opacity-50"
                 >
-                  {loading ? "Confirming Order..." : "Place Order Now &rarr;"}
+                  {loading ? "Confirming Order..." : "Place Order Now →"}
                 </button>
               </div>
 

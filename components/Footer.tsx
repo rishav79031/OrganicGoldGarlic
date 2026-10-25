@@ -60,21 +60,7 @@ export default function Footer() {
           </nav>
         </div>
 
-        {/* Feature Strip */}
-        <div className="py-6 border-b border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left text-xs text-white/60">
-          <div>
-            <strong className="text-gold block mb-0.5">🚚 Pan-India Delivery</strong>
-            <span>Doorstep delivery across all major cities & states.</span>
-          </div>
-          <div>
-            <strong className="text-gold block mb-0.5">💰 Competitive Rates</strong>
-            <span>Direct farm-to-kitchen pricing with seasonal market discounts.</span>
-          </div>
-          <div>
-            <strong className="text-gold block mb-0.5">🍽️ Restaurant & Bulk Supply</strong>
-            <span>Scheduled daily/weekly peeled garlic for cloud kitchens & caterers.</span>
-          </div>
-        </div>
+
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[11px] text-white/40">

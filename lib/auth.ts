@@ -15,6 +15,10 @@ export function hashPassword(plain: string): string {
   return crypto.createHash("sha256").update(plain.trim()).digest("hex");
 }
 
+export function verifyPassword(plain: string, hashed: string): boolean {
+  return hashPassword(plain) === hashed;
+}
+
 export interface AuthSession {
   id: number;
   email: string;

@@ -707,7 +707,7 @@ export default function AdminDashboard() {
   }
 
   async function handleSendOtp() {
-    const toastId = toast.loading("Sending 6-digit OTP to rishav79031@gmail.com...");
+    const toastId = toast.loading(`Sending 6-digit OTP to ${user?.email || "your registered email"}...`);
     try {
       const res = await fetch("/api/admin/otp/send", { method: "POST" });
       const data = await res.json();
@@ -738,7 +738,7 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success("Superadmin password updated successfully!", { id: toastId, icon: "🔒" });
+        toast.success("Password updated successfully!", { id: toastId, icon: "🔒" });
         setShowPasswordResetFlow(false);
         setOtpSent(false);
         setOtpCode("");
@@ -1182,22 +1182,20 @@ export default function AdminDashboard() {
               )}
             </button>
 
-            {/* Settings (Admin and Superadmin only, includes Team & Access submenu) */}
-            {canManageSettingsAndAccess && (
-              <button
-                onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all font-medium ${
-                  activeTab === "settings" ? "bg-gold text-[#08130b] font-bold shadow-md" : "text-gray-300 hover:bg-white/5"
-                }`}
-                title="Settings"
-              >
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                {sidebarOpen && <span>Settings</span>}
-              </button>
-            )}
+            {/* Settings (Themes & Password Reset for all users; Invoice & Team for Admin/Superadmin) */}
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all font-medium ${
+                activeTab === "settings" ? "bg-gold text-[#08130b] font-bold shadow-md" : "text-gray-300 hover:bg-white/5"
+              }`}
+              title="Settings"
+            >
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {sidebarOpen && <span>Settings</span>}
+            </button>
           </nav>
         </div>
 
@@ -1283,18 +1281,20 @@ export default function AdminDashboard() {
             <Link
               href="/order"
               target="_blank"
-              className="px-4 py-2.5 rounded-full border border-gold/60 text-xs font-semibold text-gold-dark hover:bg-gold hover:text-white transition-colors"
+              className="px-4 py-2 rounded-full border border-gold/60 text-xs font-semibold text-gold-dark hover:bg-gold hover:text-white transition-colors"
             >
-              Public Order Page ↗
+              Order Page ↗
             </Link>
             <button
               onClick={() => {
                 loadDashboardData();
                 toast.success("Dashboard refreshed with latest data!", { icon: "↻" });
               }}
-              className="px-4 py-2.5 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow"
+              className="w-9 h-9 rounded-full bg-primary hover:bg-primary-dark text-white text-base font-bold flex items-center justify-center transition-all shadow hover:scale-105 active:scale-95 shrink-0"
+              title="Refresh Dashboard Data"
+              aria-label="Refresh Dashboard Data"
             >
-              ↻ Refresh
+              ↻
             </button>
           </div>
         </div>
@@ -1401,11 +1401,11 @@ export default function AdminDashboard() {
 
             </div>
 
-            {/* Shopify Pipeline with Clickable Steps */}
+            {/* Order Pipeline with Clickable Steps */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Shopify Order Lifecycle Pipeline</h3>
+                  <h3 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Order Pipeline</h3>
                   <span className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-semibold">Click to filter</span>
                 </div>
                 <span className="text-xs text-gray-400 font-medium">Final Stage: Order Processed (Done)</span>
@@ -2028,18 +2028,22 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 5: SETTINGS & SUBMENUS (Invoice GST, Team & Access, General, Security) */}
-        {activeTab === "settings" && canManageSettingsAndAccess && (
+        {/* TAB 5: SETTINGS & SUBMENUS (Themes, Security, and Admin Invoice/Team/General) */}
+        {activeTab === "settings" && (
           <div className="mt-6 space-y-6 max-w-4xl">
             
             {/* Settings Sub-Navigation Menu */}
             <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
               {[
                 { id: "themes", label: "🎨 Themes & Appearance" },
-                { id: "invoice", label: "📜 Invoice & GST Settings" },
-                { id: "team", label: "👥 Team & Access Control" },
-                { id: "general", label: "⚙️ Email Forwarding" },
-                { id: "security", label: "🔒 Password & Security" },
+                { id: "security", label: "🔒 Reset Password & Security" },
+                ...(canManageSettingsAndAccess
+                  ? [
+                      { id: "invoice", label: "📜 Invoice & GST Settings" },
+                      { id: "team", label: "👥 Team & Access Control" },
+                      { id: "general", label: "⚙️ Email Forwarding" },
+                    ]
+                  : []),
               ].map((sub) => (
                 <button
                   key={sub.id}
@@ -2341,8 +2345,8 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* SUBMENU 1: INVOICE & GST SETTINGS */}
-            {settingsSubTab === "invoice" && (
+            {/* SUBMENU 1: INVOICE & GST SETTINGS (Admin & Superadmin only) */}
+            {settingsSubTab === "invoice" && canManageSettingsAndAccess && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-6">
                 <div>
                   <h3 className="font-brand text-lg font-bold text-primary mb-1">Official Invoice & GST Settings</h3>
@@ -2472,7 +2476,7 @@ export default function AdminDashboard() {
             )}
 
             {/* SUBMENU 2: TEAM & ACCESS CONTROL (Admin & Superadmin only) */}
-            {settingsSubTab === "team" && (
+            {settingsSubTab === "team" && canManageSettingsAndAccess && (
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
                   <h3 className="font-brand text-lg font-bold text-primary mb-1">Add Team Member / Staff</h3>
@@ -2679,8 +2683,8 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* SUBMENU 3: EMAIL FORWARDING */}
-            {settingsSubTab === "general" && (
+            {/* SUBMENU 3: EMAIL FORWARDING (Admin & Superadmin only) */}
+            {settingsSubTab === "general" && canManageSettingsAndAccess && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
                 <h3 className="font-brand text-lg font-bold text-primary mb-1">Email Forwarding Configuration</h3>
                 <p className="text-xs text-gray-500 mb-6">
@@ -2732,12 +2736,12 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* SUBMENU 4: SECURITY & GUIDED PASSWORD RESET */}
-            {settingsSubTab === "security" && user?.role === "Superadmin" && (
+            {/* SUBMENU 4: SECURITY & GUIDED PASSWORD RESET (Generic for all users) */}
+            {settingsSubTab === "security" && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-                <h3 className="font-brand text-lg font-bold text-primary mb-1">Superadmin Security & Password Reset</h3>
+                <h3 className="font-brand text-lg font-bold text-primary mb-1">Account Security & Password Reset</h3>
                 <p className="text-xs text-gray-500 mb-4">
-                  Password changes for superadmin (<strong className="text-gray-800">rishav79031@gmail.com</strong>) require a verified 6-digit email OTP.
+                  Password changes for your account (<strong className="text-gray-800">{user?.email || "your registered email"}</strong>) require a verified 6-digit email OTP.
                 </p>
 
                 {!showPasswordResetFlow ? (
@@ -2746,7 +2750,7 @@ export default function AdminDashboard() {
                       onClick={() => setShowPasswordResetFlow(true)}
                       className="px-5 py-2.5 rounded-xl bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2"
                     >
-                      <span>🔐</span> Reset Superadmin Password
+                      <span>🔐</span> Reset My Password
                     </button>
                   </div>
                 ) : (
@@ -2754,7 +2758,7 @@ export default function AdminDashboard() {
                     {!otpSent ? (
                       <div>
                         <p className="text-xs text-gray-700 mb-3">
-                          Click below to receive a secure 6-digit one-time password on <strong>rishav79031@gmail.com</strong>:
+                          Click below to receive a secure 6-digit one-time password on <strong>{user?.email || "your registered email"}</strong>:
                         </p>
                         <div className="flex items-center gap-3">
                           <button

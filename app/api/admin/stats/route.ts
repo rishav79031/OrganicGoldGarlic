@@ -1,14 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    const { searchParams } = new URL(request.url);
+    const period = searchParams.get("period"); // "30d" | "3m" | "6m" | "all"
+
+    let startDate: Date | undefined;
+    if (period === "30d") {
+      startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    } else if (period === "3m") {
+      startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    } else if (period === "6m") {
+      startDate = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+    }
+
+    const orderWhere = startDate ? { createdAt: { gte: startDate } } : {};
+    const enquiryWhere = startDate ? { createdAt: { gte: startDate } } : {};
+
     const [
       totalEnquiries,
       pendingEnquiries,
@@ -23,19 +38,19 @@ export async function GET() {
       cancelledCount,
       ordersForRevenue,
     ] = await Promise.all([
-      prisma.enquiry.count(),
-      prisma.enquiry.count({ where: { status: "Pending" } }),
-      prisma.order.count(),
-      prisma.order.count({ where: { status: { in: ["Order Received", "Pending"] } } }),
-      prisma.order.count({ where: { status: { in: ["Order Accepted", "Confirmed"] } } }),
-      prisma.order.count({ where: { status: "Invoice Generated" } }),
-      prisma.order.count({ where: { status: "Payment Received" } }),
-      prisma.order.count({ where: { status: { in: ["Order Processed", "Processing"] } } }),
-      prisma.order.count({ where: { status: "Shipped" } }),
-      prisma.order.count({ where: { status: "Delivered" } }),
-      prisma.order.count({ where: { status: "Cancelled" } }),
+      prisma.enquiry.count({ where: enquiryWhere }),
+      prisma.enquiry.count({ where: { ...enquiryWhere, status: "Pending" } }),
+      prisma.order.count({ where: orderWhere }),
+      prisma.order.count({ where: { ...orderWhere, status: { in: ["Order Received", "Pending"] } } }),
+      prisma.order.count({ where: { ...orderWhere, status: { in: ["Order Accepted", "Confirmed"] } } }),
+      prisma.order.count({ where: { ...orderWhere, status: "Invoice Generated" } }),
+      prisma.order.count({ where: { ...orderWhere, status: "Payment Received" } }),
+      prisma.order.count({ where: { ...orderWhere, status: { in: ["Order Processed", "Processing"] } } }),
+      prisma.order.count({ where: { ...orderWhere, status: "Shipped" } }),
+      prisma.order.count({ where: { ...orderWhere, status: "Delivered" } }),
+      prisma.order.count({ where: { ...orderWhere, status: "Cancelled" } }),
       prisma.order.findMany({
-        where: { status: { not: "Cancelled" } },
+        where: { ...orderWhere, status: { not: "Cancelled" } },
         select: { totalAmount: true, invoiceAmount: true },
       }),
     ]);
@@ -47,6 +62,7 @@ export async function GET() {
 
     return NextResponse.json({
       user: session,
+      period: period || "all",
       stats: {
         totalEnquiries,
         pendingEnquiries,

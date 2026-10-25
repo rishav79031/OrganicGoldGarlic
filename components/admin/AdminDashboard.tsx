@@ -77,10 +77,13 @@ const SHOPIFY_STATUSES = [
   "Cancelled",
 ] as const;
 
+type AdminTheme = "classic" | "neomorphism" | "dark-neomorphism" | "dark";
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "add-order" | "enquiries" | "settings">("dashboard");
   const [settingsSubTab, setSettingsSubTab] = useState<"themes" | "invoice" | "team" | "general" | "security">("themes");
-  const [theme, setTheme] = useState<"classic" | "dark" | "neomorphism">("classic");
+  const [theme, setTheme] = useState<AdminTheme>("classic");
+  const [statsPeriod, setStatsPeriod] = useState<"all" | "30d" | "3m" | "6m">("all");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -161,8 +164,8 @@ export default function AdminDashboard() {
   // Theme Persistence & Handlers
   useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem("admin_theme") as "classic" | "dark" | "neomorphism" | null;
-      if (savedTheme && ["classic", "dark", "neomorphism"].includes(savedTheme)) {
+      const savedTheme = localStorage.getItem("admin_theme") as AdminTheme | null;
+      if (savedTheme && ["classic", "dark", "neomorphism", "dark-neomorphism"].includes(savedTheme)) {
         setTheme(savedTheme);
       }
     } catch {
@@ -170,7 +173,7 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  const handleThemeChange = (newTheme: "classic" | "dark" | "neomorphism") => {
+  const handleThemeChange = (newTheme: AdminTheme) => {
     setTheme(newTheme);
     setSettings((prev) => ({ ...prev, active_theme: newTheme }));
     try {
@@ -178,14 +181,13 @@ export default function AdminDashboard() {
     } catch {
       // ignore
     }
-    toast.success(
-      newTheme === "neomorphism"
-        ? "Neomorphism (Soft UI) theme activated!"
-        : newTheme === "dark"
-        ? "Midnight Gold (Dark) theme activated!"
-        : "Classic Light theme activated!",
-      { icon: "🎨" }
-    );
+    const themeNames: Record<AdminTheme, string> = {
+      classic: "Classic Gold (Light)",
+      neomorphism: "Neomorphism Light (Soft UI)",
+      "dark-neomorphism": "Dark Neomorphism (Cyber Soft-UI)",
+      dark: "Midnight Gold (Dark)",
+    };
+    toast.success(`${themeNames[newTheme]} theme activated!`, { icon: "🎨" });
   };
 
   const handleSaveDefaultTheme = async () => {
@@ -230,10 +232,11 @@ export default function AdminDashboard() {
     loadDashboardData();
   }, [orderFilter]);
 
-  async function loadDashboardData() {
+  async function loadDashboardData(periodParam?: string) {
     setLoading(true);
     try {
-      const statsRes = await fetch("/api/admin/stats");
+      const activePeriod = periodParam !== undefined ? periodParam : statsPeriod;
+      const statsRes = await fetch(`/api/admin/stats?period=${activePeriod}`);
       if (statsRes.status === 401) {
         router.push("/admin/login");
         return;
@@ -255,7 +258,7 @@ export default function AdminDashboard() {
       if (settingsData.settings) {
         setSettings((prev) => ({ ...prev, ...settingsData.settings }));
         if (settingsData.settings.active_theme && !localStorage.getItem("admin_theme")) {
-          setTheme(settingsData.settings.active_theme as "classic" | "dark" | "neomorphism");
+          setTheme(settingsData.settings.active_theme as AdminTheme);
         }
       }
 
@@ -269,6 +272,76 @@ export default function AdminDashboard() {
       toast.error("Error loading dashboard data");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handlePeriodChange(p: "all" | "30d" | "3m" | "6m") {
+    setStatsPeriod(p);
+    const labelMap = { all: "All Time", "30d": "Last 30 Days", "3m": "Last 3 Months", "6m": "Last 6 Months" };
+    toast.success(`Displaying metrics for ${labelMap[p]}`, { icon: "📅" });
+    loadDashboardData(p);
+  }
+
+  // Realtime User Status Toggle (Active <-> Disabled)
+  async function handleToggleUserStatus(userId: number, newStatus: string) {
+    const targetUser = usersList.find((u) => u.id === userId);
+    if (!targetUser) return;
+
+    // Optimistic UI update
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u))
+    );
+
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userId, status: newStatus }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`User ${targetUser.name} is now ${newStatus}!`, { icon: newStatus === "Active" ? "✅" : "⏸️" });
+      } else {
+        toast.error(data.error || "Failed to update user status");
+        loadDashboardData();
+      }
+    } catch {
+      toast.error("Failed to update user status");
+      loadDashboardData();
+    }
+  }
+
+  // Realtime Module Permission Toggle for User
+  async function handleToggleUserPermissionRealtime(userId: number, moduleKey: string) {
+    const targetUser = usersList.find((u) => u.id === userId);
+    if (!targetUser) return;
+
+    const currentPerms = targetUser.permissions || ["orders", "enquiries"];
+    const updatedPerms = currentPerms.includes(moduleKey)
+      ? currentPerms.filter((m) => m !== moduleKey)
+      : [...currentPerms, moduleKey];
+
+    // Optimistic UI update
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, permissions: updatedPerms } : u))
+    );
+
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userId, permissions: updatedPerms }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Updated ${moduleKey} permission for ${targetUser.name}!`, { icon: "🔐" });
+      } else {
+        toast.error(data.error || "Failed to update permissions");
+        loadDashboardData();
+      }
+    } catch {
+      toast.error("Failed to update user permissions");
+      loadDashboardData();
     }
   }
 
@@ -757,7 +830,7 @@ export default function AdminDashboard() {
     <div
       data-theme={theme}
       className={`admin-root min-h-screen flex flex-col md:flex-row w-full transition-colors duration-200 ${
-        theme === "dark"
+        theme === "dark" || theme === "dark-neomorphism"
           ? "bg-[#0b130e] text-gray-100"
           : theme === "neomorphism"
           ? "bg-[#e8ecf4] text-slate-700"
@@ -897,6 +970,91 @@ export default function AdminDashboard() {
         }
         .admin-root[data-theme="neomorphism"] .text-primary {
           color: #0b1c10 !important;
+        }
+
+        /* ================= DARK NEOMORPHISM (CYBER SOFT-UI) ================= */
+        .admin-root[data-theme="dark-neomorphism"] {
+          background-color: #0c140e !important;
+          color: #e2e8f0 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] aside {
+          background-color: #0c140e !important;
+          border: none !important;
+          box-shadow: 6px 0 20px #050906 !important;
+          color: #cbd5e1 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] aside .text-white {
+          color: #f8fafc !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] aside .text-gray-300,
+        .admin-root[data-theme="dark-neomorphism"] aside .text-gray-400 {
+          color: #94a3b8 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] aside button.bg-gold {
+          background-color: #0c140e !important;
+          color: #fbbf24 !important;
+          box-shadow: inset 4px 4px 8px #050906, inset -4px -4px 8px #18281e !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] aside button:not(.bg-gold):hover {
+          box-shadow: 4px 4px 8px #050906, -4px -4px 8px #18281e !important;
+          background-color: #0c140e !important;
+          color: #f8fafc !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .bg-white,
+        .admin-root[data-theme="dark-neomorphism"] .bg-gray-50 {
+          background-color: #101c15 !important;
+          border: none !important;
+          border-radius: 1.25rem !important;
+          box-shadow: 8px 8px 18px #060b08, -8px -8px 18px #1a2d22 !important;
+          color: #f3f4f6 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .bg-white:hover,
+        .admin-root[data-theme="dark-neomorphism"] .bg-gray-50:hover {
+          box-shadow: 12px 12px 24px #040805, -12px -12px 24px #20372a !important;
+          transform: translateY(-3px) !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] input:not([type="checkbox"]),
+        .admin-root[data-theme="dark-neomorphism"] select,
+        .admin-root[data-theme="dark-neomorphism"] textarea {
+          background-color: #0b130e !important;
+          border: none !important;
+          border-radius: 0.85rem !important;
+          box-shadow: inset 3px 3px 6px #050906, inset -3px -3px 6px #16261c !important;
+          color: #ffffff !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] input:focus,
+        .admin-root[data-theme="dark-neomorphism"] select:focus,
+        .admin-root[data-theme="dark-neomorphism"] textarea:focus {
+          box-shadow: inset 3px 3px 6px #050906, inset -3px -3px 6px #16261c, 0 0 0 2px #d4af37 !important;
+          outline: none !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] thead tr {
+          background-color: #090f0b !important;
+          color: #94a3b8 !important;
+          border: none !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] tbody tr {
+          border-color: #16261c !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] tbody tr:hover {
+          background-color: rgba(255, 255, 255, 0.04) !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .text-gray-900,
+        .admin-root[data-theme="dark-neomorphism"] .text-gray-800,
+        .admin-root[data-theme="dark-neomorphism"] .text-gray-700 {
+          color: #f1f5f9 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .text-gray-600,
+        .admin-root[data-theme="dark-neomorphism"] .text-gray-500 {
+          color: #94a3b8 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .border-gray-200,
+        .admin-root[data-theme="dark-neomorphism"] .border-gray-300,
+        .admin-root[data-theme="dark-neomorphism"] .border-gray-100 {
+          border-color: #16261c !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .text-primary {
+          color: #f59e0b !important;
         }
 
         /* ================= CARD HOVER & UI ANIMATIONS ================= */
@@ -1091,10 +1249,34 @@ export default function AdminDashboard() {
         
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200 print:hidden">
-          <div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <h1 className="font-brand text-2xl sm:text-3xl 2xl:text-4xl font-bold text-primary capitalize">
               {activeTab === "dashboard" ? "Dashboard" : activeTab.replace("-", " ")}
             </h1>
+
+            {/* Time Period Filter for Dashboard Metrics */}
+            {activeTab === "dashboard" && (
+              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-semibold">
+                {[
+                  { id: "all", label: "All Time" },
+                  { id: "30d", label: "Last 30 Days" },
+                  { id: "3m", label: "Last 3 Months" },
+                  { id: "6m", label: "Last 6 Months" },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => handlePeriodChange(t.id as typeof statsPeriod)}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      statsPeriod === t.id
+                        ? "bg-primary text-white shadow font-bold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -1890,8 +2072,8 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* 3 Theme Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+                {/* 4 Theme Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                   
                   {/* Option 1: Classic Light */}
                   <div
@@ -2009,7 +2191,65 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Option 3: Midnight Gold (Dark Theme) */}
+                  {/* Option 3: Dark Neomorphism (Dark Soft-UI) */}
+                  <div
+                    onClick={() => handleThemeChange("dark-neomorphism")}
+                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                      theme === "dark-neomorphism"
+                        ? "border-gold bg-[#0c140e] shadow-[8px_8px_18px_#050906,-8px_-8px_18px_#18281e] ring-2 ring-gold/40"
+                        : "border-gray-800 bg-[#0c140e] hover:shadow-[5px_5px_12px_#050906,-5px_-5px_12px_#18281e]"
+                    }`}
+                  >
+                    <div>
+                      {/* Mini UI Mockup */}
+                      <div className="h-28 rounded-xl bg-[#0c140e] p-2.5 mb-4 flex gap-2 overflow-hidden shadow-[inset_3px_3px_6px_#050906,inset_-3px_-3px_6px_#18281e]">
+                        <div className="w-8 bg-[#0c140e] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 shadow-[2px_2px_5px_#050906,-2px_-2px_5px_#18281e]">
+                          <div className="w-3 h-3 rounded-full bg-gold shadow-[0_0_8px_rgba(212,175,55,0.8)]"></div>
+                          <div className="w-4 h-1 rounded bg-[#203428]"></div>
+                          <div className="w-4 h-1 rounded bg-[#203428]"></div>
+                        </div>
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-4 bg-[#0c140e] rounded-lg flex items-center px-1.5 justify-between shadow-[inset_2px_2px_4px_#050906,inset_-2px_-2px_4px_#18281e]">
+                            <div className="w-8 h-1.5 bg-[#4a6354] rounded"></div>
+                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className="h-10 bg-[#101c15] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#050906,-3px_-3px_6px_#1a2d21]">
+                              <div className="w-6 h-1 bg-[#4a6354] rounded"></div>
+                              <div className="w-8 h-2 bg-gold-dark rounded"></div>
+                            </div>
+                            <div className="h-10 bg-[#101c15] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#050906,-3px_-3px_6px_#1a2d21]">
+                              <div className="w-6 h-1 bg-[#4a6354] rounded"></div>
+                              <div className="w-8 h-2 bg-emerald-400 rounded"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h4 className="font-bold text-sm text-gold">Dark Neomorphism</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gold bg-gold/20 px-2 py-0.5 rounded border border-gold/40">
+                          Dark Soft-UI
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-300 leading-relaxed mb-4">
+                        Dark obsidian soft surfaces with dual shadows, recessed dark inputs & gold glow.
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#18281e] flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-200">
+                        {theme === "dark-neomorphism" ? "✓ Currently Active" : "Click to Activate"}
+                      </span>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
+                        theme === "dark-neomorphism" ? "border-gold bg-gold text-[#08130b] font-bold" : "border-gray-700"
+                      }`}>
+                        {theme === "dark-neomorphism" && <span className="text-xs font-bold">✓</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Option 4: Midnight Gold (Dark Theme) */}
                   <div
                     onClick={() => handleThemeChange("dark")}
                     className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
@@ -2283,25 +2523,37 @@ export default function AdminDashboard() {
                         <label className="block text-gray-600 font-semibold mb-1">Role</label>
                         <select
                           value={newUser.role}
-                          onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                          onChange={(e) => {
+                            const newRole = e.target.value;
+                            const newPerms = newRole === "Superadmin" || newRole === "Admin"
+                              ? ["dashboard", "orders", "add-order", "enquiries", "settings"]
+                              : ["orders", "enquiries"];
+                            setNewUser({ ...newUser, role: newRole, permissions: newPerms });
+                          }}
                           className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
                         >
-                          <option value="Staff">Staff (Restricted Access)</option>
-                          <option value="Admin">Admin (Orders & Enquiries)</option>
-                          <option value="Superadmin">Superadmin (Full Control)</option>
+                          <option value="Staff">Staff (Custom Access)</option>
+                          <option value="Admin">Admin (All Modules Auto-Checked)</option>
+                          <option value="Superadmin">Superadmin (All Modules Master)</option>
                         </select>
                       </div>
                     </div>
 
                     {/* Module Permission Checkboxes */}
                     <div>
-                      <label className="block text-gray-700 font-semibold mb-2">Module Access Permissions</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-gray-700 font-semibold">Module Access Permissions</label>
+                        <span className="text-[11px] text-gray-500">
+                          {newUser.role === "Superadmin" || newUser.role === "Admin" ? "✓ All checked by default" : "Select permitted modules"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
                         {[
-                          { id: "orders", label: "Orders & Invoicing" },
-                          { id: "enquiries", label: "Enquiries & Leads" },
-                          { id: "shipping", label: "Shipping Tracking" },
-                          { id: "settings", label: "System Settings" },
+                          { id: "dashboard", label: "Dashboard" },
+                          { id: "orders", label: "Orders" },
+                          { id: "add-order", label: "Add Order" },
+                          { id: "enquiries", label: "Enquiries" },
+                          { id: "settings", label: "Settings" },
                         ].map((mod) => (
                           <label key={mod.id} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700">
                             <input
@@ -2322,35 +2574,106 @@ export default function AdminDashboard() {
                   </form>
                 </div>
 
-                {/* Users List with Module Badges */}
+                {/* Users List with Realtime Status Toggle & Realtime Module Permissions */}
                 <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-                  <h3 className="font-brand text-base font-bold text-primary mb-4">Registered Users & Permissions</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                      <h3 className="font-brand text-base font-bold text-primary">Registered Users & Realtime Access Control</h3>
+                      <p className="text-xs text-gray-500">Toggle status or click module checkboxes to edit permissions in realtime.</p>
+                    </div>
+                    <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">
+                      ⚡ Live Sync Active
+                    </span>
+                  </div>
+
                   <div className="divide-y divide-gray-100 text-xs">
-                    {usersList.map((u) => (
-                      <div key={u.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div>
-                          <strong className="text-gray-900 block text-sm">{u.name}</strong>
-                          <span className="text-gray-500">{u.email}</span>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[10px] text-gray-400 font-semibold uppercase">Access:</span>
-                            {u.role === "Superadmin" ? (
-                              <span className="text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded">All Modules (Full)</span>
-                            ) : (
-                              ["Orders", "Enquiries", "Shipping"].map((m) => (
-                                <span key={m} className="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                                  {m}
+                    {usersList.map((u) => {
+                      const isSuperadminUser = u.role === "Superadmin";
+                      const currentPerms = u.permissions || (isSuperadminUser || u.role === "Admin" ? ["dashboard", "orders", "add-order", "enquiries", "settings"] : ["orders", "enquiries"]);
+
+                      return (
+                        <div key={u.id} className="py-4 space-y-3">
+                          {/* User Header Row with Status Toggle */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <strong className="text-gray-900 text-sm font-bold">{u.name}</strong>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  u.role === "Superadmin" ? "bg-amber-100 text-amber-800" : u.role === "Admin" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-700"
+                                }`}>
+                                  {u.role}
                                 </span>
-                              ))
-                            )}
+                              </div>
+                              <span className="text-gray-500 text-[11px]">{u.email}</span>
+                            </div>
+
+                            {/* Realtime Status Toggle Button */}
+                            <div className="flex items-center gap-2.5">
+                              {isSuperadminUser ? (
+                                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                                  ● Active (Protected)
+                                </span>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleUserStatus(u.id, u.status === "Active" ? "Disabled" : "Active")}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                                      u.status === "Active" ? "bg-emerald-600" : "bg-gray-300"
+                                    }`}
+                                    title={`Click to ${u.status === "Active" ? "Disable" : "Enable"} ${u.name}`}
+                                  >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${
+                                      u.status === "Active" ? "translate-x-6" : "translate-x-1"
+                                    }`} />
+                                  </button>
+                                  <span className={`text-[11px] font-bold ${u.status === "Active" ? "text-emerald-700" : "text-gray-400"}`}>
+                                    {u.status}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Realtime Module Permission Checkboxes */}
+                          <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-200/80">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
+                              Module Permissions (Realtime Toggle):
+                            </span>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {[
+                                { id: "dashboard", label: "Dashboard" },
+                                { id: "orders", label: "Orders" },
+                                { id: "add-order", label: "Add Order" },
+                                { id: "enquiries", label: "Enquiries" },
+                                { id: "settings", label: "Settings" },
+                              ].map((mod) => {
+                                const hasPerm = currentPerms.includes(mod.id);
+                                return (
+                                  <label
+                                    key={mod.id}
+                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium cursor-pointer transition-all ${
+                                      hasPerm
+                                        ? "bg-white border-gold text-gray-900 shadow-xs font-semibold"
+                                        : "bg-gray-100/60 border-transparent text-gray-400 hover:text-gray-600"
+                                    } ${isSuperadminUser ? "opacity-60 cursor-not-allowed" : ""}`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      disabled={isSuperadminUser}
+                                      checked={hasPerm}
+                                      onChange={() => handleToggleUserPermissionRealtime(u.id, mod.id)}
+                                      className="w-3.5 h-3.5 rounded text-primary focus:ring-gold"
+                                    />
+                                    <span>{mod.label}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold w-fit ${
-                          u.role === "Superadmin" ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-700"
-                        }`}>
-                          {u.role}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>

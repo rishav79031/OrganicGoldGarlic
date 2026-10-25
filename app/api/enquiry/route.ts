@@ -7,7 +7,7 @@ const enquirySchema = z.object({
   phone: z.string().min(10, "Phone must be at least 10 digits"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   city: z.string().optional(),
-  product: z.enum(["250g", "1kg", "Custom"]),
+  product: z.enum(["250g", "1kg", "Bulk", "Custom"]).or(z.string().min(1, "Product or order type is required")),
   quantity: z.string().min(1, "Quantity is required"),
   message: z.string().optional(),
 });

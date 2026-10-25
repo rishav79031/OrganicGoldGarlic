@@ -5,16 +5,16 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-// Realistic peeled garlic cloves floating smoothly
-const PHOTO_CLOVES = [
-  { id: 1, src: "/clove-1.png", width: 95, height: 58, left: "7%", top: "16%", duration: 8.5, delay: 0, rotate: 12 },
-  { id: 2, src: "/clove-2.png", width: 85, height: 68, left: "86%", top: "14%", duration: 10, delay: 1.5, rotate: -22 },
-  { id: 3, src: "/clove-4.png", width: 110, height: 72, left: "76%", top: "66%", duration: 9.5, delay: 0.8, rotate: 28 },
-  { id: 4, src: "/clove-3.png", width: 88, height: 68, left: "11%", top: "70%", duration: 8, delay: 2.2, rotate: -15 },
-  { id: 5, src: "/clove-6.png", width: 75, height: 75, left: "48%", top: "8%", duration: 11, delay: 3, rotate: 35 },
-  { id: 6, src: "/clove-5.png", width: 70, height: 75, left: "28%", top: "82%", duration: 9, delay: 1, rotate: -30 },
-  { id: 7, src: "/clove-7.png", width: 78, height: 72, left: "90%", top: "48%", duration: 11.5, delay: 2.5, rotate: 18 },
-  { id: 8, src: "/clove-2.png", width: 68, height: 54, left: "4%", top: "44%", duration: 10.5, delay: 3.5, rotate: -10 },
+// High-definition transparent PNG peeled garlic cloves extracted directly from authentic photography
+const REAL_CLOVES = [
+  { id: 1, src: "/clove-1.png", width: 140, height: 92, left: "4%", top: "14%", duration: 7, delay: 0, rotate: 14, scale: 1 },
+  { id: 2, src: "/clove-2.png", width: 130, height: 89, left: "84%", top: "12%", duration: 8.5, delay: 1.2, rotate: -20, scale: 0.95 },
+  { id: 3, src: "/clove-4.png", width: 165, height: 108, left: "74%", top: "64%", duration: 7.8, delay: 0.5, rotate: 26, scale: 1.1 },
+  { id: 4, src: "/clove-3.png", width: 125, height: 104, left: "8%", top: "68%", duration: 6.8, delay: 1.8, rotate: -16, scale: 0.9 },
+  { id: 5, src: "/clove-6.png", width: 110, height: 110, left: "46%", top: "6%", duration: 9, delay: 2.5, rotate: 32, scale: 0.85 },
+  { id: 6, src: "/clove-5.png", width: 115, height: 134, left: "24%", top: "80%", duration: 7.2, delay: 0.8, rotate: -28, scale: 0.9 },
+  { id: 7, src: "/clove-7.png", width: 115, height: 107, left: "88%", top: "46%", duration: 9.5, delay: 2, rotate: 15, scale: 0.88 },
+  { id: 8, src: "/clove-1.png", width: 105, height: 69, left: "2%", top: "42%", duration: 8, delay: 3, rotate: -8, scale: 0.8 },
 ];
 
 export default function HeroSection() {
@@ -24,8 +24,8 @@ export default function HeroSection() {
     const handleMouse = (e: MouseEvent) => {
       if (!parallaxRef.current) return;
       const { innerWidth, innerHeight } = window;
-      const x = (e.clientX / innerWidth - 0.5) * 20;
-      const y = (e.clientY / innerHeight - 0.5) * 20;
+      const x = (e.clientX / innerWidth - 0.5) * 22;
+      const y = (e.clientY / innerHeight - 0.5) * 22;
       parallaxRef.current.style.transform = `translate(${x}px, ${y}px)`;
     };
     window.addEventListener("mousemove", handleMouse);
@@ -43,16 +43,16 @@ export default function HeroSection() {
     >
       {/* Luxury Golden Atmospheric Glows */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-25"
+        className="absolute inset-0 pointer-events-none opacity-30"
         style={{
           backgroundImage:
             "radial-gradient(circle at 25% 45%, #C9A227 0%, transparent 55%), radial-gradient(circle at 75% 40%, #F5E6B2 0%, transparent 50%), radial-gradient(circle at 50% 90%, #ECC452 0%, transparent 60%)",
         }}
       />
 
-      {/* Floating REALISTIC Peeled Garlic Cloves Layer */}
+      {/* Floating REALISTIC PNG Peeled Garlic Cloves Layer (NO SVGs) */}
       <div ref={parallaxRef} className="absolute inset-0 pointer-events-none z-0">
-        {PHOTO_CLOVES.map((clove) => (
+        {REAL_CLOVES.map((clove) => (
           <div
             key={clove.id}
             className="absolute transition-transform duration-300"
@@ -64,14 +64,15 @@ export default function HeroSection() {
           >
             <div
               style={{
-                transform: `rotate(${clove.rotate}deg)`,
-                filter: "drop-shadow(0 12px 24px rgba(0,0,0,0.5)) drop-shadow(0 2px 6px rgba(201,162,39,0.25))",
+                transform: `rotate(${clove.rotate}deg) scale(${clove.scale})`,
+                filter: "drop-shadow(0 14px 28px rgba(0,0,0,0.65)) drop-shadow(0 2px 8px rgba(201,162,39,0.3))",
               }}
               className="hover:scale-110 transition-transform duration-300"
             >
+              {/* Authentic Photo Peeled Garlic PNG */}
               <Image
                 src={clove.src}
-                alt="Buy Fresh Peeled Garlic"
+                alt="Real Peeled Garlic Clove"
                 width={clove.width}
                 height={clove.height}
                 className="select-none pointer-events-none object-contain"
@@ -89,7 +90,7 @@ export default function HeroSection() {
           {/* Left Column */}
           <div className="lg:col-span-7 text-center lg:text-left">
             
-            {/* Top Quality Badge - NO Araria text above Nature's Goodness */}
+            {/* Top Quality Badge */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -100,7 +101,7 @@ export default function HeroSection() {
               <span>100% Organically Farmed &bull; Pure Quality</span>
             </motion.div>
 
-            {/* Headline: Clean and without Araria above it */}
+            {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -127,7 +128,7 @@ export default function HeroSection() {
               <span>Healthy</span>
             </motion.p>
 
-            {/* Core Value Props (Pan-India delivery, competitive rate, restaurant delivery) */}
+            {/* Core Value Props */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

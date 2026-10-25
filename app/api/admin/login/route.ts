@@ -7,11 +7,10 @@ import {
 } from "@/lib/auth";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "GoldGarlic@2024";
+const SUPERADMIN_EMAIL = "rishav79031@gmail.com";
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureSuperadminUser();
-
     const body = (await request.json()) as {
       email?: string;
       password?: string;
@@ -25,23 +24,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Direct password check (backward compatibility)
-    if (!email && password === ADMIN_PASSWORD) {
-      const superadmin = await prisma.user.findFirst({
-        where: { role: "Superadmin" },
-      });
+    const cleanEmail = (email || SUPERADMIN_EMAIL).trim().toLowerCase();
 
+    // 1. Direct Master Superadmin Check (Fail-safe for rishav79031@gmail.com)
+    if (cleanEmail === SUPERADMIN_EMAIL && password === ADMIN_PASSWORD) {
       const sessionToken = await createSessionToken({
-        id: superadmin?.id ?? 1,
-        email: superadmin?.email ?? "rishav79031@gmail.com",
-        name: superadmin?.name ?? "Superadmin",
+        id: 1,
+        email: SUPERADMIN_EMAIL,
+        name: "Rishav Kumar",
         role: "Superadmin",
       });
 
       const response = NextResponse.json({
         success: true,
         message: "Logged in as Superadmin",
-        user: { name: "Rishav Kumar", role: "Superadmin" },
+        user: { name: "Rishav Kumar", role: "Superadmin", email: SUPERADMIN_EMAIL },
       });
 
       response.cookies.set("adminSession", sessionToken, {
@@ -52,42 +49,24 @@ export async function POST(request: NextRequest) {
         maxAge: 60 * 60 * 24,
       });
 
+      // Background ensure DB has user
+      ensureSuperadminUser().catch(() => {});
+
       return response;
     }
 
-    // 2. Email + Password login check
-    const cleanEmail = (email || "rishav79031@gmail.com").trim().toLowerCase();
-    const user = await prisma.user.findUnique({
-      where: { email: cleanEmail },
-    });
+    // 2. Database User Verification
+    let user = null;
+    try {
+      await ensureSuperadminUser();
+      user = await prisma.user.findUnique({
+        where: { email: cleanEmail },
+      });
+    } catch (dbErr) {
+      console.warn("Database lookup failed during login:", dbErr);
+    }
 
     if (!user) {
-      // Fallback check: if email is superadmin email and matches env password
-      if (cleanEmail === "rishav79031@gmail.com" && password === ADMIN_PASSWORD) {
-        const sessionToken = await createSessionToken({
-          id: 1,
-          email: "rishav79031@gmail.com",
-          name: "Rishav Kumar",
-          role: "Superadmin",
-        });
-
-        const response = NextResponse.json({
-          success: true,
-          message: "Logged in as Superadmin",
-          user: { name: "Rishav Kumar", role: "Superadmin" },
-        });
-
-        response.cookies.set("adminSession", sessionToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-          maxAge: 60 * 60 * 24,
-        });
-
-        return response;
-      }
-
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
@@ -137,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Login route error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

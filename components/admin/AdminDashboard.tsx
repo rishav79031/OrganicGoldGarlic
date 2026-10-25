@@ -177,7 +177,7 @@ export default function AdminDashboard() {
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    toast.success("Logged out");
+    toast.success("Logged out successfully. See you soon!", { icon: "👋" });
     router.push("/admin/login");
   }
 
@@ -186,16 +186,19 @@ export default function AdminDashboard() {
 
     // If changing to Invoice Generated and no invoice exists, prompt invoice modal
     if (newStatus === "Invoice Generated" && !targetOrder?.invoiceNumber) {
+      toast("Please confirm the invoice amount and details.", { icon: "📜" });
       openInvoiceModal(targetOrder!);
       return;
     }
 
     // If changing to Shipped, prompt shipping modal
     if (newStatus === "Shipped") {
+      toast("Please enter courier & tracking details.", { icon: "🚚" });
       openShippingModal(targetOrder!);
       return;
     }
 
+    const toastId = toast.loading(`Updating Order #${targetOrder?.orderNumber ?? orderId} to "${newStatus}"...`);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
@@ -204,13 +207,16 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message || `Order status updated to ${newStatus}`);
+        toast.success(
+          `Order #${targetOrder?.orderNumber ?? orderId} updated to "${newStatus}"! Automated email dispatched.`,
+          { id: toastId, icon: "✅", duration: 4000 }
+        );
         loadDashboardData();
       } else {
-        toast.error(data.error || "Failed to update order status");
+        toast.error(data.error || "Failed to update order status", { id: toastId });
       }
     } catch {
-      toast.error("Failed to update status");
+      toast.error("Failed to update status. Please try again.", { id: toastId });
     }
   }
 
@@ -228,6 +234,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!selectedOrderForInvoice) return;
 
+    const toastId = toast.loading("Generating official invoice & dispatching email...");
     try {
       const res = await fetch(`/api/admin/orders/${selectedOrderForInvoice.id}`, {
         method: "PATCH",
@@ -241,14 +248,17 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(`Invoice ${invoiceForm.invoiceNumber} generated & sent to customer!`);
+        toast.success(
+          `Invoice #${invoiceForm.invoiceNumber} (₹${invoiceForm.invoiceAmount}) issued & emailed to customer!`,
+          { id: toastId, icon: "📜", duration: 4500 }
+        );
         setSelectedOrderForInvoice(null);
         loadDashboardData();
       } else {
-        toast.error(data.error || "Failed to generate invoice");
+        toast.error(data.error || "Failed to generate invoice", { id: toastId });
       }
     } catch {
-      toast.error("Failed to generate invoice");
+      toast.error("Failed to generate invoice", { id: toastId });
     }
   }
 
@@ -265,6 +275,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!selectedOrderForShipping) return;
 
+    const toastId = toast.loading("Recording shipment & dispatching tracking notification...");
     try {
       const res = await fetch(`/api/admin/orders/${selectedOrderForShipping.id}`, {
         method: "PATCH",
@@ -278,19 +289,23 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(`Order marked as Shipped! Tracking emailed to customer.`);
+        toast.success(
+          `Order marked as Shipped! Tracking details emailed to customer.`,
+          { id: toastId, icon: "🚚", duration: 4500 }
+        );
         setSelectedOrderForShipping(null);
         loadDashboardData();
       } else {
-        toast.error(data.error || "Failed to save shipping details");
+        toast.error(data.error || "Failed to save shipping details", { id: toastId });
       }
     } catch {
-      toast.error("Failed to save shipping details");
+      toast.error("Failed to save shipping details", { id: toastId });
     }
   }
 
   async function handleCreateOrder(e: React.FormEvent) {
     e.preventDefault();
+    const toastId = toast.loading("Saving new order...");
     try {
       const res = await fetch("/api/admin/orders", {
         method: "POST",
@@ -299,7 +314,10 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message);
+        toast.success(
+          `Order #${data.order?.orderNumber || "New"} recorded successfully!`,
+          { id: toastId, icon: "📦", duration: 4000 }
+        );
         setNewOrder({
           customerName: "",
           customerPhone: "",
@@ -316,15 +334,16 @@ export default function AdminDashboard() {
         setActiveTab("orders");
         loadDashboardData();
       } else {
-        toast.error(data.error);
+        toast.error(data.error || "Failed to create order", { id: toastId });
       }
     } catch {
-      toast.error("Failed to create order");
+      toast.error("Failed to create order", { id: toastId });
     }
   }
 
   async function handleSaveSettings(e: React.FormEvent) {
     e.preventDefault();
+    const toastId = toast.loading("Saving forwarding configuration...");
     try {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
@@ -333,32 +352,34 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message);
+        toast.success("Email forwarding settings saved successfully!", { id: toastId, icon: "⚙️" });
       } else {
-        toast.error(data.error);
+        toast.error(data.error || "Failed to save settings", { id: toastId });
       }
     } catch {
-      toast.error("Failed to save settings");
+      toast.error("Failed to save settings", { id: toastId });
     }
   }
 
   async function handleSendOtp() {
+    const toastId = toast.loading("Sending 6-digit OTP to rishav79031@gmail.com...");
     try {
       const res = await fetch("/api/admin/otp/send", { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message);
+        toast.success("6-Digit OTP sent to your registered email!", { id: toastId, icon: "📩" });
         setOtpSent(true);
       } else {
-        toast.error(data.error);
+        toast.error(data.error || "Failed to send OTP", { id: toastId });
       }
     } catch {
-      toast.error("Failed to send OTP");
+      toast.error("Failed to send OTP", { id: toastId });
     }
   }
 
   async function handleVerifyOtpReset(e: React.FormEvent) {
     e.preventDefault();
+    const toastId = toast.loading("Verifying OTP & updating password...");
     try {
       const res = await fetch("/api/admin/otp/verify-reset", {
         method: "POST",
@@ -367,20 +388,21 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message);
+        toast.success("Superadmin password updated successfully!", { id: toastId, icon: "🔒" });
         setOtpSent(false);
         setOtpCode("");
         setNewPassword("");
       } else {
-        toast.error(data.error);
+        toast.error(data.error || "Invalid OTP or reset failed", { id: toastId });
       }
     } catch {
-      toast.error("Failed to reset password");
+      toast.error("Failed to reset password", { id: toastId });
     }
   }
 
   async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
+    const toastId = toast.loading(`Adding team member ${newUser.name}...`);
     try {
       const res = await fetch("/api/admin/users", {
         method: "POST",
@@ -389,14 +411,14 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message);
+        toast.success(`Team member ${newUser.name} (${newUser.role}) added successfully!`, { id: toastId, icon: "👤" });
         setNewUser({ name: "", email: "", password: "", role: "Staff" });
         loadDashboardData();
       } else {
-        toast.error(data.error);
+        toast.error(data.error || "Failed to create user", { id: toastId });
       }
     } catch {
-      toast.error("Failed to create user");
+      toast.error("Failed to create user", { id: toastId });
     }
   }
 
@@ -587,7 +609,10 @@ export default function AdminDashboard() {
               Public Order Page ↗
             </Link>
             <button
-              onClick={loadDashboardData}
+              onClick={() => {
+                loadDashboardData();
+                toast.success("Dashboard refreshed with latest orders & stats!", { icon: "↻" });
+              }}
               className="px-4 py-2 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow"
             >
               ↻ Refresh

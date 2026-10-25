@@ -108,22 +108,22 @@ export default function Navbar() {
           <div className="w-full max-w-[96%] mx-auto px-2 sm:px-4 flex items-center justify-between gap-4">
             
             {/* Logo on the Far Left with Margin */}
-            <Link href="/" className="flex items-center gap-3 shrink-0 group ml-1 sm:ml-2">
-              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-gold/60 shadow-sm transition-transform duration-300 group-hover:scale-105 shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group ml-0.5 sm:ml-2">
+              <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-gold/60 shadow-sm transition-transform duration-300 group-hover:scale-105 shrink-0">
                 <Image
                   src="/logo.png"
                   alt="Organic Gold Garlic - Buy Peeled Garlic"
                   fill
-                  sizes="48px"
+                  sizes="44px"
                   className="object-contain"
                   priority
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-logo text-base sm:text-lg lg:text-xl font-bold tracking-[0.14em] text-[#14301c] uppercase leading-none group-hover:text-gold-dark transition-colors whitespace-nowrap">
+                <span className="font-logo text-xs sm:text-sm lg:text-base font-bold tracking-[0.12em] text-[#14301c] uppercase leading-none group-hover:text-gold-dark transition-colors whitespace-nowrap">
                   Organic Gold Garlic
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.22em] text-[#93782b] font-medium leading-tight mt-1 whitespace-nowrap">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#93782b] font-medium leading-tight mt-0.5 whitespace-nowrap">
                   Pure &bull; Fresh &bull; Healthy
                 </span>
               </div>
@@ -209,7 +209,7 @@ export default function Navbar() {
 
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="p-2 text-gray-800 hover:text-gold transition-colors"
+                className="p-2 rounded-xl border border-gray-200 bg-white/80 text-gray-800 hover:text-gold hover:border-gold transition-all"
                 aria-label="Toggle Navigation"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

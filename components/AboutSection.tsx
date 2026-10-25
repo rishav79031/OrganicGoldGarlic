@@ -41,7 +41,7 @@ const fadeUp = {
 
 export default function AboutSection() {
   return (
-    <section id="about" className="py-24 sm:py-32 bg-[#fbfaf5] relative overflow-hidden">
+    <section id="about" className="pt-10 sm:pt-28 pb-6 sm:pb-32 bg-[#fbfaf5] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
@@ -51,7 +51,7 @@ export default function AboutSection() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16 sm:mb-20"
+          className="text-center mb-8 sm:mb-20"
         >
           <span className="inline-block text-[#93782b] font-bold text-xs uppercase tracking-[0.25em] px-3.5 py-1 bg-gold/15 rounded-full border border-gold/30 mb-3">
             Our Journey &bull; Farm to Kitchen
@@ -68,7 +68,7 @@ export default function AboutSection() {
         </motion.div>
 
         {/* 4-Step Visual Story Cards: Horizontal Swipe Carousel on Mobile, 4-Col Grid on Desktop */}
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-8 items-stretch overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-8 items-stretch overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
           {STORY_STEPS.map((item, idx) => (
             <motion.div
               key={item.step}
@@ -118,7 +118,7 @@ export default function AboutSection() {
         </div>
 
         {/* Mobile Swipe Hint */}
-        <div className="sm:hidden text-center mt-3 text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+        <div className="sm:hidden text-center mt-1.5 text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
           <span>&larr; Swipe to explore our journey &rarr;</span>
         </div>
 

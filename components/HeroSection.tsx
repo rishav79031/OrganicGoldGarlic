@@ -5,16 +5,16 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-// Steady falling 🧄 icons at consistent gentle speeds with whitescale brightness
+// Steady falling 🧄 icons scaling up on desktop with screen size
 const FALLING_GARLICS = [
-  { id: 1, left: "5%", size: "text-2xl sm:text-3xl", duration: 14, delay: 0 },
-  { id: 2, left: "18%", size: "text-xl sm:text-2xl", duration: 16, delay: 4 },
-  { id: 3, left: "32%", size: "text-3xl sm:text-4xl", duration: 15, delay: 1.5 },
-  { id: 4, left: "48%", size: "text-xl sm:text-2xl", duration: 18, delay: 7 },
-  { id: 5, left: "62%", size: "text-2xl sm:text-3xl", duration: 13, delay: 3 },
-  { id: 6, left: "75%", size: "text-3xl sm:text-4xl", duration: 17, delay: 6 },
-  { id: 7, left: "88%", size: "text-xl sm:text-2xl", duration: 15, delay: 2 },
-  { id: 8, left: "95%", size: "text-2xl sm:text-3xl", duration: 19, delay: 9 },
+  { id: 1, left: "4%", size: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl", duration: 14, delay: 0 },
+  { id: 2, left: "16%", size: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl", duration: 16, delay: 4 },
+  { id: 3, left: "30%", size: "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl", duration: 15, delay: 1.5 },
+  { id: 4, left: "46%", size: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl", duration: 18, delay: 7 },
+  { id: 5, left: "60%", size: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl", duration: 13, delay: 3 },
+  { id: 6, left: "74%", size: "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl", duration: 17, delay: 6 },
+  { id: 7, left: "86%", size: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl", duration: 15, delay: 2 },
+  { id: 8, left: "94%", size: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl", duration: 19, delay: 9 },
 ];
 
 export default function HeroSection() {
@@ -39,7 +39,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative min-h-[85vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden pt-24 sm:pt-36 pb-12 sm:pb-20 bg-[#08130b]"
+      className="relative min-h-[75vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 sm:pt-36 pb-6 sm:pb-20 bg-[#08130b]"
     >
       {/* Luxury Golden Atmospheric Glow */}
       <div
@@ -114,28 +114,28 @@ export default function HeroSection() {
             </motion.p>
 
             {/* MOBILE ONLY: Image at Top, then Note, then Buttons */}
-            <div className="lg:hidden my-4 max-w-[270px] mx-auto">
+            <div className="lg:hidden my-2.5 max-w-[240px] mx-auto">
               {/* Image */}
-              <div className="relative rounded-2xl overflow-hidden border border-gold/40 shadow-2xl bg-black/60 mb-3">
-                <div className="relative w-full h-[260px]">
+              <div className="relative rounded-2xl overflow-hidden border border-gold/40 shadow-xl bg-black/60 mb-2">
+                <div className="relative w-full h-[210px]">
                   <Image
                     src="/story-4-packed-ready.webp"
                     alt="Organic Gold Garlic - Peeled Garlic Package"
                     fill
-                    sizes="270px"
+                    sizes="240px"
                     className="object-cover"
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 </div>
-                <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/80 backdrop-blur-md rounded-xl p-2.5 border border-white/10 flex items-center justify-between">
-                  <span className="text-gold-light text-[10px] uppercase tracking-widest font-semibold">100% Natural Garlic</span>
-                  <span className="text-[10px] text-white/80">Ready to Cook</span>
+                <div className="absolute bottom-2 left-2 right-2 bg-black/80 backdrop-blur-md rounded-xl p-2 border border-white/10 flex items-center justify-between">
+                  <span className="text-gold-light text-[9px] uppercase tracking-widest font-semibold">100% Natural Garlic</span>
+                  <span className="text-[9px] text-white/80">Ready to Cook</span>
                 </div>
               </div>
 
               {/* Note below image */}
-              <p className="text-[10px] text-gold-light/75 italic text-center mb-3">
+              <p className="text-[9px] text-gold-light/75 italic text-center mb-2.5">
                 * Note: Rates may differ as per market rate & harvest.
               </p>
 
@@ -143,7 +143,7 @@ export default function HeroSection() {
               <div className="flex flex-row gap-2 justify-center">
                 <a
                   href="#products"
-                  className="flex-1 px-4 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-amber-400 to-gold text-[#08130b] shadow-md text-center"
+                  className="flex-1 px-3 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-amber-400 to-gold text-[#08130b] shadow-md text-center"
                 >
                   Buy Packs &rarr;
                 </a>
@@ -151,7 +151,7 @@ export default function HeroSection() {
                   href={`https://wa.me/917488503664?text=${whatsappHeroText}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 px-4 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider border border-white/25 text-white hover:border-gold transition-colors text-center flex items-center justify-center gap-1.5"
+                  className="flex-1 px-3 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/25 text-white hover:border-gold transition-colors text-center flex items-center justify-center gap-1.5"
                 >
                   <svg className="w-3.5 h-3.5 fill-current text-[#25D366]" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />

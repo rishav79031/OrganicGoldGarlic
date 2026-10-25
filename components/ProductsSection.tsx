@@ -77,7 +77,7 @@ export default function ProductsSection() {
   return (
     <section
       id="products"
-      className="py-16 sm:py-24 bg-gradient-to-b from-[#fbfaf5] via-amber-50/20 to-[#fbfaf5] relative overflow-hidden"
+      className="pt-12 sm:pt-24 pb-2 sm:pb-24 bg-gradient-to-b from-[#fbfaf5] via-amber-50/20 to-[#fbfaf5] relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -196,7 +196,7 @@ export default function ProductsSection() {
         </div>
 
         {/* Mobile Swipe Hint */}
-        <div className="sm:hidden text-center mt-3 text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+        <div className="sm:hidden text-center mt-2 mb-0 text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
           <span>&larr; Swipe packs to explore &rarr;</span>
         </div>
 

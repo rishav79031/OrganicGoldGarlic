@@ -53,7 +53,7 @@ export default function Footer() {
               href={`https://wa.me/917488503664?text=${encodeURIComponent("Hi Organic Gold Garlic, I would like to enquire about buying peeled garlic.")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#25D366] hover:underline"
+              className="hover:text-gold transition-colors"
             >
               WhatsApp
             </a>

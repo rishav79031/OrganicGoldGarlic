@@ -101,47 +101,6 @@ export default function ProductsSection() {
           </p>
         </motion.div>
 
-        {/* Wholesale & Retail Featured Showcase Banner (Refined for Mobile & Desktop) */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mb-10 sm:mb-14 rounded-3xl overflow-hidden border border-gold/30 shadow-xl relative bg-[#08130b]"
-        >
-          <div className="relative w-full h-56 sm:h-72 lg:h-80">
-            <Image
-              src="/product-banner-triple.webp"
-              alt="Wholesale & Retail Fresh Peeled Garlic"
-              fill
-              sizes="100vw"
-              className="object-cover opacity-85"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/40 to-black/75 flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 sm:p-10 text-white">
-              <div className="max-w-md">
-                <span className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] text-gold-light font-bold mb-1.5 px-2.5 py-0.5 rounded bg-gold/20 border border-gold/30">
-                  Wholesale &bull; Retail &bull; Foodservice
-                </span>
-                <h3 className="font-brand text-2xl sm:text-4xl font-bold leading-tight mb-2">
-                  Fresh & Clean Peeled Garlic
-                </h3>
-                <p className="text-white/80 text-xs sm:text-sm font-light leading-relaxed">
-                  Available in standard 250g & 1kg consumer pouches or custom 10kg+ bulk crates with Pan-India dispatch.
-                </p>
-              </div>
-
-              <div className="mt-4 sm:mt-0 flex gap-2 w-full sm:w-auto">
-                <a
-                  href="#enquiry"
-                  className="w-full sm:w-auto text-center px-6 py-2.5 rounded-full bg-gold hover:bg-gold-light text-[#08130b] text-xs uppercase tracking-widest font-bold shadow-lg transition-colors"
-                >
-                  Bulk Enquiry &rarr;
-                </a>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Product Cards: Horizontal Swipe Carousel on Mobile, 3-Col Grid on Desktop */}
         <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
           {products.map((product, index) => (

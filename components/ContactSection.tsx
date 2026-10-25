@@ -102,14 +102,14 @@ export default function ContactSection() {
             </a>
           </motion.div>
 
-          {/* Email */}
+          {/* Email - Hidden on Mobile */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, delay: 0.24 }}
-            className="bg-white rounded-3xl p-8 shadow-lg border border-gold/10 hover:border-gold/30 transition-colors card-hover text-center"
+            className="hidden md:block bg-white rounded-3xl p-8 shadow-lg border border-gold/10 hover:border-gold/30 transition-colors card-hover text-center"
           >
             <div className="w-16 h-16 bg-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
               <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@ export default function ContactSection() {
           </motion.div>
         </div>
 
-        {/* Business hours */}
+        {/* Business hours - Time on different row on mobile */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -140,9 +140,11 @@ export default function ContactSection() {
           className="mt-12 bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center max-w-2xl mx-auto"
         >
           <p className="text-primary font-semibold mb-1">Business Hours</p>
-          <p className="text-gray-500 text-sm">
-            Monday – Saturday &nbsp;|&nbsp; 9:00 AM – 7:00 PM IST
-          </p>
+          <div className="text-gray-600 text-sm flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2">
+            <span>Monday – Saturday</span>
+            <span className="hidden sm:inline text-gray-400">|</span>
+            <span className="font-medium text-gray-800">9:00 AM – 7:00 PM IST</span>
+          </div>
           <p className="text-gray-400 text-xs mt-1">
             WhatsApp available 24/7 for order queries
           </p>

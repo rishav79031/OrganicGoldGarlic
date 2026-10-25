@@ -144,14 +144,14 @@ export default function WhyChooseUs() {
           ))}
         </div>
 
-        {/* Trust badges */}
+        {/* Trust badges - Hidden on mobile to save vertical space, single row on larger screens */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7, delay: 0.5 }}
-          className="flex flex-wrap justify-center gap-6 mt-16"
+          className="hidden sm:flex flex-wrap justify-center gap-4 lg:gap-6 mt-16"
         >
           {[
             { icon: "🏆", label: "Premium Quality" },

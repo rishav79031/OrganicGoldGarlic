@@ -67,8 +67,8 @@ export default function AboutSection() {
           </p>
         </motion.div>
 
-        {/* 4-Step Visual Story Cards Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
+        {/* 4-Step Visual Story Cards: Horizontal Swipe Carousel on Mobile, 4-Col Grid on Desktop */}
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-8 items-stretch overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
           {STORY_STEPS.map((item, idx) => (
             <motion.div
               key={item.step}
@@ -77,7 +77,7 @@ export default function AboutSection() {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, delay: idx * 0.12 }}
-              className="group bg-white rounded-3xl p-5 border border-gold/20 hover:border-gold/60 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+              className="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-3xl p-5 border border-gold/20 hover:border-gold/60 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Photo in WebP */}
@@ -86,7 +86,7 @@ export default function AboutSection() {
                     src={item.image}
                     alt={item.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
+                    sizes="(max-width: 768px) 85vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-[#08130b]/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-gold/30">
@@ -115,6 +115,11 @@ export default function AboutSection() {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Mobile Swipe Hint */}
+        <div className="sm:hidden text-center mt-3 text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+          <span>&larr; Swipe to explore our journey &rarr;</span>
         </div>
 
       </div>

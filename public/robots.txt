@@ -1,0 +1,10 @@
+# Googlebot and all search engine crawlers
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://organicgoldgarlic.com/sitemap.xml

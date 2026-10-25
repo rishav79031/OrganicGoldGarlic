@@ -68,12 +68,12 @@ export default function HeroSection() {
         ))}
       </div>
 
-      {/* Main Hero Container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+      {/* Main Hero Container: Utilise Space Better on Desktop */}
+      <div className="relative z-10 max-w-[96%] xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 w-full">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-12 items-center">
           
-          {/* Main Hero Column */}
-          <div className="lg:col-span-7 text-center lg:text-left">
+          {/* Main Hero Column: Aligned cleanly to the left on larger screens */}
+          <div className="lg:col-span-7 xl:col-span-6 text-center lg:text-left lg:pr-2 xl:pr-6">
             
             {/* Minimal Badge */}
             <motion.div
@@ -247,40 +247,40 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* DESKTOP ONLY: Right Column Hero Product Mockup */}
-          <div className="hidden lg:flex lg:col-span-5 justify-center">
+          {/* DESKTOP ONLY: Bigger Right Column Hero Product Mockup */}
+          <div className="hidden lg:flex lg:col-span-5 xl:col-span-6 justify-center lg:justify-end">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative w-full max-w-sm"
+              className="relative w-full max-w-md xl:max-w-lg"
             >
               <div className="relative rounded-3xl overflow-hidden border border-gold/40 shadow-2xl bg-black/60">
-                <div className="relative w-full h-[420px]">
+                <div className="relative w-full h-[480px] xl:h-[530px]">
                   <Image
                     src="/story-4-packed-ready.webp"
                     alt="Organic Gold Garlic - Peeled Garlic Package"
                     fill
-                    sizes="400px"
+                    sizes="(max-width: 1280px) 450px, 550px"
                     className="object-cover"
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 </div>
 
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md rounded-xl py-1 px-3 border border-gold/40 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                  <span className="text-[10px] font-bold text-[#14301c] uppercase tracking-wider">Pan-India Delivery</span>
+                <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md rounded-xl py-1.5 px-3.5 border border-gold/40 flex items-center gap-1.5 shadow">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                  <span className="text-[11px] font-bold text-[#14301c] uppercase tracking-wider">Pan-India Delivery</span>
                 </div>
 
-                <div className="absolute bottom-3 left-3 right-3 bg-black/75 backdrop-blur-md rounded-xl p-3 border border-white/10 flex items-center justify-between">
+                <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex items-center justify-between">
                   <div>
-                    <span className="text-gold-light block text-[9px] uppercase tracking-widest font-medium">Ready to Cook</span>
-                    <strong className="text-white text-sm font-brand">100% Natural Garlic</strong>
+                    <span className="text-gold-light block text-[10px] uppercase tracking-widest font-semibold">Ready to Cook</span>
+                    <strong className="text-white text-sm sm:text-base font-brand">100% Natural Garlic</strong>
                   </div>
                   <Link
                     href="#products"
-                    className="px-3 py-1 rounded-full bg-gold hover:bg-gold-light text-[#08130b] font-bold text-xs uppercase tracking-wider transition-colors shadow"
+                    className="px-4 py-2 rounded-full bg-gold hover:bg-gold-light text-[#08130b] font-bold text-xs uppercase tracking-wider transition-colors shadow"
                   >
                     View Packs
                   </Link>

@@ -88,10 +88,13 @@ export default function Navbar() {
             <div className="flex items-center gap-4 shrink-0">
               <a
                 href="tel:7488503664"
-                className="flex items-center gap-1.5 text-white/90 hover:text-gold transition-colors"
+                className="flex items-center gap-2 text-white/90 hover:text-gold transition-colors"
+                aria-label="Call +91 74885 03664"
               >
-                <span className="text-[10px] uppercase tracking-widest text-gold font-medium">Contact:</span>
-                <strong className="font-medium">+91 74885 03664</strong>
+                <svg className="w-3.5 h-3.5 text-gold fill-current" viewBox="0 0 24 24">
+                  <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" />
+                </svg>
+                <strong className="font-medium tracking-wide">+91 74885 03664</strong>
               </a>
             </div>
           </div>
@@ -179,12 +182,12 @@ export default function Navbar() {
                 <span className="text-xs font-medium text-gray-600">Search</span>
               </button>
 
-              {/* Bulk Enquiry in the Same Single Row */}
+              {/* Enquiry in the Same Single Row */}
               <button
                 onClick={() => handleNav("/#enquiry")}
                 className="px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase border border-gold/70 text-gold-dark hover:bg-gold hover:text-white transition-all duration-200 shrink-0 whitespace-nowrap"
               >
-                Bulk Enquiry
+                Enquiry
               </button>
 
               {/* WhatsApp Button */}
@@ -271,7 +274,7 @@ export default function Navbar() {
                   onClick={() => handleNav("/#enquiry")}
                   className="w-full py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-gold text-white"
                 >
-                  Bulk Enquiry
+                  Enquiry
                 </button>
               </div>
             </div>

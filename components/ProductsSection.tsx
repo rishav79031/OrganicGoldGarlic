@@ -95,79 +95,77 @@ export default function ProductsSection() {
         </div>
 
         {/* Product Cards: Horizontal Swipe Carousel on Mobile, 3-Col Grid on Desktop */}
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
           {products.map((product) => (
             <div
               key={product.id}
-              className={`min-w-[85vw] sm:min-w-0 snap-center flex flex-col justify-between rounded-3xl bg-white border-2 ${product.border} p-5 sm:p-7 shadow-lg ${product.glow} transition-all duration-300`}
+              className={`min-w-[85vw] sm:min-w-0 snap-center flex flex-col rounded-3xl bg-white border-2 ${product.border} p-4 sm:p-5 shadow-lg ${product.glow} transition-all duration-300`}
             >
-              <div>
-                {/* Badge Row */}
-                <div className="flex justify-between items-start mb-3">
-                  <span className={`text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider ${product.badgeColor}`}>
-                    {product.badge}
-                  </span>
-                  <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md">
-                    {product.weight}
-                  </span>
-                </div>
-
-                {/* Product Photo */}
-                <div className="relative w-full h-48 sm:h-56 rounded-2xl overflow-hidden mb-4 bg-amber-50/40 border border-gold/15">
-                  <Image
-                    src={product.image}
-                    alt={`${product.name} - Buy Peeled Garlic`}
-                    fill
-                    sizes="(max-width: 768px) 85vw, 33vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                </div>
-
-                {/* Info */}
-                <h3 className="font-brand text-xl sm:text-2xl font-bold text-primary mb-1">
-                  {product.name}
-                </h3>
-
-                {/* Price */}
-                <div className="my-2.5 py-2 border-y border-gold/15 flex items-baseline gap-2">
-                  <span className={`font-brand font-bold ${product.isBulk ? "text-lg text-gold-dark" : "text-2xl sm:text-3xl text-primary"}`}>
-                    {product.price}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-xs sm:text-sm text-gray-400 line-through">
-                      {product.originalPrice}
-                    </span>
-                  )}
-                  {product.priceSub && (
-                    <span className="text-[11px] font-semibold text-gold-dark block">
-                      {product.priceSub}
-                    </span>
-                  )}
-                </div>
-
-                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-4">
-                  {product.description}
-                </p>
-
-                {/* Features */}
-                <ul className="space-y-1.5 mb-5">
-                  {product.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-1.5 text-xs text-gray-700">
-                      <span className="text-gold-dark font-bold mt-0.5">✓</span>
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
+              {/* Badge Row */}
+              <div className="flex justify-between items-center mb-2.5">
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-sm uppercase tracking-wider ${product.badgeColor}`}>
+                  {product.badge}
+                </span>
+                <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                  {product.weight}
+                </span>
               </div>
 
-              {/* Action Button */}
-              <div className="pt-2 border-t border-gray-100">
+              {/* Product Photo: Full Visibility with object-contain */}
+              <div className="relative w-full h-48 sm:h-56 rounded-2xl overflow-hidden mb-3 bg-gradient-to-b from-amber-50/60 to-white border border-gold/15 flex items-center justify-center p-2">
+                <Image
+                  src={product.image}
+                  alt={`${product.name} - Buy Peeled Garlic`}
+                  fill
+                  sizes="(max-width: 768px) 85vw, 33vw"
+                  className="object-contain p-1.5"
+                  priority
+                />
+              </div>
+
+              {/* Info */}
+              <h3 className="font-brand text-lg sm:text-xl font-bold text-primary mb-1">
+                {product.name}
+              </h3>
+
+              {/* Price */}
+              <div className="my-1.5 py-1.5 border-y border-gold/15 flex items-baseline gap-2">
+                <span className={`font-brand font-bold ${product.isBulk ? "text-base text-gold-dark" : "text-2xl text-primary"}`}>
+                  {product.price}
+                </span>
+                {product.originalPrice && (
+                  <span className="text-xs text-gray-400 line-through">
+                    {product.originalPrice}
+                  </span>
+                )}
+                {product.priceSub && (
+                  <span className="text-[11px] font-semibold text-gold-dark block">
+                    {product.priceSub}
+                  </span>
+                )}
+              </div>
+
+              <p className="text-gray-600 text-xs leading-relaxed mb-3">
+                {product.description}
+              </p>
+
+              {/* Features */}
+              <ul className="space-y-1 mb-3.5 flex-1">
+                {product.features.map((feat) => (
+                  <li key={feat} className="flex items-start gap-1.5 text-xs text-gray-700">
+                    <span className="text-gold-dark font-bold">✓</span>
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Action Button: Compact without dead space */}
+              <div className="pt-2 border-t border-gray-100 mt-auto">
                 <a
                   href={`https://wa.me/917488503664?text=${encodeURIComponent(product.orderMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-md uppercase tracking-wider ${
+                  className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-md uppercase tracking-wider ${
                     product.isBulk
                       ? "bg-gradient-to-r from-gold-dark to-amber-600 hover:from-amber-600 hover:to-gold-dark"
                       : "bg-primary hover:bg-primary-dark"

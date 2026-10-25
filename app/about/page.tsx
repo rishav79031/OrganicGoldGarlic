@@ -6,52 +6,47 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us | Organic Fresh Gold Garlic - Araria, Bihar",
-  description: "Learn about Organic Fresh Gold Garlic, our sustainable garlic processing unit in Araria Shivpuri, Bihar, and our mission to deliver pure peeled garlic directly to kitchens.",
+  title: "About Us | Organic Gold Garlic - Buy Peeled Garlic",
+  description: "Learn about Organic Gold Garlic in Araria, Bihar. We supply clean, chemical-free peeled garlic with Pan-India delivery and competitive wholesale rates for restaurants and homes.",
 };
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-cream">
+    <main className="min-h-screen bg-[#fbfaf5]">
       <Navbar />
 
       {/* Hero Header */}
-      <section className="relative pt-36 pb-20 bg-gradient-to-b from-primary-dark via-primary to-emerald-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-15 pointer-events-none"
-             style={{
-               backgroundImage: "radial-gradient(#c9a227 1px, transparent 1px)",
-               backgroundSize: "24px 24px"
-             }}
-        />
-
+      <section className="relative pt-36 pb-20 bg-gradient-to-b from-[#08130b] via-primary-dark to-[#08130b] text-white overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/20 text-gold-light border border-gold/40 text-xs font-bold uppercase tracking-widest mb-4">
-            <span>Our Roots & Story</span>
+            <span>Our Heritage & Process</span>
           </div>
-          <h1 className="font-serif text-4xl sm:text-6xl font-bold mb-6">
-            Pioneering Clean & Pure <br />
-            <span className="text-gradient">Garlic From Bihar</span>
+          <h1 className="font-brand text-4xl sm:text-6xl font-normal mb-5 leading-tight">
+            Pioneering Pure & Clean <br />
+            <span className="italic font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gold via-yellow-100 to-gold">
+              Peeled Garlic in India
+            </span>
           </h1>
-          <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            From the fertile soils of Seemanchal to modern kitchens across India — discover how Organic Fresh Gold Garlic was founded on authenticity, hygiene, and convenience.
+          <p className="text-white/80 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-light">
+            From the fertile soils of Seemanchal, Bihar to top restaurants and home kitchens nationwide — discover our commitment to hygiene, authentic flavor, and zero chemicals.
           </p>
         </div>
       </section>
 
-      {/* Origin Story Grid */}
+      {/* Origin Story Grid with WebP Images */}
       <section className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="relative">
-            <div className="relative w-full h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border-4 border-gold/40 shadow-2xl">
+            <div className="relative w-full h-[380px] sm:h-[480px] rounded-3xl overflow-hidden border-2 border-gold/40 shadow-2xl">
               <Image
-                src="/product.jpg"
-                alt="Organic Gold Garlic Brand Pack"
+                src="/product-pack-kitchen.webp"
+                alt="Organic Gold Garlic Kitchen Pack"
                 fill
                 className="object-cover"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-white p-5 rounded-2xl shadow-xl border-2 border-gold/30 hidden sm:block">
-              <p className="font-serif font-bold text-primary text-xl">100% Pure</p>
+            <div className="absolute -bottom-6 -right-6 bg-white p-5 rounded-2xl shadow-xl border border-gold/30 hidden sm:block">
+              <p className="font-brand font-bold text-primary text-xl">100% Natural</p>
               <p className="text-xs text-gray-500">Zero Chemical Preservation</p>
             </div>
           </div>
@@ -60,84 +55,91 @@ export default function AboutPage() {
             <span className="text-gold-dark font-bold text-xs uppercase tracking-widest">
               Who We Are
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-primary leading-tight">
-              A Modern Agro-Processing Venture Rooted in Araria
+            <h2 className="font-brand text-3xl sm:text-4xl font-bold text-primary leading-tight">
+              Hygienic Peeling Facility Built for Culinary Excellence
             </h2>
-            <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-              <strong>Organic Fresh Gold Garlic</strong> is established in <em>Shivpuri Ward No 09, Araria, Bihar (Pin: 854311)</em>. We recognized that peeling garlic is one of the most tedious, time-consuming tasks in both home kitchens and bustling restaurant environments.
+            <p className="text-gray-700 leading-relaxed text-sm sm:text-base font-light">
+              <strong>Organic Gold Garlic</strong> operates a modern agro-processing unit in <em>Araria, Bihar (Pin: 854311)</em>. We eliminate the tedious, tearful task of peeling garlic for both home cooks and bustling commercial kitchens.
             </p>
-            <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-              Conventional market garlic is often treated with chemicals or bleaching agents to increase shelf life. We decided to do it differently: sourcing naturally cultivated, pungent garlic bulbs directly, peeling them in temperature-controlled sanitary facilities, and vacuum-sealing them immediately.
+            <p className="text-gray-700 leading-relaxed text-sm sm:text-base font-light">
+              Conventional peeled garlic in the market is often treated with bleach or harsh chemicals to stay white. We take a different approach: sourcing naturally grown garlic bulbs, mechanical sorting, washing with pure water, and vacuum-sealing immediately.
             </p>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gold/20">
+            {/* Showcase Bowl Image */}
+            <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-gold/30 shadow-md">
+              <Image
+                src="/peeled-garlic-bowl.webp"
+                alt="Bowl of Fresh Peeled Garlic Cloves"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+                <span className="text-xs font-semibold text-white">Fresh, plump, ready-to-use cloves</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="bg-amber-50/70 p-4 rounded-xl border border-gold/20">
-                <span className="text-2xl font-serif font-bold text-primary block">₹100</span>
-                <span className="text-xs text-gray-600 font-medium">Affordable 250g pack</span>
+                <span className="text-2xl font-brand font-bold text-primary block">₹100</span>
+                <span className="text-xs text-gray-600 font-medium">250g Household Pack</span>
               </div>
               <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-600/20">
-                <span className="text-2xl font-serif font-bold text-primary block">₹200</span>
-                <span className="text-xs text-gray-600 font-medium">Economical 1kg family pack</span>
+                <span className="text-2xl font-brand font-bold text-primary block">₹200</span>
+                <span className="text-xs text-gray-600 font-medium">1kg Chef Value Pack</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Our 4 Core Pillars */}
+      {/* Pillars */}
       <section className="py-16 bg-white border-y border-gold/15">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-primary mb-2">Our Quality Standard</h2>
-            <p className="text-gray-500 text-sm">Every packet carries the promise of purity</p>
+            <h2 className="font-brand text-3xl sm:text-4xl font-bold text-primary mb-2">Why Buy From Organic Gold Garlic?</h2>
+            <p className="text-gray-500 text-xs sm:text-sm uppercase tracking-wider">Uncompromising standards in every bag</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: "Fresh & Clean", desc: "Thoroughly washed with pure water and mechanically sorted for blemishes.", icon: "💧" },
-              { title: "Pure & Natural", desc: "No artificial white dyes, sulphur, or preservatives added.", icon: "🌱" },
-              { title: "Ready to Use", desc: "Open the pouch and toss straight into tadka, paste, or marinades.", icon: "⚡" },
-              { title: "Bihar Sourced", desc: "Empowering regional farmers and agro-entrepreneurship in Araria.", icon: "🌾" },
+              { title: "Pan-India Delivery", desc: "Reliable refrigerated and express doorstep logistics across India.", icon: "🚚" },
+              { title: "Competitive Rates", desc: "Direct farm-to-consumer pricing with special bulk wholesale volume tiers.", icon: "💰" },
+              { title: "Restaurant Delivery", desc: "Daily & weekly peeled garlic supply contracts for hotels & cloud kitchens.", icon: "🍽️" },
+              { title: "100% Pure & Clean", desc: "Zero bleaching, zero chemicals, pure fresh taste in every clove.", icon: "🌱" },
             ].map((p, idx) => (
-              <div key={idx} className="p-6 rounded-2xl bg-cream border border-gold/20 hover:border-gold transition-colors">
+              <div key={idx} className="p-6 rounded-2xl bg-[#fbfaf5] border border-gold/20 hover:border-gold transition-colors">
                 <div className="text-3xl mb-3">{p.icon}</div>
-                <h3 className="font-serif font-bold text-lg text-primary mb-1">{p.title}</h3>
-                <p className="text-xs text-gray-600 leading-relaxed">{p.desc}</p>
+                <h3 className="font-brand font-bold text-lg text-primary mb-1">{p.title}</h3>
+                <p className="text-xs text-gray-600 leading-relaxed font-light">{p.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Location Card */}
+      {/* CTA Box */}
       <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="bg-gradient-to-br from-emerald-900 to-primary-dark text-white p-8 sm:p-12 rounded-3xl border-2 border-gold/40 shadow-2xl relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#08130b] to-primary-dark text-white p-8 sm:p-12 rounded-3xl border-2 border-gold/40 shadow-2xl relative overflow-hidden">
           <div className="relative z-10 space-y-4">
-            <span className="text-gold-light text-xs font-bold uppercase tracking-widest">
-              Visit or Contact Facility
-            </span>
-            <h2 className="font-serif text-3xl font-bold">Organic Fresh Gold Garlic</h2>
-            <p className="text-white/80 text-sm sm:text-base max-w-xl mx-auto">
-              Shivpuri Ward No 09, Near Araria Court / Town Area, <br />
-              Pincode: <strong>854311</strong>, Araria, Bihar, India
+            <h2 className="font-brand text-3xl sm:text-4xl font-bold">Ready to Buy Peeled Garlic?</h2>
+            <p className="text-white/80 text-sm max-w-lg mx-auto font-light">
+              Order individual packs or request wholesale bulk quotes with Pan-India delivery.
             </p>
-            <p className="text-gold-light font-semibold text-sm">
-              Phone / WhatsApp: +91 7488503664
-            </p>
-            
             <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/#enquiry"
-                className="px-6 py-3 bg-gold hover:bg-gold-dark text-primary-dark font-bold rounded-xl text-sm transition-all shadow"
+                className="px-6 py-3 bg-gold hover:bg-gold-light text-[#08130b] font-bold rounded-full text-xs uppercase tracking-widest shadow transition-all"
               >
-                Send Bulk Order Query
+                Send Order Enquiry
               </Link>
-              <Link
-                href="/contact"
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl text-sm transition-all border border-white/30"
+              <a
+                href={`https://wa.me/917488503664?text=${encodeURIComponent("Hi Organic Gold Garlic, I am interested in buying peeled garlic.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-[#25D366] hover:bg-[#1fb854] text-white font-bold rounded-full text-xs uppercase tracking-widest shadow transition-all"
               >
-                Contact Page →
-              </Link>
+                WhatsApp Order
+              </a>
             </div>
           </div>
         </div>

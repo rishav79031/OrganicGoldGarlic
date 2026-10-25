@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-// High-definition transparent PNG peeled garlic cloves extracted directly from authentic photography
+// High-definition transparent PNG peeled garlic cloves extracted from authentic photography
 const REAL_CLOVES = [
   { id: 1, src: "/clove-1.png", width: 140, height: 92, left: "4%", top: "14%", duration: 7, delay: 0, rotate: 14, scale: 1 },
   { id: 2, src: "/clove-2.png", width: 130, height: 89, left: "84%", top: "12%", duration: 8.5, delay: 1.2, rotate: -20, scale: 0.95 },
@@ -24,8 +24,8 @@ export default function HeroSection() {
     const handleMouse = (e: MouseEvent) => {
       if (!parallaxRef.current) return;
       const { innerWidth, innerHeight } = window;
-      const x = (e.clientX / innerWidth - 0.5) * 22;
-      const y = (e.clientY / innerHeight - 0.5) * 22;
+      const x = (e.clientX / innerWidth - 0.5) * 20;
+      const y = (e.clientY / innerHeight - 0.5) * 20;
       parallaxRef.current.style.transform = `translate(${x}px, ${y}px)`;
     };
     window.addEventListener("mousemove", handleMouse);
@@ -50,7 +50,7 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Floating REALISTIC PNG Peeled Garlic Cloves Layer (NO SVGs) */}
+      {/* Floating Real PNG Peeled Garlic Cloves Layer */}
       <div ref={parallaxRef} className="absolute inset-0 pointer-events-none z-0">
         {REAL_CLOVES.map((clove) => (
           <div
@@ -69,10 +69,9 @@ export default function HeroSection() {
               }}
               className="hover:scale-110 transition-transform duration-300"
             >
-              {/* Authentic Photo Peeled Garlic PNG */}
               <Image
                 src={clove.src}
-                alt="Real Peeled Garlic Clove"
+                alt="Peeled Garlic Clove"
                 width={clove.width}
                 height={clove.height}
                 className="select-none pointer-events-none object-contain"
@@ -214,7 +213,7 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right Column: Hero Mockup */}
+          {/* Right Column: Hero Mockup with the Kitchen Counter WebP Image */}
           <div className="lg:col-span-5 flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.94 }}
@@ -226,12 +225,12 @@ export default function HeroSection() {
               <div className="absolute -inset-3 rounded-[40px] border border-gold/30 pointer-events-none" />
 
               <div className="relative rounded-[32px] overflow-hidden border-2 border-gold/50 shadow-2xl bg-black/50 group">
-                <div className="relative w-full h-[400px] sm:h-[460px]">
+                <div className="relative w-full h-[410px] sm:h-[470px]">
                   <Image
-                    src="/product-pack.jpg"
-                    alt="Organic Gold Garlic - Peeled Garlic Package"
+                    src="/product-pack-kitchen.webp"
+                    alt="Organic Gold Garlic - Peeled Garlic Package in Kitchen"
                     fill
-                    sizes="(max-width: 768px) 100vw, 420px"
+                    sizes="(max-width: 768px) 100vw, 440px"
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                     priority
                   />

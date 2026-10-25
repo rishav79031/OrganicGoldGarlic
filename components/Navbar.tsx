@@ -153,6 +153,12 @@ export default function Navbar() {
                   Peeled Garlic Packs
                 </button>
                 <Link
+                  href="/order"
+                  className="text-xs uppercase tracking-[0.18em] font-bold text-emerald-700 hover:text-gold transition-colors"
+                >
+                  Order Online
+                </Link>
+                <Link
                   href="/contact"
                   className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
                 >
@@ -247,6 +253,13 @@ export default function Navbar() {
                 >
                   Peeled Garlic Packs
                 </button>
+                <Link
+                  href="/order"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-xs uppercase tracking-widest font-bold text-emerald-700"
+                >
+                  Order Online
+                </Link>
                 <Link
                   href="/contact"
                   onClick={() => setMobileOpen(false)}

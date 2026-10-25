@@ -77,19 +77,12 @@ export default function ProductsSection() {
   return (
     <section
       id="products"
-      className="pt-12 sm:pt-24 pb-2 sm:pb-24 bg-gradient-to-b from-[#fbfaf5] via-amber-50/20 to-[#fbfaf5] relative overflow-hidden"
+      className="scroll-mt-24 sm:scroll-mt-28 pt-12 sm:pt-24 pb-2 sm:pb-24 bg-gradient-to-b from-[#fbfaf5] via-amber-50/20 to-[#fbfaf5] relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-10 sm:mb-14"
-        >
+        {/* Section Header: Visible immediately without delayed scroll triggers */}
+        <div className="text-center mb-8 sm:mb-14">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/15 text-gold-dark text-[11px] font-bold tracking-[0.2em] uppercase mb-2 sm:mb-3 border border-gold/30">
             <span>✨ Farm-Fresh Peeled Garlic</span>
           </div>
@@ -99,18 +92,13 @@ export default function ProductsSection() {
           <p className="text-gray-600 max-w-xl mx-auto text-xs sm:text-base font-light leading-relaxed">
             Hygienically sorted and air-peeled. Order individual family packs or commercial wholesale supply.
           </p>
-        </motion.div>
+        </div>
 
         {/* Product Cards: Horizontal Swipe Carousel on Mobile, 3-Col Grid on Desktop */}
         <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
-          {products.map((product, index) => (
-            <motion.div
+          {products.map((product) => (
+            <div
               key={product.id}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
               className={`min-w-[85vw] sm:min-w-0 snap-center flex flex-col justify-between rounded-3xl bg-white border-2 ${product.border} p-5 sm:p-7 shadow-lg ${product.glow} transition-all duration-300`}
             >
               <div>
@@ -191,7 +179,7 @@ export default function ProductsSection() {
                   <span>{product.isBulk ? "Enquire for Rate" : "Order on WhatsApp"}</span>
                 </a>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 

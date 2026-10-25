@@ -69,25 +69,21 @@ export default function AboutSection() {
 
         {/* 4-Step Visual Story Cards: Horizontal Swipe Carousel on Mobile, 4-Col Grid on Desktop */}
         <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-8 items-stretch overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
-          {STORY_STEPS.map((item, idx) => (
-            <motion.div
+          {STORY_STEPS.map((item) => (
+            <div
               key={item.step}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: idx * 0.12 }}
               className="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-3xl p-5 border border-gold/20 hover:border-gold/60 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Photo in WebP */}
-                <div className="relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-5 bg-amber-50/50">
+                <div className="relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-5 bg-[#08130b]">
                   <Image
                     src={item.image}
                     alt={item.title}
                     fill
                     sizes="(max-width: 768px) 85vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    priority
                   />
                   <div className="absolute top-3 left-3 bg-[#08130b]/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-gold/30">
                     <span className="text-gold font-brand text-xs font-bold tracking-widest">{item.step}</span>
@@ -113,7 +109,7 @@ export default function AboutSection() {
                 <span>Phase {item.step}</span>
                 <span className="text-gold-dark font-bold">100% Natural</span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 

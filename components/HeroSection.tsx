@@ -39,7 +39,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative min-h-[75vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 sm:pt-36 pb-6 sm:pb-20 bg-[#08130b]"
+      className="relative min-h-[75vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden pt-28 sm:pt-36 pb-8 sm:pb-20 bg-[#08130b]"
     >
       {/* Luxury Golden Atmospheric Glow */}
       <div

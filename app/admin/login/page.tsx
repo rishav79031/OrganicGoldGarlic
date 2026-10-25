@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState("rishav79031@gmail.com");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -17,16 +19,16 @@ export default function AdminLoginPage() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (res.ok) {
-        toast.success("Welcome back, Admin!");
+        toast.success("Welcome back to Organic Gold Garlic Admin!");
         router.push("/admin");
         router.refresh();
       } else {
-        const data = await res.json() as { error?: string };
-        toast.error(data.error ?? "Invalid password");
+        const data = (await res.json()) as { error?: string };
+        toast.error(data.error ?? "Invalid credentials");
       }
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -36,61 +38,90 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gold shadow-lg mb-4">
-            <Image
-              src="/logo.jpg"
-              alt="Organic Fresh Gold Garlic"
-              width={80}
-              height={80}
-              className="object-cover w-full h-full"
-            />
-          </div>
-          <h1 className="text-2xl font-serif font-bold text-primary">Admin Panel</h1>
-          <p className="text-sm text-gray-500 mt-1">Organic Fresh Gold Garlic</p>
+    <div className="min-h-screen bg-[#08130b] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Golden Radial Glow */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-25"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 50% 50%, #C9A227 0%, transparent 60%)",
+        }}
+      />
+
+      <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-10 w-full max-w-md relative z-10 border border-gold/30">
+        {/* Logo & Heading */}
+        <div className="flex flex-col items-center mb-8 text-center">
+          <Link href="/">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-gold shadow-lg mb-3">
+              <Image
+                src="/logo.png"
+                alt="Organic Gold Garlic"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          </Link>
+          <h1 className="text-xl font-brand font-bold text-[#14301c] uppercase tracking-wider">
+            Portal Sign In
+          </h1>
+          <p className="text-xs text-[#93782b] font-medium tracking-widest uppercase mt-0.5">
+            Organic Gold Garlic
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <div>
+            <label
+              htmlFor="email"
+              className="block font-semibold text-gray-700 mb-1"
+            >
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. rishav79031@gmail.com"
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold"
+            />
+          </div>
+
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1.5"
+              className="block font-semibold text-gray-700 mb-1"
             >
-              Admin Password
+              Password
             </label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter admin password"
+              placeholder="Enter your password"
               required
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full mt-2 bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl uppercase tracking-wider text-xs transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? (
-              <>
-                <div className="spinner" />
-                <span>Signing in...</span>
-              </>
-            ) : (
-              "Sign In"
-            )}
+            {loading ? "Authenticating..." : "Sign In to Admin Panel &rarr;"}
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
-          &copy; {new Date().getFullYear()} Organic Fresh Gold Garlic
-        </p>
+        <div className="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+          <Link href="/" className="hover:text-gold transition-colors">
+            &larr; Back to Live Website
+          </Link>
+          <span>&copy; {new Date().getFullYear()}</span>
+        </div>
       </div>
     </div>
   );

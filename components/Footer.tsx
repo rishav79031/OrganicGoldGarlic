@@ -60,8 +60,6 @@ export default function Footer() {
           </nav>
         </div>
 
-
-
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[11px] text-white/40">
           <p>

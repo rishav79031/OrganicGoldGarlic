@@ -186,7 +186,7 @@ export default function EnquirySection() {
                   {...register("product")}
                   className={cn(inputClass, "cursor-pointer font-medium", errors.product && "border-red-300 focus:border-red-400 focus:ring-red-100")}
                 >
-                  <option value="Bulk">Bulk Commercial Order (Undisclosed Price / Custom Quote)</option>
+                  <option value="Bulk">Bulk Order</option>
                   <option value="250g">250g Pack – ₹100</option>
                   <option value="1kg">1 kg Pack – ₹200</option>
                   <option value="Custom">Order Status Check / Existing Order Query</option>

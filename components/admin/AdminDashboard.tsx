@@ -79,7 +79,8 @@ const SHOPIFY_STATUSES = [
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "add-order" | "enquiries" | "settings">("dashboard");
-  const [settingsSubTab, setSettingsSubTab] = useState<"general" | "invoice" | "team" | "security">("invoice");
+  const [settingsSubTab, setSettingsSubTab] = useState<"themes" | "invoice" | "team" | "general" | "security">("themes");
+  const [theme, setTheme] = useState<"classic" | "dark" | "neomorphism">("classic");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -154,7 +155,57 @@ export default function AdminDashboard() {
     bank_ifsc: "",
     upi_id: "7488503664@upi",
     invoice_terms: "Payment on delivery or UPI upon dispatch. 100% natural agricultural produce.",
+    active_theme: "classic",
   });
+
+  // Theme Persistence & Handlers
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("admin_theme") as "classic" | "dark" | "neomorphism" | null;
+      if (savedTheme && ["classic", "dark", "neomorphism"].includes(savedTheme)) {
+        setTheme(savedTheme);
+      }
+    } catch {
+      // LocalStorage fallback
+    }
+  }, []);
+
+  const handleThemeChange = (newTheme: "classic" | "dark" | "neomorphism") => {
+    setTheme(newTheme);
+    setSettings((prev) => ({ ...prev, active_theme: newTheme }));
+    try {
+      localStorage.setItem("admin_theme", newTheme);
+    } catch {
+      // ignore
+    }
+    toast.success(
+      newTheme === "neomorphism"
+        ? "Neomorphism (Soft UI) theme activated!"
+        : newTheme === "dark"
+        ? "Midnight Gold (Dark) theme activated!"
+        : "Classic Light theme activated!",
+      { icon: "🎨" }
+    );
+  };
+
+  const handleSaveDefaultTheme = async () => {
+    const toastId = toast.loading("Saving default theme preference...");
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...settings, active_theme: theme }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Theme "${theme}" saved as store default!`, { id: toastId, icon: "💾" });
+      } else {
+        toast.error(data.error || "Failed to save theme setting", { id: toastId });
+      }
+    } catch {
+      toast.error("Network error saving default theme", { id: toastId });
+    }
+  };
 
   // Guided Password Reset Flow
   const [showPasswordResetFlow, setShowPasswordResetFlow] = useState(false);
@@ -203,6 +254,9 @@ export default function AdminDashboard() {
       const settingsData = await settingsRes.json();
       if (settingsData.settings) {
         setSettings((prev) => ({ ...prev, ...settingsData.settings }));
+        if (settingsData.settings.active_theme && !localStorage.getItem("admin_theme")) {
+          setTheme(settingsData.settings.active_theme as "classic" | "dark" | "neomorphism");
+        }
       }
 
       if (statsData.user && (statsData.user.role === "Superadmin" || statsData.user.role === "Admin")) {
@@ -700,7 +754,164 @@ export default function AdminDashboard() {
   }, [enquiries, enquiryFilter]);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex flex-col md:flex-row text-gray-800 w-full">
+    <div
+      data-theme={theme}
+      className={`admin-root min-h-screen flex flex-col md:flex-row w-full transition-colors duration-200 ${
+        theme === "dark"
+          ? "bg-[#0b130e] text-gray-100"
+          : theme === "neomorphism"
+          ? "bg-[#e8ecf4] text-slate-700"
+          : "bg-[#f8f9fa] text-gray-800"
+      }`}
+    >
+      {/* Theme Dynamic Scoped CSS */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* ================= DARK THEME ================= */
+        .admin-root[data-theme="dark"] {
+          background-color: #0b130e !important;
+          color: #e5e7eb !important;
+        }
+        .admin-root[data-theme="dark"] aside {
+          background-color: #060b08 !important;
+          border-color: rgba(212, 175, 55, 0.25) !important;
+        }
+        .admin-root[data-theme="dark"] .bg-white {
+          background-color: #122017 !important;
+          border-color: #1f3627 !important;
+          color: #f3f4f6 !important;
+        }
+        .admin-root[data-theme="dark"] .bg-gray-50,
+        .admin-root[data-theme="dark"] .bg-gray-100 {
+          background-color: #16281d !important;
+          border-color: #23422e !important;
+          color: #e5e7eb !important;
+        }
+        .admin-root[data-theme="dark"] input:not([type="checkbox"]),
+        .admin-root[data-theme="dark"] select,
+        .admin-root[data-theme="dark"] textarea {
+          background-color: #182c20 !important;
+          border-color: #2b4e39 !important;
+          color: #ffffff !important;
+        }
+        .admin-root[data-theme="dark"] input::placeholder,
+        .admin-root[data-theme="dark"] textarea::placeholder {
+          color: #9ca3af !important;
+        }
+        .admin-root[data-theme="dark"] thead tr {
+          background-color: #0d1710 !important;
+          color: #9ca3af !important;
+          border-color: #1f3627 !important;
+        }
+        .admin-root[data-theme="dark"] tbody tr {
+          border-color: #1f3627 !important;
+        }
+        .admin-root[data-theme="dark"] tbody tr:hover {
+          background-color: rgba(255, 255, 255, 0.04) !important;
+        }
+        .admin-root[data-theme="dark"] .text-gray-900,
+        .admin-root[data-theme="dark"] .text-gray-800,
+        .admin-root[data-theme="dark"] .text-gray-700 {
+          color: #f3f4f6 !important;
+        }
+        .admin-root[data-theme="dark"] .text-gray-600,
+        .admin-root[data-theme="dark"] .text-gray-500 {
+          color: #9ca3af !important;
+        }
+        .admin-root[data-theme="dark"] .border-gray-200,
+        .admin-root[data-theme="dark"] .border-gray-300,
+        .admin-root[data-theme="dark"] .border-gray-100 {
+          border-color: #1f3627 !important;
+        }
+        .admin-root[data-theme="dark"] .text-primary {
+          color: #e5a93c !important;
+        }
+
+        /* ================= NEOMORPHISM (SOFT UI) THEME ================= */
+        .admin-root[data-theme="neomorphism"] {
+          background-color: #e8ecf4 !important;
+          color: #2d3748 !important;
+        }
+        .admin-root[data-theme="neomorphism"] aside {
+          background-color: #e8ecf4 !important;
+          border: none !important;
+          box-shadow: 6px 0 20px rgba(163, 177, 198, 0.45) !important;
+        }
+        .admin-root[data-theme="neomorphism"] aside .text-white {
+          color: #1a202c !important;
+        }
+        .admin-root[data-theme="neomorphism"] aside .text-gray-300,
+        .admin-root[data-theme="neomorphism"] aside .text-gray-400 {
+          color: #4a5568 !important;
+        }
+        .admin-root[data-theme="neomorphism"] aside button {
+          transition: all 0.2s ease !important;
+        }
+        .admin-root[data-theme="neomorphism"] aside button.bg-gold {
+          background-color: #e8ecf4 !important;
+          color: #b3831b !important;
+          box-shadow: inset 4px 4px 8px #c8d0de, inset -4px -4px 8px #ffffff !important;
+        }
+        .admin-root[data-theme="neomorphism"] aside button:not(.bg-gold):hover {
+          box-shadow: 4px 4px 8px #c8d0de, -4px -4px 8px #ffffff !important;
+          background-color: #e8ecf4 !important;
+          color: #1a202c !important;
+        }
+        .admin-root[data-theme="neomorphism"] .bg-white,
+        .admin-root[data-theme="neomorphism"] .bg-gray-50 {
+          background-color: #e8ecf4 !important;
+          border: none !important;
+          border-radius: 1.25rem !important;
+          box-shadow: 8px 8px 18px #c8d0de, -8px -8px 18px #ffffff !important;
+          color: #2d3748 !important;
+        }
+        .admin-root[data-theme="neomorphism"] input:not([type="checkbox"]),
+        .admin-root[data-theme="neomorphism"] select,
+        .admin-root[data-theme="neomorphism"] textarea {
+          background-color: #e8ecf4 !important;
+          border: none !important;
+          border-radius: 0.85rem !important;
+          box-shadow: inset 3px 3px 6px #c8d0de, inset -3px -3px 6px #ffffff !important;
+          color: #1a202c !important;
+        }
+        .admin-root[data-theme="neomorphism"] input:focus,
+        .admin-root[data-theme="neomorphism"] select:focus,
+        .admin-root[data-theme="neomorphism"] textarea:focus {
+          box-shadow: inset 3px 3px 6px #c8d0de, inset -3px -3px 6px #ffffff, 0 0 0 2px #d4af37 !important;
+          outline: none !important;
+        }
+        .admin-root[data-theme="neomorphism"] thead tr {
+          background-color: #dbe2ef !important;
+          color: #4a5568 !important;
+          border: none !important;
+        }
+        .admin-root[data-theme="neomorphism"] tbody tr {
+          border-color: #dbe2ef !important;
+        }
+        .admin-root[data-theme="neomorphism"] tbody tr:hover {
+          background-color: rgba(219, 226, 239, 0.45) !important;
+        }
+        .admin-root[data-theme="neomorphism"] .border-gray-200,
+        .admin-root[data-theme="neomorphism"] .border-gray-300,
+        .admin-root[data-theme="neomorphism"] .border-gray-100 {
+          border-color: #dbe2ef !important;
+        }
+        .admin-root[data-theme="neomorphism"] .text-primary {
+          color: #0b1c10 !important;
+        }
+
+        /* Keep printed invoice strictly clean white on paper */
+        @media print {
+          .admin-root, .admin-root * {
+            background-color: transparent !important;
+            color: initial !important;
+            box-shadow: none !important;
+          }
+          #printable-invoice-sheet {
+            background-color: #ffffff !important;
+            color: #111827 !important;
+          }
+        }
+      `}} />
       
       {/* SIDEBAR NAVIGATION */}
       <aside
@@ -1547,6 +1758,7 @@ export default function AdminDashboard() {
             {/* Settings Sub-Navigation Menu */}
             <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
               {[
+                { id: "themes", label: "🎨 Themes & Appearance" },
                 { id: "invoice", label: "📜 Invoice & GST Settings" },
                 { id: "team", label: "👥 Team & Access Control" },
                 { id: "general", label: "⚙️ Email Forwarding" },
@@ -1565,6 +1777,234 @@ export default function AdminDashboard() {
                 </button>
               ))}
             </div>
+
+            {/* SUBMENU 0: THEMES & APPEARANCE */}
+            {settingsSubTab === "themes" && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-6">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-brand text-lg font-bold text-primary mb-1">Themes & Visual Appearance</h3>
+                      <p className="text-xs text-gray-500">
+                        Customize your management portal. Choose between Classic Gold, Soft-UI Neomorphism, or Midnight Dark Mode.
+                      </p>
+                    </div>
+                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold/15 text-gold-dark border border-gold/40">
+                      Active: <span className="capitalize font-black">{theme}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3 Theme Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+                  
+                  {/* Option 1: Classic Light */}
+                  <div
+                    onClick={() => handleThemeChange("classic")}
+                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                      theme === "classic"
+                        ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                  >
+                    <div>
+                      {/* Mini UI Mockup */}
+                      <div className="h-28 rounded-xl bg-[#f8f9fa] border border-gray-200 p-2.5 mb-4 flex gap-2 overflow-hidden shadow-inner">
+                        <div className="w-8 bg-[#08130b] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5">
+                          <div className="w-3 h-3 rounded-full bg-gold"></div>
+                          <div className="w-4 h-1 rounded bg-white/40"></div>
+                          <div className="w-4 h-1 rounded bg-white/20"></div>
+                        </div>
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-4 bg-white rounded border border-gray-200 flex items-center px-1.5 justify-between">
+                            <div className="w-8 h-1.5 bg-gray-300 rounded"></div>
+                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className="h-10 bg-white rounded border border-gray-200 p-1 flex flex-col justify-between">
+                              <div className="w-6 h-1 bg-gray-300 rounded"></div>
+                              <div className="w-8 h-2 bg-emerald-600 rounded"></div>
+                            </div>
+                            <div className="h-10 bg-white rounded border border-gray-200 p-1 flex flex-col justify-between">
+                              <div className="w-6 h-1 bg-gray-300 rounded"></div>
+                              <div className="w-8 h-2 bg-primary rounded"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h4 className="font-bold text-sm text-gray-900">Classic Gold</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                          Light
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                        Crisp white cards, forest green sidebar, and emerald status badges. Optimized for bright daylight clarity.
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-700">
+                        {theme === "classic" ? "✓ Currently Active" : "Click to Activate"}
+                      </span>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
+                        theme === "classic" ? "border-primary bg-primary text-white" : "border-gray-300"
+                      }`}>
+                        {theme === "classic" && <span className="text-xs font-bold">✓</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Option 2: Neomorphism (Soft UI) */}
+                  <div
+                    onClick={() => handleThemeChange("neomorphism")}
+                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                      theme === "neomorphism"
+                        ? "border-gold bg-[#e8ecf4] shadow-[8px_8px_18px_#c8d0de,-8px_-8px_18px_#ffffff] ring-2 ring-gold/30"
+                        : "border-gray-200 bg-[#e8ecf4] hover:shadow-[5px_5px_12px_#c8d0de,-5px_-5px_12px_#ffffff]"
+                    }`}
+                  >
+                    <div>
+                      {/* Mini UI Mockup */}
+                      <div className="h-28 rounded-xl bg-[#e8ecf4] p-2.5 mb-4 flex gap-2 overflow-hidden shadow-[inset_3px_3px_6px_#c8d0de,inset_-3px_-3px_6px_#ffffff]">
+                        <div className="w-8 bg-[#e8ecf4] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 shadow-[2px_2px_5px_#c8d0de,-2px_-2px_5px_#ffffff]">
+                          <div className="w-3 h-3 rounded-full bg-gold"></div>
+                          <div className="w-4 h-1 rounded bg-[#c8d0de]"></div>
+                          <div className="w-4 h-1 rounded bg-[#c8d0de]"></div>
+                        </div>
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-4 bg-[#e8ecf4] rounded-lg flex items-center px-1.5 justify-between shadow-[inset_2px_2px_4px_#c8d0de,inset_-2px_-2px_4px_#ffffff]">
+                            <div className="w-8 h-1.5 bg-[#a0aec0] rounded"></div>
+                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className="h-10 bg-[#e8ecf4] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#c8d0de,-3px_-3px_6px_#ffffff]">
+                              <div className="w-6 h-1 bg-[#a0aec0] rounded"></div>
+                              <div className="w-8 h-2 bg-gold-dark rounded"></div>
+                            </div>
+                            <div className="h-10 bg-[#e8ecf4] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#c8d0de,-3px_-3px_6px_#ffffff]">
+                              <div className="w-6 h-1 bg-[#a0aec0] rounded"></div>
+                              <div className="w-8 h-2 bg-[#2d3748] rounded"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h4 className="font-bold text-sm text-slate-800">Neomorphism</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gold-dark bg-gold/15 px-2 py-0.5 rounded">
+                          Soft UI
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                        Modern extruded dual-shadow panels, recessed inset form fields, and smooth tactile buttons.
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#c8d0de] flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-800">
+                        {theme === "neomorphism" ? "✓ Currently Active" : "Click to Activate"}
+                      </span>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
+                        theme === "neomorphism" ? "border-gold bg-gold text-[#08130b] font-bold" : "border-slate-400"
+                      }`}>
+                        {theme === "neomorphism" && <span className="text-xs font-bold">✓</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Option 3: Midnight Gold (Dark Theme) */}
+                  <div
+                    onClick={() => handleThemeChange("dark")}
+                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                      theme === "dark"
+                        ? "border-gold bg-[#0b130e] shadow-xl ring-2 ring-gold/30"
+                        : "border-gray-700 bg-[#0b130e] hover:border-gold/50"
+                    }`}
+                  >
+                    <div>
+                      {/* Mini UI Mockup */}
+                      <div className="h-28 rounded-xl bg-[#060b08] border border-[#1f3627] p-2.5 mb-4 flex gap-2 overflow-hidden shadow-inner">
+                        <div className="w-8 bg-[#030604] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 border-r border-[#1f3627]">
+                          <div className="w-3 h-3 rounded-full bg-gold shadow-[0_0_8px_rgba(212,175,55,0.6)]"></div>
+                          <div className="w-4 h-1 rounded bg-white/20"></div>
+                          <div className="w-4 h-1 rounded bg-white/10"></div>
+                        </div>
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-4 bg-[#122017] rounded border border-[#1f3627] flex items-center px-1.5 justify-between">
+                            <div className="w-8 h-1.5 bg-gray-500 rounded"></div>
+                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className="h-10 bg-[#122017] rounded border border-[#1f3627] p-1 flex flex-col justify-between">
+                              <div className="w-6 h-1 bg-gray-500 rounded"></div>
+                              <div className="w-8 h-2 bg-gold rounded"></div>
+                            </div>
+                            <div className="h-10 bg-[#122017] rounded border border-[#1f3627] p-1 flex flex-col justify-between">
+                              <div className="w-6 h-1 bg-gray-500 rounded"></div>
+                              <div className="w-8 h-2 bg-emerald-400 rounded"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h4 className="font-bold text-sm text-gray-100">Midnight Gold</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gold bg-gold/15 px-2 py-0.5 rounded border border-gold/30">
+                          Dark Mode
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                        Deep obsidian emerald backdrop with glowing gold accents. Minimizes eye fatigue for night work.
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1f3627] flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-200">
+                        {theme === "dark" ? "✓ Currently Active" : "Click to Activate"}
+                      </span>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
+                        theme === "dark" ? "border-gold bg-gold text-[#08130b] font-bold" : "border-gray-600"
+                      }`}>
+                        {theme === "dark" && <span className="text-xs font-bold">✓</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Theme Persistence Toolbar */}
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">💾</span>
+                    <div>
+                      <p className="font-semibold text-gray-800">Store-Wide Theme Persistence</p>
+                      <p className="text-[11px] text-gray-500">
+                        Save your active theme as the permanent default for all admin sessions and devices.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleThemeChange("classic")}
+                      className="px-3.5 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
+                    >
+                      Reset Default
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveDefaultTheme}
+                      className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold shadow uppercase tracking-wider text-[11px]"
+                    >
+                      Save Theme As Default
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            )}
 
             {/* SUBMENU 1: INVOICE & GST SETTINGS */}
             {settingsSubTab === "invoice" && (

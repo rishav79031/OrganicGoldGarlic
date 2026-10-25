@@ -1,10 +1,19 @@
-# Googlebot and all search engine crawlers
+# Googlebot and major search engine crawlers
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
 User-agent: *
 Allow: /
-Disallow: /admin
 Disallow: /admin/
-Disallow: /api
 Disallow: /api/
 
 # Sitemap location
 Sitemap: https://organicgoldgarlic.com/sitemap.xml
+Host: https://organicgoldgarlic.com

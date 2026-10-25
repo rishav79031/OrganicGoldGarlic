@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       "bank_ifsc",
       "upi_id",
       "invoice_terms",
+      "active_theme",
     ];
 
     for (const key of keysToSave) {

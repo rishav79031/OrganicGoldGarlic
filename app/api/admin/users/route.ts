@@ -30,8 +30,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
-  if (!session || session.role !== "Superadmin") {
-    return NextResponse.json({ error: "Only Superadmin can add users" }, { status: 403 });
+  if (!session || (session.role !== "Superadmin" && session.role !== "Admin")) {
+    return NextResponse.json({ error: "Only Admin & Superadmin can add users" }, { status: 403 });
   }
 
   try {

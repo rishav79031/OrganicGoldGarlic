@@ -78,7 +78,8 @@ const SHOPIFY_STATUSES = [
 ] as const;
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "add-order" | "enquiries" | "users" | "settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "add-order" | "enquiries" | "settings">("dashboard");
+  const [settingsSubTab, setSettingsSubTab] = useState<"general" | "invoice" | "team" | "security">("invoice");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -139,11 +140,20 @@ export default function AdminDashboard() {
     notes: "",
   });
 
-  // Settings State
+  // Comprehensive Settings State (Email + Invoice GST + Bank)
   const [settings, setSettings] = useState({
     forward_enquiries_email: "rishav79031@gmail.com",
     forward_orders_email: "rishav79031@gmail.com",
     notify_status_change: "true",
+    company_legal_name: "Organic Gold Garlic",
+    gst_number: "",
+    pan_number: "",
+    fssai_license: "",
+    bank_name: "",
+    bank_account_no: "",
+    bank_ifsc: "",
+    upi_id: "7488503664@upi",
+    invoice_terms: "Payment on delivery or UPI upon dispatch. 100% natural agricultural produce.",
   });
 
   // Guided Password Reset Flow
@@ -162,6 +172,8 @@ export default function AdminDashboard() {
     role: "Staff",
     permissions: ["orders", "enquiries"] as string[],
   });
+
+  const canManageSettingsAndAccess = user?.role === "Superadmin" || user?.role === "Admin";
 
   useEffect(() => {
     loadDashboardData();
@@ -189,11 +201,15 @@ export default function AdminDashboard() {
 
       const settingsRes = await fetch("/api/admin/settings");
       const settingsData = await settingsRes.json();
-      if (settingsData.settings) setSettings(settingsData.settings);
+      if (settingsData.settings) {
+        setSettings((prev) => ({ ...prev, ...settingsData.settings }));
+      }
 
-      const usersRes = await fetch("/api/admin/users");
-      const usersData = await usersRes.json();
-      if (usersData.users) setUsersList(usersData.users);
+      if (statsData.user && (statsData.user.role === "Superadmin" || statsData.user.role === "Admin")) {
+        const usersRes = await fetch("/api/admin/users");
+        const usersData = await usersRes.json();
+        if (usersData.users) setUsersList(usersData.users);
+      }
     } catch (e) {
       console.error(e);
       toast.error("Error loading dashboard data");
@@ -211,7 +227,6 @@ export default function AdminDashboard() {
   // Filtered Orders Calculation
   const filteredOrders = useMemo(() => {
     return orders.filter((ord) => {
-      // Search Match
       if (orderSearch) {
         const query = orderSearch.toLowerCase();
         const matchesQuery =
@@ -223,14 +238,12 @@ export default function AdminDashboard() {
         if (!matchesQuery) return false;
       }
 
-      // Start Date Match
       if (orderStartDate) {
         const orderDate = new Date(ord.createdAt);
         const start = new Date(orderStartDate);
         if (orderDate < start) return false;
       }
 
-      // End Date Match
       if (orderEndDate) {
         const orderDate = new Date(ord.createdAt);
         const end = new Date(orderEndDate);
@@ -242,14 +255,12 @@ export default function AdminDashboard() {
     });
   }, [orders, orderSearch, orderStartDate, orderEndDate]);
 
-  // Paginated Orders
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
   const paginatedOrders = useMemo(() => {
     const startIdx = (currentPage - 1) * itemsPerPage;
     return filteredOrders.slice(startIdx, startIdx + itemsPerPage);
   }, [filteredOrders, currentPage, itemsPerPage]);
 
-  // Bulk Selection Handlers
   const isAllCurrentPageSelected =
     paginatedOrders.length > 0 &&
     paginatedOrders.every((ord) => selectedOrderIds.includes(ord.id));
@@ -310,7 +321,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // CSV Export Handler
   function handleExportCSV() {
     if (filteredOrders.length === 0) {
       toast.error("No orders available to export.");
@@ -366,18 +376,15 @@ export default function AdminDashboard() {
     toast.success(`Exported ${filteredOrders.length} orders to CSV!`, { icon: "📥" });
   }
 
-  // Order Status Handler: Demands Shipping Details for "Shipped"
   async function updateOrderStatus(orderId: number, newStatus: string) {
     const targetOrder = orders.find((o) => o.id === orderId);
 
-    // If changing to Invoice Generated and no invoice exists, prompt invoice modal
     if (newStatus === "Invoice Generated" && !targetOrder?.invoiceNumber) {
       toast("Please confirm the invoice amount and details.", { icon: "📜" });
       openInvoiceModal(targetOrder!);
       return;
     }
 
-    // Demands Shipping Details before permitting "Shipped" status
     if (newStatus === "Shipped") {
       toast("Please enter courier partner and tracking details before marking as Shipped.", { icon: "🚚" });
       openShippingModal(targetOrder!);
@@ -450,7 +457,6 @@ export default function AdminDashboard() {
 
   function openShippingModal(order: OrderItem) {
     setSelectedOrderForShipping(order);
-    // Strict requirement: empty defaults, no fake pre-fills
     setShippingForm({
       courierName: order.courierName || "",
       trackingNumber: order.trackingNumber || "",
@@ -533,7 +539,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Enquiry Status Update Handler
   async function updateEnquiryStatus(enquiryId: number, status: string, name: string) {
     const toastId = toast.loading(`Updating enquiry status to "${status}"...`);
     try {
@@ -556,7 +561,7 @@ export default function AdminDashboard() {
 
   async function handleSaveSettings(e: React.FormEvent) {
     e.preventDefault();
-    const toastId = toast.loading("Saving forwarding configuration...");
+    const toastId = toast.loading("Saving settings configuration...");
     try {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
@@ -565,7 +570,7 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success("Email forwarding settings saved successfully!", { id: toastId, icon: "⚙️" });
+        toast.success("Settings saved successfully!", { id: toastId, icon: "⚙️" });
       } else {
         toast.error(data.error || "Failed to save settings", { id: toastId });
       }
@@ -574,7 +579,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Guided Password Reset Flow Handlers
   async function handleSendOtp() {
     const toastId = toast.loading("Sending 6-digit OTP to rishav79031@gmail.com...");
     try {
@@ -621,7 +625,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Team Member Creation with Module Permissions
   async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
     if (!newUser.name.trim() || !newUser.email.trim() || !newUser.password) {
@@ -686,7 +689,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Filtered Enquiries
   const displayedEnquiries = useMemo(() => {
     if (enquiryFilter === "Pending") {
       return enquiries.filter((e) => e.status === "Pending");
@@ -700,11 +702,11 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#f8f9fa] flex flex-col md:flex-row text-gray-800 w-full">
       
-      {/* SIDEBAR NAVIGATION - Responsive & Modern */}
+      {/* SIDEBAR NAVIGATION */}
       <aside
         className={`${
           sidebarOpen ? "w-64" : "w-20"
-        } transition-all duration-300 bg-[#08130b] text-white flex flex-col justify-between p-4 sticky top-0 h-screen z-40 border-r border-gold/20 shrink-0`}
+        } transition-all duration-300 bg-[#08130b] text-white flex flex-col justify-between p-4 sticky top-0 h-screen z-40 border-r border-gold/20 shrink-0 print:hidden`}
       >
         <div>
           {/* Logo Brand */}
@@ -724,7 +726,7 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Nav Items with Modern SVG Icons */}
+          {/* Nav Items */}
           <nav className="mt-6 space-y-1.5 text-xs">
             {/* Dashboard */}
             <button
@@ -740,7 +742,7 @@ export default function AdminDashboard() {
               {sidebarOpen && <span>Dashboard</span>}
             </button>
 
-            {/* Orders (No order processed in badge) */}
+            {/* Orders */}
             <button
               onClick={() => setActiveTab("orders")}
               className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all font-medium ${
@@ -768,7 +770,7 @@ export default function AdminDashboard() {
               {sidebarOpen && <span>Add Order</span>}
             </button>
 
-            {/* Enquiries (Only fresh enquiries badge) */}
+            {/* Enquiries (Fresh badge only) */}
             <button
               onClick={() => setActiveTab("enquiries")}
               className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all font-medium ${
@@ -791,34 +793,20 @@ export default function AdminDashboard() {
               )}
             </button>
 
-            {/* Team & Access */}
-            <button
-              onClick={() => setActiveTab("users")}
-              className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all font-medium ${
-                activeTab === "users" ? "bg-gold text-[#08130b] font-bold shadow-md" : "text-gray-300 hover:bg-white/5"
-              }`}
-              title="Team & Access"
-            >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              {sidebarOpen && <span>Team & Access</span>}
-            </button>
-
-            {/* Settings & Security (Superadmin only) */}
-            {user?.role === "Superadmin" && (
+            {/* Settings (Admin and Superadmin only, includes Team & Access submenu) */}
+            {canManageSettingsAndAccess && (
               <button
                 onClick={() => setActiveTab("settings")}
                 className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all font-medium ${
                   activeTab === "settings" ? "bg-gold text-[#08130b] font-bold shadow-md" : "text-gray-300 hover:bg-white/5"
                 }`}
-                title="Settings & Security"
+                title="Settings"
               >
                 <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {sidebarOpen && <span>Settings & OTP</span>}
+                {sidebarOpen && <span>Settings</span>}
               </button>
             )}
           </nav>
@@ -835,7 +823,6 @@ export default function AdminDashboard() {
           )}
 
           <div className="flex items-center justify-between gap-2">
-            {/* Collapse Icon-Only Button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2.5 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-colors flex items-center justify-center"
@@ -847,7 +834,6 @@ export default function AdminDashboard() {
               </svg>
             </button>
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="p-2.5 rounded-xl bg-red-950/50 hover:bg-red-900/70 text-red-300 hover:text-white transition-colors text-xs font-medium flex items-center justify-center gap-1.5"
@@ -862,11 +848,11 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA - Unbounded 4K Responsive Layout */}
-      <main className="flex-1 p-4 sm:p-8 2xl:p-12 overflow-y-auto w-full max-w-none">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 p-4 sm:p-8 2xl:p-12 overflow-y-auto w-full max-w-none print:p-0 print:overflow-visible">
         
-        {/* Top Header - Clean, Title "Dashboard", Subtitle removed */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200 print:hidden">
           <div>
             <h1 className="font-brand text-2xl sm:text-3xl 2xl:text-4xl font-bold text-primary capitalize">
               {activeTab === "dashboard" ? "Dashboard" : activeTab.replace("-", " ")}
@@ -897,7 +883,6 @@ export default function AdminDashboard() {
         {activeTab === "dashboard" && (
           <div className="space-y-8 mt-6">
             
-            {/* Top Cards Grid - 4K Responsive Scaling */}
             <div className="grid grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-4 2xl:gap-6">
               <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                 <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Total Revenue</span>
@@ -926,7 +911,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Shopify Order Lifecycle Pipeline - Ordered with "Order Processed" as Last */}
+            {/* Shopify Pipeline */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Shopify Order Lifecycle Pipeline</h3>
@@ -1019,7 +1004,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 2: ORDERS LIST & MANAGEMENT - Full 4K Width with Bulk Actions, Filters, CSV Export, & Pagination */}
+        {/* TAB 2: ORDERS LIST & MANAGEMENT */}
         {activeTab === "orders" && (
           <div className="space-y-6 mt-6">
             
@@ -1043,10 +1028,9 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {/* Controls Bar: Search, Date Range Filter, Export CSV, & Page Size */}
+            {/* Controls Bar */}
             <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3 flex-1">
-                {/* Search Input */}
                 <div className="relative min-w-[200px] flex-1 max-w-sm">
                   <input
                     type="text"
@@ -1061,7 +1045,6 @@ export default function AdminDashboard() {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span>
                 </div>
 
-                {/* Date Range Filters */}
                 <div className="flex items-center gap-2 text-xs text-gray-600">
                   <span className="text-[11px] font-semibold text-gray-500">From:</span>
                   <input
@@ -1098,7 +1081,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Export CSV & Page Size */}
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleExportCSV}
@@ -1126,7 +1108,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Bulk Action Sticky Bar (Visible when 1+ orders selected) */}
+            {/* Bulk Action Sticky Bar */}
             {selectedOrderIds.length > 0 && (
               <div className="bg-primary text-white p-3.5 rounded-2xl shadow-lg flex flex-wrap items-center justify-between gap-3 animate-fadeIn">
                 <div className="flex items-center gap-3 text-xs">
@@ -1163,7 +1145,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Orders Table - 4K Responsive */}
+            {/* Orders Table */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 2xl:p-8">
               {filteredOrders.length === 0 ? (
                 <p className="text-xs text-gray-400 py-8 text-center">No orders matching your filters.</p>
@@ -1273,7 +1255,6 @@ export default function AdminDashboard() {
 
                           <td className="py-3.5 text-right">
                             <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                              {/* Generate or Edit Invoice */}
                               <button
                                 onClick={() => openInvoiceModal(ord)}
                                 className="px-2.5 py-1 rounded-md bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-[10px] uppercase tracking-wider transition-colors"
@@ -1282,7 +1263,6 @@ export default function AdminDashboard() {
                                 {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
                               </button>
 
-                              {/* View / Print Invoice */}
                               {ord.invoiceNumber && (
                                 <button
                                   onClick={() => setPreviewInvoiceOrder(ord)}
@@ -1293,7 +1273,6 @@ export default function AdminDashboard() {
                                 </button>
                               )}
 
-                              {/* Add / Edit Shipping Details */}
                               <button
                                 onClick={() => openShippingModal(ord)}
                                 className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
@@ -1302,7 +1281,6 @@ export default function AdminDashboard() {
                                 🚚 Ship
                               </button>
 
-                              {/* WhatsApp Direct Notify */}
                               <a
                                 href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
                                   `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
@@ -1456,13 +1434,12 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 4: ENQUIRIES - Filter Fresh (Pending) vs Answered */}
+        {/* TAB 4: ENQUIRIES */}
         {activeTab === "enquiries" && (
           <div className="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 2xl:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <h2 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Website Direct Enquiries</h2>
               
-              {/* Enquiry Status Filter Pills */}
               <div className="flex items-center gap-2">
                 {(["All", "Pending", "Answered"] as const).map((fil) => (
                   <button
@@ -1563,295 +1540,448 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 5: USERS & GRANULAR MODULE ACCESS CONTROL (Clean, un-prefilled) */}
-        {activeTab === "users" && (
-          <div className="mt-6 space-y-6">
-            {/* Create User Form with Module Access Checkboxes (Superadmin only) */}
-            {user?.role === "Superadmin" && (
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-2xl">
-                <h3 className="font-brand text-base font-bold text-primary mb-1">Add Team Member / Staff</h3>
-                <p className="text-xs text-gray-500 mb-4">Grant access to specific dashboard modules with granular permissions.</p>
+        {/* TAB 5: SETTINGS & SUBMENUS (Invoice GST, Team & Access, General, Security) */}
+        {activeTab === "settings" && canManageSettingsAndAccess && (
+          <div className="mt-6 space-y-6 max-w-4xl">
+            
+            {/* Settings Sub-Navigation Menu */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
+              {[
+                { id: "invoice", label: "📜 Invoice & GST Settings" },
+                { id: "team", label: "👥 Team & Access Control" },
+                { id: "general", label: "⚙️ Email Forwarding" },
+                { id: "security", label: "🔒 Password & Security" },
+              ].map((sub) => (
+                <button
+                  key={sub.id}
+                  onClick={() => setSettingsSubTab(sub.id as typeof settingsSubTab)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    settingsSubTab === sub.id
+                      ? "bg-primary text-white shadow"
+                      : "bg-white border border-gray-200 text-gray-700 hover:border-gold"
+                  }`}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
 
-                <form onSubmit={handleCreateUser} className="space-y-4 text-xs" autoComplete="off">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* SUBMENU 1: INVOICE & GST SETTINGS */}
+            {settingsSubTab === "invoice" && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-6">
+                <div>
+                  <h3 className="font-brand text-lg font-bold text-primary mb-1">Official Invoice & GST Settings</h3>
+                  <p className="text-xs text-gray-500">
+                    These tax, license, and banking details dynamically render on your generated A4 customer invoices.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-gray-600 font-semibold mb-1">Full Name *</label>
+                      <label className="block text-gray-700 font-semibold mb-1">Company Legal Billing Name</label>
                       <input
                         type="text"
-                        required
-                        autoComplete="off"
-                        placeholder="Staff Name"
-                        value={newUser.name}
-                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
+                        value={settings.company_legal_name}
+                        onChange={(e) => setSettings({ ...settings, company_legal_name: e.target.value })}
+                        placeholder="e.g. Organic Gold Garlic"
+                        className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
                       />
                     </div>
+
                     <div>
-                      <label className="block text-gray-600 font-semibold mb-1">Email Address *</label>
+                      <label className="block text-gray-700 font-semibold mb-1">GSTIN Number (Goods & Services Tax)</label>
                       <input
-                        type="email"
-                        required
-                        autoComplete="off"
-                        placeholder="staff@organicgoldgarlic.com"
-                        value={newUser.email}
-                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
+                        type="text"
+                        value={settings.gst_number}
+                        onChange={(e) => setSettings({ ...settings, gst_number: e.target.value.toUpperCase() })}
+                        placeholder="e.g. 10AAAAA0000A1Z5"
+                        className="w-full px-3.5 py-2.5 border rounded-xl text-sm font-mono uppercase"
                       />
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-gray-600 font-semibold mb-1">Password *</label>
+                      <label className="block text-gray-700 font-semibold mb-1">FSSAI License / Registration No.</label>
                       <input
-                        type="password"
-                        required
-                        autoComplete="new-password"
-                        placeholder="Create strong password"
-                        value={newUser.password}
-                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
+                        type="text"
+                        value={settings.fssai_license}
+                        onChange={(e) => setSettings({ ...settings, fssai_license: e.target.value })}
+                        placeholder="e.g. 10423000000000"
+                        className="w-full px-3.5 py-2.5 border rounded-xl text-sm font-mono"
                       />
                     </div>
+
                     <div>
-                      <label className="block text-gray-600 font-semibold mb-1">Role</label>
-                      <select
-                        value={newUser.role}
-                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
-                      >
-                        <option value="Staff">Staff (Restricted Access)</option>
-                        <option value="Admin">Admin (Orders & Enquiries)</option>
-                        <option value="Superadmin">Superadmin (Full Control)</option>
-                      </select>
+                      <label className="block text-gray-700 font-semibold mb-1">PAN Number</label>
+                      <input
+                        type="text"
+                        value={settings.pan_number}
+                        onChange={(e) => setSettings({ ...settings, pan_number: e.target.value.toUpperCase() })}
+                        placeholder="e.g. AAAFO1234A"
+                        className="w-full px-3.5 py-2.5 border rounded-xl text-sm font-mono uppercase"
+                      />
                     </div>
                   </div>
 
-                  {/* Module Permission Checkboxes */}
-                  <div>
-                    <label className="block text-gray-700 font-semibold mb-2">Module Access Permissions</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
-                      {[
-                        { id: "orders", label: "Orders & Invoicing" },
-                        { id: "enquiries", label: "Enquiries & Leads" },
-                        { id: "shipping", label: "Shipping Tracking" },
-                        { id: "settings", label: "System Settings" },
-                      ].map((mod) => (
-                        <label key={mod.id} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700">
-                          <input
-                            type="checkbox"
-                            checked={newUser.permissions.includes(mod.id)}
-                            onChange={() => togglePermission(mod.id)}
-                            className="w-4 h-4 rounded text-primary focus:ring-gold"
-                          />
-                          <span>{mod.label}</span>
-                        </label>
-                      ))}
+                  {/* Bank Details for Direct Invoice Settlement */}
+                  <div className="pt-2 border-t border-gray-100">
+                    <span className="font-bold text-gray-700 uppercase tracking-wider block mb-3 text-[11px]">
+                      Bank & UPI Payment Details (Printed on Invoice)
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-600 font-medium mb-1">Bank Name</label>
+                        <input
+                          type="text"
+                          value={settings.bank_name}
+                          onChange={(e) => setSettings({ ...settings, bank_name: e.target.value })}
+                          placeholder="e.g. State Bank of India"
+                          className="w-full px-3.5 py-2 border rounded-xl"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-600 font-medium mb-1">Bank Account Number</label>
+                        <input
+                          type="text"
+                          value={settings.bank_account_no}
+                          onChange={(e) => setSettings({ ...settings, bank_account_no: e.target.value })}
+                          placeholder="Account Number"
+                          className="w-full px-3.5 py-2 border rounded-xl font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-600 font-medium mb-1">Bank IFSC Code</label>
+                        <input
+                          type="text"
+                          value={settings.bank_ifsc}
+                          onChange={(e) => setSettings({ ...settings, bank_ifsc: e.target.value.toUpperCase() })}
+                          placeholder="e.g. SBIN0001234"
+                          className="w-full px-3.5 py-2 border rounded-xl font-mono uppercase"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-600 font-medium mb-1">UPI ID (VPA)</label>
+                        <input
+                          type="text"
+                          value={settings.upi_id}
+                          onChange={(e) => setSettings({ ...settings, upi_id: e.target.value })}
+                          placeholder="e.g. 7488503664@upi"
+                          className="w-full px-3.5 py-2 border rounded-xl font-mono"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <button type="submit" className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow">
-                    Create User & Assign Permissions →
-                  </button>
+                  {/* Invoice Terms */}
+                  <div className="pt-2">
+                    <label className="block text-gray-700 font-semibold mb-1">Standard Invoice Terms & Conditions</label>
+                    <textarea
+                      rows={2}
+                      value={settings.invoice_terms}
+                      onChange={(e) => setSettings({ ...settings, invoice_terms: e.target.value })}
+                      placeholder="Terms printed at the bottom of the invoice..."
+                      className="w-full px-3.5 py-2 border rounded-xl"
+                    />
+                  </div>
+
+                  <div className="pt-2">
+                    <button type="submit" className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow">
+                      Save Invoice & GST Settings →
+                    </button>
+                  </div>
                 </form>
               </div>
             )}
 
-            {/* Users List with Module Badges */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-              <h3 className="font-brand text-base font-bold text-primary mb-4">Registered Users & Permissions</h3>
-              <div className="divide-y divide-gray-100 text-xs">
-                {usersList.map((u) => (
-                  <div key={u.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <strong className="text-gray-900 block text-sm">{u.name}</strong>
-                      <span className="text-gray-500">{u.email}</span>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[10px] text-gray-400 font-semibold uppercase">Access:</span>
-                        {u.role === "Superadmin" ? (
-                          <span className="text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded">All Modules (Full)</span>
-                        ) : (
-                          ["Orders", "Enquiries", "Shipping"].map((m) => (
-                            <span key={m} className="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                              {m}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold w-fit ${
-                      u.role === "Superadmin" ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-700"
-                    }`}>
-                      {u.role}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+            {/* SUBMENU 2: TEAM & ACCESS CONTROL (Admin & Superadmin only) */}
+            {settingsSubTab === "team" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+                  <h3 className="font-brand text-lg font-bold text-primary mb-1">Add Team Member / Staff</h3>
+                  <p className="text-xs text-gray-500 mb-4">Grant access to specific dashboard modules with granular permissions.</p>
 
-        {/* TAB 6: SETTINGS & GUIDED PASSWORD RESET */}
-        {activeTab === "settings" && user?.role === "Superadmin" && (
-          <div className="mt-6 space-y-6 max-w-2xl">
-            
-            {/* Email Forwarding Settings */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-              <h3 className="font-brand text-lg font-bold text-primary mb-1">Email Forwarding Configuration</h3>
-              <p className="text-xs text-gray-500 mb-6">
-                Enquiries, new orders, invoices, and shipping tracking updates are forwarded automatically to these destinations.
-              </p>
-
-              <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-1">Forward Enquiries To</label>
-                  <input
-                    type="email"
-                    required
-                    value={settings.forward_enquiries_email}
-                    onChange={(e) => setSettings({ ...settings, forward_enquiries_email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-1">Forward Orders To</label>
-                  <input
-                    type="email"
-                    required
-                    value={settings.forward_orders_email}
-                    onChange={(e) => setSettings({ ...settings, forward_orders_email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="notifyStatus"
-                    checked={settings.notify_status_change === "true"}
-                    onChange={(e) => setSettings({ ...settings, notify_status_change: String(e.target.checked) })}
-                    className="w-4 h-4 text-primary rounded"
-                  />
-                  <label htmlFor="notifyStatus" className="text-gray-700 font-medium">
-                    Send automated customer email on every status change (Invoiced, Shipped, Delivered, etc.)
-                  </label>
-                </div>
-
-                <div className="pt-2">
-                  <button type="submit" className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold uppercase tracking-wider text-xs">
-                    Save Forwarding Settings
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Guided Superadmin Password Reset Flow: Button -> OTP -> New Password */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-              <h3 className="font-brand text-lg font-bold text-primary mb-1">Superadmin Security & Password Reset</h3>
-              <p className="text-xs text-gray-500 mb-4">
-                Password changes for superadmin (<strong className="text-gray-800">rishav79031@gmail.com</strong>) require a verified 6-digit email OTP.
-              </p>
-
-              {!showPasswordResetFlow ? (
-                <div>
-                  <button
-                    onClick={() => setShowPasswordResetFlow(true)}
-                    className="px-5 py-2.5 rounded-xl bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2"
-                  >
-                    <span>🔐</span> Reset Superadmin Password
-                  </button>
-                </div>
-              ) : (
-                <div className="p-5 rounded-2xl bg-amber-50/50 border border-gold/30 space-y-4">
-                  {!otpSent ? (
-                    <div>
-                      <p className="text-xs text-gray-700 mb-3">
-                        Click below to receive a secure 6-digit one-time password on <strong>rishav79031@gmail.com</strong>:
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={handleSendOtp}
-                          className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-xs uppercase tracking-wider shadow"
-                        >
-                          Request 6-Digit Email OTP →
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswordResetFlow(false)}
-                          className="text-xs text-gray-500 hover:underline"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleVerifyOtpReset} className="space-y-4 text-xs">
+                  <form onSubmit={handleCreateUser} className="space-y-4 text-xs" autoComplete="off">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-gray-700 font-semibold mb-1">Enter 6-Digit OTP *</label>
+                        <label className="block text-gray-600 font-semibold mb-1">Full Name *</label>
                         <input
                           type="text"
-                          maxLength={6}
                           required
-                          placeholder="e.g. 582194"
-                          value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value)}
-                          className="w-full px-3.5 py-2.5 border rounded-xl text-sm tracking-widest font-mono font-bold"
+                          autoComplete="off"
+                          placeholder="Staff Name"
+                          value={newUser.name}
+                          onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
                         />
                       </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-gray-700 font-semibold mb-1">New Password *</label>
-                          <input
-                            type="password"
-                            required
-                            placeholder="At least 6 characters"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-gray-700 font-semibold mb-1">Confirm New Password *</label>
-                          <input
-                            type="password"
-                            required
-                            placeholder="Repeat new password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-gray-600 font-semibold mb-1">Email Address *</label>
+                        <input
+                          type="email"
+                          required
+                          autoComplete="off"
+                          placeholder="staff@organicgoldgarlic.com"
+                          value={newUser.email}
+                          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
+                        />
                       </div>
+                    </div>
 
-                      <div className="flex items-center gap-3 pt-2">
-                        <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow">
-                          Verify & Change Password
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleSendOtp}
-                          className="text-xs text-gray-500 hover:underline"
-                        >
-                          Resend OTP
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowPasswordResetFlow(false);
-                            setOtpSent(false);
-                          }}
-                          className="text-xs text-gray-400 hover:underline"
-                        >
-                          Cancel
-                        </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-gray-600 font-semibold mb-1">Password *</label>
+                        <input
+                          type="password"
+                          required
+                          autoComplete="new-password"
+                          placeholder="Create strong password"
+                          value={newUser.password}
+                          onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
+                        />
                       </div>
-                    </form>
-                  )}
+                      <div>
+                        <label className="block text-gray-600 font-semibold mb-1">Role</label>
+                        <select
+                          value={newUser.role}
+                          onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-gold"
+                        >
+                          <option value="Staff">Staff (Restricted Access)</option>
+                          <option value="Admin">Admin (Orders & Enquiries)</option>
+                          <option value="Superadmin">Superadmin (Full Control)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Module Permission Checkboxes */}
+                    <div>
+                      <label className="block text-gray-700 font-semibold mb-2">Module Access Permissions</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
+                        {[
+                          { id: "orders", label: "Orders & Invoicing" },
+                          { id: "enquiries", label: "Enquiries & Leads" },
+                          { id: "shipping", label: "Shipping Tracking" },
+                          { id: "settings", label: "System Settings" },
+                        ].map((mod) => (
+                          <label key={mod.id} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={newUser.permissions.includes(mod.id)}
+                              onChange={() => togglePermission(mod.id)}
+                              className="w-4 h-4 rounded text-primary focus:ring-gold"
+                            />
+                            <span>{mod.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button type="submit" className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow">
+                      Create User & Assign Permissions →
+                    </button>
+                  </form>
                 </div>
-              )}
-            </div>
+
+                {/* Users List with Module Badges */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+                  <h3 className="font-brand text-base font-bold text-primary mb-4">Registered Users & Permissions</h3>
+                  <div className="divide-y divide-gray-100 text-xs">
+                    {usersList.map((u) => (
+                      <div key={u.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <strong className="text-gray-900 block text-sm">{u.name}</strong>
+                          <span className="text-gray-500">{u.email}</span>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-[10px] text-gray-400 font-semibold uppercase">Access:</span>
+                            {u.role === "Superadmin" ? (
+                              <span className="text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded">All Modules (Full)</span>
+                            ) : (
+                              ["Orders", "Enquiries", "Shipping"].map((m) => (
+                                <span key={m} className="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                                  {m}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold w-fit ${
+                          u.role === "Superadmin" ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-700"
+                        }`}>
+                          {u.role}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SUBMENU 3: EMAIL FORWARDING */}
+            {settingsSubTab === "general" && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+                <h3 className="font-brand text-lg font-bold text-primary mb-1">Email Forwarding Configuration</h3>
+                <p className="text-xs text-gray-500 mb-6">
+                  Enquiries, new orders, invoices, and shipping tracking updates are forwarded automatically to these destinations.
+                </p>
+
+                <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-1">Forward Enquiries To</label>
+                    <input
+                      type="email"
+                      required
+                      value={settings.forward_enquiries_email}
+                      onChange={(e) => setSettings({ ...settings, forward_enquiries_email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-1">Forward Orders To</label>
+                    <input
+                      type="email"
+                      required
+                      value={settings.forward_orders_email}
+                      onChange={(e) => setSettings({ ...settings, forward_orders_email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="notifyStatus"
+                      checked={settings.notify_status_change === "true"}
+                      onChange={(e) => setSettings({ ...settings, notify_status_change: String(e.target.checked) })}
+                      className="w-4 h-4 text-primary rounded"
+                    />
+                    <label htmlFor="notifyStatus" className="text-gray-700 font-medium">
+                      Send automated customer email on every status change (Invoiced, Shipped, Delivered, etc.)
+                    </label>
+                  </div>
+
+                  <div className="pt-2">
+                    <button type="submit" className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold uppercase tracking-wider text-xs">
+                      Save Forwarding Settings
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* SUBMENU 4: SECURITY & GUIDED PASSWORD RESET */}
+            {settingsSubTab === "security" && user?.role === "Superadmin" && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+                <h3 className="font-brand text-lg font-bold text-primary mb-1">Superadmin Security & Password Reset</h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Password changes for superadmin (<strong className="text-gray-800">rishav79031@gmail.com</strong>) require a verified 6-digit email OTP.
+                </p>
+
+                {!showPasswordResetFlow ? (
+                  <div>
+                    <button
+                      onClick={() => setShowPasswordResetFlow(true)}
+                      className="px-5 py-2.5 rounded-xl bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2"
+                    >
+                      <span>🔐</span> Reset Superadmin Password
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-5 rounded-2xl bg-amber-50/50 border border-gold/30 space-y-4">
+                    {!otpSent ? (
+                      <div>
+                        <p className="text-xs text-gray-700 mb-3">
+                          Click below to receive a secure 6-digit one-time password on <strong>rishav79031@gmail.com</strong>:
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={handleSendOtp}
+                            className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-xs uppercase tracking-wider shadow"
+                          >
+                            Request 6-Digit Email OTP →
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowPasswordResetFlow(false)}
+                            className="text-xs text-gray-500 hover:underline"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleVerifyOtpReset} className="space-y-4 text-xs">
+                        <div>
+                          <label className="block text-gray-700 font-semibold mb-1">Enter 6-Digit OTP *</label>
+                          <input
+                            type="text"
+                            maxLength={6}
+                            required
+                            placeholder="e.g. 582194"
+                            value={otpCode}
+                            onChange={(e) => setOtpCode(e.target.value)}
+                            className="w-full px-3.5 py-2.5 border rounded-xl text-sm tracking-widest font-mono font-bold"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-gray-700 font-semibold mb-1">New Password *</label>
+                            <input
+                              type="password"
+                              required
+                              placeholder="At least 6 characters"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-700 font-semibold mb-1">Confirm New Password *</label>
+                            <input
+                              type="password"
+                              required
+                              placeholder="Repeat new password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              className="w-full px-3.5 py-2.5 border rounded-xl text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-2">
+                          <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow">
+                            Verify & Change Password
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSendOtp}
+                            className="text-xs text-gray-500 hover:underline"
+                          >
+                            Resend OTP
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowPasswordResetFlow(false);
+                              setOtpSent(false);
+                            }}
+                            className="text-xs text-gray-400 hover:underline"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
         )}
@@ -1942,7 +2072,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* MODAL 2: SHIPPING DETAILS & DISPATCH (Clean, Demanded Before Shipped) */}
+      {/* MODAL 2: SHIPPING DETAILS & DISPATCH */}
       {selectedOrderForShipping && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-indigo-200 animate-fadeIn">
@@ -2024,22 +2154,59 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* MODAL 3: INVOICE PREVIEW / PRINT */}
+      {/* MODAL 3: INVOICE PREVIEW / PRINT - Guaranteed Exact Single-Page A4 Sheet */}
       {previewInvoiceOrder && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl border border-gray-200 animate-fadeIn my-8">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-white print:p-0">
+          
+          {/* Print Specific CSS to Force Single Page A4 Format */}
+          <style dangerouslySetInnerHTML={{ __html: `
+            @media print {
+              @page {
+                size: A4 portrait;
+                margin: 8mm 10mm;
+              }
+              body * {
+                visibility: hidden !important;
+              }
+              #printable-invoice-sheet, #printable-invoice-sheet * {
+                visibility: visible !important;
+              }
+              #printable-invoice-sheet {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                max-width: 190mm !important;
+                margin: 0 auto !important;
+                padding: 4mm 6mm !important;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+            }
+          `}} />
+
+          <div
+            id="printable-invoice-sheet"
+            className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-200 animate-fadeIn my-4 text-xs font-sans text-gray-800 leading-snug"
+          >
             
-            {/* Header with Print and Close */}
-            <div className="flex items-center justify-between pb-6 border-b border-gray-200 print:hidden">
-              <span className="text-xs font-bold text-gold-dark uppercase tracking-widest">
-                Printable Tax & Commercial Invoice
-              </span>
+            {/* Header Toolbar (Hidden during print) */}
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 print:hidden">
+              <div>
+                <span className="text-[10px] font-bold text-gold-dark uppercase tracking-widest block">
+                  Single-Page Tax Invoice (A4 Standard)
+                </span>
+                <span className="text-[11px] text-gray-500">Optimized for 1-page paper printing & PDF export</span>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
                   className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold uppercase tracking-wider shadow flex items-center gap-1.5"
                 >
-                  🖨️ Print Invoice
+                  🖨️ Print / Save PDF
                 </button>
                 <button
                   onClick={() => setPreviewInvoiceOrder(null)}
@@ -2050,110 +2217,158 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Invoice Printable Sheet */}
-            <div className="pt-6">
-              {/* Brand Header */}
-              <div className="flex justify-between items-start pb-6 border-b-2 border-gold/40">
-                <div>
-                  <h2 className="font-logo text-xl font-bold text-primary tracking-widest uppercase">
-                    ORGANIC GOLD GARLIC
-                  </h2>
-                  <p className="text-xs text-gray-500 font-light mt-0.5">
-                    Premium Hygienic Peeled Garlic Processing & Wholesale Supply
-                  </p>
-                  <p className="text-xs text-gray-600 mt-2">
-                    Shivpuri Ward No. 09, Araria, Bihar – 854311<br />
-                    Phone / WhatsApp: +91 74885 03664 &bull; Email: rishav79031@gmail.com
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="inline-block bg-primary text-gold text-xs font-bold px-3 py-1 rounded uppercase tracking-widest mb-2">
-                    OFFICIAL INVOICE
-                  </span>
-                  <p className="text-sm font-bold text-gray-900 font-mono">
-                    {previewInvoiceOrder.invoiceNumber || `INV-${previewInvoiceOrder.orderNumber}`}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Date: {new Date(previewInvoiceOrder.createdAt).toLocaleDateString()}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Order Ref: #{previewInvoiceOrder.orderNumber}
-                  </p>
-                </div>
-              </div>
-
-              {/* Billed To / Shipped To */}
-              <div className="grid grid-cols-2 gap-6 py-6 border-b border-gray-100 text-xs">
-                <div>
-                  <span className="font-bold text-gray-400 uppercase tracking-wider block mb-1">Billed To</span>
-                  <p className="font-bold text-gray-900 text-sm">{previewInvoiceOrder.customerName}</p>
-                  <p className="text-gray-600">{previewInvoiceOrder.customerPhone}</p>
-                  {previewInvoiceOrder.customerEmail && (
-                    <p className="text-gray-600">{previewInvoiceOrder.customerEmail}</p>
+            {/* A4 Sheet Header with Dynamic GST & Legal Information */}
+            <div className="flex justify-between items-start pb-4 border-b-2 border-gold/40">
+              <div>
+                <h2 className="font-logo text-lg font-bold text-primary tracking-widest uppercase">
+                  {settings.company_legal_name || "ORGANIC GOLD GARLIC"}
+                </h2>
+                <p className="text-[11px] text-gray-600 mt-0.5 font-light">
+                  Premium Hygienic Peeled Garlic Processing & Wholesale Supply
+                </p>
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Shivpuri Ward No. 09, Araria, Bihar – 854311 &bull; Phone: +91 74885 03664
+                </p>
+                
+                {/* Tax & License Badges */}
+                <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[10px] text-gray-700 font-mono">
+                  {settings.gst_number && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded font-bold">
+                      GSTIN: {settings.gst_number}
+                    </span>
                   )}
-                </div>
-                <div>
-                  <span className="font-bold text-gray-400 uppercase tracking-wider block mb-1">Dispatch Destination</span>
-                  <p className="text-gray-700">{previewInvoiceOrder.deliveryAddress}</p>
-                  <p className="text-gray-700">{previewInvoiceOrder.city}, Bihar</p>
-                  {previewInvoiceOrder.courierName && (
-                    <p className="text-indigo-600 font-medium mt-1">
-                      Courier: {previewInvoiceOrder.courierName} ({previewInvoiceOrder.trackingNumber})
-                    </p>
+                  {settings.fssai_license && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded font-bold">
+                      FSSAI Lic: {settings.fssai_license}
+                    </span>
+                  )}
+                  {settings.pan_number && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded font-bold">
+                      PAN: {settings.pan_number}
+                    </span>
                   )}
                 </div>
               </div>
 
-              {/* Line Items Table */}
-              <div className="py-6">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b-2 border-gray-200 text-gray-500 uppercase tracking-wider font-semibold">
-                      <th className="pb-2">Description</th>
-                      <th className="pb-2 text-center">Quantity</th>
-                      <th className="pb-2 text-right">Total (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr>
-                      <td className="py-3 font-medium text-gray-800">
-                        {previewInvoiceOrder.product}
-                        <span className="block text-[11px] text-gray-500">
-                          Freshly Peeled Garlic &bull; Vacuum Packed &bull; 100% Preservative Free
-                        </span>
-                      </td>
-                      <td className="py-3 text-center font-bold text-gray-700">{previewInvoiceOrder.quantity}</td>
-                      <td className="py-3 text-right font-bold text-gray-900">
-                        ₹{previewInvoiceOrder.invoiceAmount ?? previewInvoiceOrder.totalAmount}
-                      </td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t-2 border-gray-200">
-                      <td colSpan={2} className="pt-4 text-right font-bold text-sm text-gray-800">
-                        Grand Total:
-                      </td>
-                      <td className="pt-4 text-right font-bold text-lg text-primary">
-                        ₹{previewInvoiceOrder.invoiceAmount ?? previewInvoiceOrder.totalAmount}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+              <div className="text-right">
+                <span className="inline-block bg-primary text-gold text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider mb-1">
+                  TAX INVOICE
+                </span>
+                <p className="text-xs font-bold text-gray-900 font-mono">
+                  {previewInvoiceOrder.invoiceNumber || `INV-${previewInvoiceOrder.orderNumber}`}
+                </p>
+                <p className="text-[10px] text-gray-500">
+                  Date: {new Date(previewInvoiceOrder.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-[10px] text-gray-500">
+                  Ref: #{previewInvoiceOrder.orderNumber}
+                </p>
               </div>
-
-              {/* Footer Note */}
-              <div className="pt-6 border-t border-gray-200 text-[11px] text-gray-500 flex justify-between items-end">
-                <div>
-                  <p className="font-semibold text-gray-700">Payment Terms: Cash on Delivery / UPI</p>
-                  <p>Thank you for choosing Organic Gold Garlic, Araria.</p>
-                </div>
-                <div className="text-right">
-                  <div className="w-32 border-b border-gray-400 mb-1"></div>
-                  <span className="text-[10px] uppercase tracking-wider text-gray-400">Authorized Signatory</span>
-                </div>
-              </div>
-
             </div>
+
+            {/* Billed To / Shipped To Grid */}
+            <div className="grid grid-cols-2 gap-4 py-3 border-b border-gray-100 text-[11px]">
+              <div>
+                <span className="font-bold text-gray-400 uppercase tracking-wider block mb-0.5 text-[9px]">Billed To (Customer)</span>
+                <p className="font-bold text-gray-900 text-xs">{previewInvoiceOrder.customerName}</p>
+                <p className="text-gray-600">Ph: {previewInvoiceOrder.customerPhone}</p>
+                {previewInvoiceOrder.customerEmail && (
+                  <p className="text-gray-600">{previewInvoiceOrder.customerEmail}</p>
+                )}
+              </div>
+              <div>
+                <span className="font-bold text-gray-400 uppercase tracking-wider block mb-0.5 text-[9px]">Delivery Destination</span>
+                <p className="text-gray-700">{previewInvoiceOrder.deliveryAddress}</p>
+                <p className="text-gray-700">{previewInvoiceOrder.city}, Bihar</p>
+                {previewInvoiceOrder.courierName && (
+                  <p className="text-indigo-600 font-medium mt-0.5">
+                    Dispatch: {previewInvoiceOrder.courierName} ({previewInvoiceOrder.trackingNumber || "Assigned"})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Line Items Table */}
+            <div className="py-3">
+              <table className="w-full text-left text-[11px]">
+                <thead>
+                  <tr className="border-b border-gray-300 text-gray-500 uppercase tracking-wider text-[9px] font-bold">
+                    <th className="pb-1.5">Description & Grade</th>
+                    <th className="pb-1.5 text-center">HSN</th>
+                    <th className="pb-1.5 text-center">Quantity</th>
+                    <th className="pb-1.5 text-right">Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  <tr>
+                    <td className="py-2.5 font-medium text-gray-800">
+                      {previewInvoiceOrder.product}
+                      <span className="block text-[10px] text-gray-500 font-light">
+                        100% Pure Peeled Garlic Cloves &bull; Vacuum-Sealed &bull; No Preservatives
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-center text-gray-500 font-mono text-[10px]">07032000</td>
+                    <td className="py-2.5 text-center font-bold text-gray-700">{previewInvoiceOrder.quantity}</td>
+                    <td className="py-2.5 text-right font-bold text-gray-900">
+                      ₹{previewInvoiceOrder.invoiceAmount ?? previewInvoiceOrder.totalAmount}
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-gray-300 font-bold">
+                    <td colSpan={3} className="pt-2 text-right text-gray-800 text-xs">
+                      Total Invoice Value (INR):
+                    </td>
+                    <td className="pt-2 text-right text-sm text-primary">
+                      ₹{previewInvoiceOrder.invoiceAmount ?? previewInvoiceOrder.totalAmount}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Bank Details & UPI Section (Dynamic from Settings) */}
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 mt-2 text-[10px]">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="font-bold text-gray-700 block mb-0.5 uppercase tracking-wider text-[9px]">
+                    Bank Transfer & Settlement Details
+                  </span>
+                  <p className="text-gray-600">
+                    <strong>Bank:</strong> {settings.bank_name || "State Bank of India (Araria)"} &bull; 
+                    <strong> A/C:</strong> {settings.bank_account_no || "Registered Commercial Account"}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>IFSC:</strong> {settings.bank_ifsc || "SBIN0001234"} &bull; 
+                    <strong> UPI:</strong> {settings.upi_id || "7488503664@upi"}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-bold text-gray-700 block mb-0.5 uppercase tracking-wider text-[9px]">
+                    Terms & Commercial Conditions
+                  </span>
+                  <p className="text-gray-500 italic leading-snug">
+                    {settings.invoice_terms || "Payment terms: Pay on Delivery or UPI upon dispatch. 100% natural agricultural produce."}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Authorized Signatory Footnote */}
+            <div className="pt-4 mt-3 border-t border-gray-200 flex justify-between items-end text-[10px] text-gray-500">
+              <div>
+                <p className="font-semibold text-gray-700">Thank you for ordering with Organic Gold Garlic!</p>
+                <p>Registered peeling facility in Shivpuri Ward 09, Araria, Bihar.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-36 border-b border-gray-400 mb-1"></div>
+                <span className="text-[9px] uppercase tracking-wider text-gray-500 font-bold block">
+                  For {settings.company_legal_name || "Organic Gold Garlic"}
+                </span>
+                <span className="text-[8px] text-gray-400">Authorized Signatory</span>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

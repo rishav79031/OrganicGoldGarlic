@@ -24,31 +24,42 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
-  if (!session || session.role !== "Superadmin") {
-    return NextResponse.json({ error: "Only Superadmin can update system settings" }, { status: 403 });
+  if (!session || (session.role !== "Superadmin" && session.role !== "Admin")) {
+    return NextResponse.json({ error: "Only Admin & Superadmin can update system settings" }, { status: 403 });
   }
 
   try {
-    const body = await request.json();
-    const { forward_enquiries_email, forward_orders_email, notify_status_change } = body;
+    const body = (await request.json()) as Record<string, string | boolean | undefined>;
 
-    const updates = [
-      { key: "forward_enquiries_email", value: forward_enquiries_email?.trim() || "rishav79031@gmail.com" },
-      { key: "forward_orders_email", value: forward_orders_email?.trim() || "rishav79031@gmail.com" },
-      { key: "notify_status_change", value: String(notify_status_change ?? "true") },
+    const keysToSave = [
+      "forward_enquiries_email",
+      "forward_orders_email",
+      "notify_status_change",
+      "company_legal_name",
+      "gst_number",
+      "pan_number",
+      "fssai_license",
+      "bank_name",
+      "bank_account_no",
+      "bank_ifsc",
+      "upi_id",
+      "invoice_terms",
     ];
 
-    for (const item of updates) {
-      await prisma.setting.upsert({
-        where: { key: item.key },
-        update: { value: item.value },
-        create: { key: item.key, value: item.value },
-      });
+    for (const key of keysToSave) {
+      if (body[key] !== undefined) {
+        const val = String(body[key] ?? "").trim();
+        await prisma.setting.upsert({
+          where: { key },
+          update: { value: val },
+          create: { key, value: val },
+        });
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: "Email forwarding settings updated successfully.",
+      message: "Settings saved successfully.",
     });
   } catch (err) {
     console.error("Save settings error:", err);

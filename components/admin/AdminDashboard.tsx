@@ -899,6 +899,26 @@ export default function AdminDashboard() {
           color: #0b1c10 !important;
         }
 
+        /* ================= CARD HOVER & UI ANIMATIONS ================= */
+        .admin-root .bg-white {
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease !important;
+        }
+        .admin-root .bg-white:hover {
+          border-color: rgba(212, 175, 55, 0.35) !important;
+        }
+
+        /* Dark Theme Card Hover Effect */
+        .admin-root[data-theme="dark"] .bg-white:hover {
+          box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.7), 0 0 16px rgba(212, 175, 55, 0.15) !important;
+          border-color: rgba(212, 175, 55, 0.5) !important;
+        }
+
+        /* Neomorphism Card Hover Effect */
+        .admin-root[data-theme="neomorphism"] .bg-white:hover,
+        .admin-root[data-theme="neomorphism"] .bg-gray-50:hover {
+          box-shadow: 12px 12px 24px #c2c9d6, -12px -12px 24px #ffffff !important;
+        }
+
         /* Keep printed invoice strictly clean white on paper */
         @media print {
           .admin-root, .admin-root * {
@@ -1033,27 +1053,34 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-2 w-full">
+            {/* Collapse / Expand Toggle Button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2.5 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-colors flex items-center justify-center"
+              className={`w-full py-2.5 px-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-colors flex items-center ${
+                sidebarOpen ? "justify-start gap-3" : "justify-center"
+              }`}
               title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
               aria-label={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 6h16M4 12h10M4 18h16" />
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={sidebarOpen ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 5l7 7-7 7M5 5l7 7-7 7"} />
               </svg>
+              {sidebarOpen && <span className="text-xs font-medium">Collapse Menu</span>}
             </button>
 
+            {/* Sign Out / Exit Button */}
             <button
               onClick={handleLogout}
-              className="p-2.5 rounded-xl bg-red-950/50 hover:bg-red-900/70 text-red-300 hover:text-white transition-colors text-xs font-medium flex items-center justify-center gap-1.5"
+              className={`w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800/30 text-red-300 hover:text-white transition-all text-xs font-semibold flex items-center ${
+                sidebarOpen ? "justify-start gap-3" : "justify-center"
+              }`}
               title="Sign Out"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              {sidebarOpen && <span>Exit</span>}
+              {sidebarOpen && <span>Sign Out</span>}
             </button>
           </div>
         </div>
@@ -1094,76 +1121,144 @@ export default function AdminDashboard() {
         {activeTab === "dashboard" && (
           <div className="space-y-8 mt-6">
             
-            <div className="grid grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-4 2xl:gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Total Revenue</span>
-                <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-primary mt-1">₹{stats?.totalRevenue ?? 0}</p>
-                <span className="text-[11px] text-emerald-600 font-medium">Invoiced & fulfilled orders</span>
+            {/* 4 Interactive Dashboard Metrics Cards with Micro-Interactions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 2xl:gap-6">
+              
+              {/* Metric 1: Total Revenue */}
+              <div className="group relative bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-gold/50 hover:-translate-y-1.5 transition-all duration-300 ease-out cursor-default overflow-hidden">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">Total Revenue</span>
+                    <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-primary group-hover:text-gold-dark transition-colors duration-200">
+                      ₹{stats?.totalRevenue ?? 0}
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-xl bg-gold/15 text-gold-dark flex items-center justify-center text-lg font-bold group-hover:scale-110 group-hover:bg-gold group-hover:text-white transition-all duration-300 shadow-sm">
+                    ₹
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-1.5 text-[11px] text-emerald-600 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Invoiced & fulfilled orders
+                </div>
+                {/* Modern Hover Glow Line */}
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-gold via-emerald-500 to-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Total Orders</span>
-                <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-primary mt-1">{stats?.totalOrders ?? 0}</p>
-                <span className="text-[11px] text-gray-500 font-medium">{stats?.deliveredCount ?? 0} Delivered</span>
+              {/* Metric 2: Total Orders */}
+              <div
+                onClick={() => { setOrderFilter("All"); setActiveTab("orders"); }}
+                className="group relative bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-blue-400/50 hover:-translate-y-1.5 transition-all duration-300 ease-out cursor-pointer overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">Total Orders</span>
+                    <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-primary group-hover:text-blue-600 transition-colors duration-200">
+                      {stats?.totalOrders ?? 0}
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center text-lg font-bold group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    📦
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px]">
+                  <span className="text-gray-500 font-medium">{stats?.deliveredCount ?? 0} Delivered</span>
+                  <span className="text-blue-600 font-semibold group-hover:underline">View All &rarr;</span>
+                </div>
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Awaiting Invoice</span>
-                <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-amber-600 mt-1">
-                  {(stats?.orderReceivedCount ?? 0) + (stats?.orderAcceptedCount ?? 0)}
-                </p>
-                <span className="text-[11px] text-amber-600 font-medium">Ready for invoice creation</span>
+              {/* Metric 3: Awaiting Invoice */}
+              <div
+                onClick={() => { setOrderFilter("Order Received"); setActiveTab("orders"); }}
+                className="group relative bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-amber-400/50 hover:-translate-y-1.5 transition-all duration-300 ease-out cursor-pointer overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">Awaiting Invoice</span>
+                    <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-amber-600 group-hover:text-amber-700 transition-colors duration-200">
+                      {(stats?.orderReceivedCount ?? 0) + (stats?.orderAcceptedCount ?? 0)}
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center text-lg font-bold group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                    📜
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px]">
+                  <span className="text-amber-600 font-semibold">Ready for invoice creation</span>
+                  <span className="text-amber-700 font-bold group-hover:underline">Process &rarr;</span>
+                </div>
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                <span className="text-xs uppercase tracking-wider text-gray-400 font-semibold block">Direct Enquiries</span>
-                <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-primary mt-1">{stats?.totalEnquiries ?? 0}</p>
-                <span className="text-[11px] text-red-500 font-medium">{stats?.pendingEnquiries ?? 0} Pending callbacks</span>
+              {/* Metric 4: Direct Enquiries */}
+              <div
+                onClick={() => setActiveTab("enquiries")}
+                className="group relative bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-red-400/50 hover:-translate-y-1.5 transition-all duration-300 ease-out cursor-pointer overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">Direct Enquiries</span>
+                    <p className="text-2xl sm:text-3xl 2xl:text-4xl font-brand font-bold text-primary group-hover:text-red-600 transition-colors duration-200">
+                      {stats?.totalEnquiries ?? 0}
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-xl bg-red-500/15 text-red-600 flex items-center justify-center text-lg font-bold group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                    💬
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px]">
+                  <span className="text-red-500 font-semibold flex items-center gap-1">
+                    {stats && stats.pendingEnquiries > 0 && <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />}
+                    {stats?.pendingEnquiries ?? 0} Pending callbacks
+                  </span>
+                  <span className="text-red-600 font-bold group-hover:underline">Respond &rarr;</span>
+                </div>
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-red-400 to-rose-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
+
             </div>
 
-            {/* Shopify Pipeline */}
+            {/* Shopify Pipeline with Clickable Steps */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Shopify Order Lifecycle Pipeline</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Shopify Order Lifecycle Pipeline</h3>
+                  <span className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-semibold">Click to filter</span>
+                </div>
                 <span className="text-xs text-gray-400 font-medium">Final Stage: Order Processed (Done)</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 2xl:grid-cols-7 gap-3">
-                <div className="bg-white p-4 rounded-xl border border-amber-200 text-center shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">1. Received</span>
-                  <strong className="text-xl font-bold text-amber-600">{stats?.orderReceivedCount ?? 0}</strong>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-blue-200 text-center shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">2. Accepted</span>
-                  <strong className="text-xl font-bold text-blue-600">{stats?.orderAcceptedCount ?? 0}</strong>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-yellow-300 text-center shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">3. Invoiced</span>
-                  <strong className="text-xl font-bold text-yellow-700">{stats?.invoiceGeneratedCount ?? 0}</strong>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-teal-200 text-center shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">4. Paid</span>
-                  <strong className="text-xl font-bold text-teal-600">{stats?.paymentReceivedCount ?? 0}</strong>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-indigo-200 text-center shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">5. Shipped</span>
-                  <strong className="text-xl font-bold text-indigo-600">{stats?.shippedCount ?? 0}</strong>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-emerald-200 text-center shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">6. Delivered</span>
-                  <strong className="text-xl font-bold text-emerald-600">{stats?.deliveredCount ?? 0}</strong>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-purple-300 text-center shadow-sm bg-purple-50/20">
-                  <span className="text-[10px] uppercase tracking-wider text-purple-700 font-bold block">7. Processed (Done)</span>
-                  <strong className="text-xl font-bold text-purple-700">{stats?.orderProcessedCount ?? 0}</strong>
-                </div>
+                {[
+                  { stage: "1. Received", count: stats?.orderReceivedCount ?? 0, filter: "Order Received", color: "border-amber-300/80 hover:border-amber-500 text-amber-600" },
+                  { stage: "2. Accepted", count: stats?.orderAcceptedCount ?? 0, filter: "Order Accepted", color: "border-blue-300/80 hover:border-blue-500 text-blue-600" },
+                  { stage: "3. Invoiced", count: stats?.invoiceGeneratedCount ?? 0, filter: "Invoice Generated", color: "border-yellow-400/80 hover:border-yellow-600 text-yellow-700" },
+                  { stage: "4. Paid", count: stats?.paymentReceivedCount ?? 0, filter: "Payment Received", color: "border-teal-300/80 hover:border-teal-500 text-teal-600" },
+                  { stage: "5. Shipped", count: stats?.shippedCount ?? 0, filter: "Shipped", color: "border-indigo-300/80 hover:border-indigo-500 text-indigo-600" },
+                  { stage: "6. Delivered", count: stats?.deliveredCount ?? 0, filter: "Delivered", color: "border-emerald-300/80 hover:border-emerald-500 text-emerald-600" },
+                  { stage: "7. Processed", count: stats?.orderProcessedCount ?? 0, filter: "Order Processed", color: "border-purple-300/80 hover:border-purple-500 text-purple-700 bg-purple-50/20" },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      setOrderFilter(item.filter);
+                      setActiveTab("orders");
+                    }}
+                    className={`group cursor-pointer bg-white p-3.5 rounded-xl border ${item.color} text-center shadow-sm hover:shadow-lg hover:-translate-y-1 active:scale-95 transition-all duration-200 select-none relative overflow-hidden`}
+                    title={`Click to view all ${item.filter} orders`}
+                  >
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block truncate">
+                      {item.stage}
+                    </span>
+                    <strong className="text-xl font-bold mt-0.5 block group-hover:scale-110 transition-transform duration-200">
+                      {item.count}
+                    </strong>
+                    <span className="text-[9px] text-gray-400 block group-hover:text-primary transition-colors">
+                      View &rarr;
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 

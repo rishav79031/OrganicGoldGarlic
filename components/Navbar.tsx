@@ -64,7 +64,6 @@ export default function Navbar() {
     }
   }
 
-  // Pre-filled WhatsApp message template
   const defaultWhatsAppText = encodeURIComponent(
     "Hello Organic Gold Garlic, I would like to enquire about buying peeled garlic (Pan-India delivery / wholesale rates)."
   );
@@ -72,9 +71,9 @@ export default function Navbar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-300">
-        {/* Top Contact Strip */}
+        {/* Top Announcement Strip */}
         <div className="bg-[#0b150e] text-white/90 text-[11px] sm:text-xs py-1.5 px-4 sm:px-8 border-b border-gold/15 tracking-wide">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="w-full max-w-[96%] mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-4 overflow-hidden text-ellipsis whitespace-nowrap">
               <span className="flex items-center gap-1.5 text-gold-light/90">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
@@ -98,7 +97,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Main Navbar */}
+        {/* Main Single-Row Navbar: Logo pinned Left, Menus + Search + CTA seamlessly in one horizontal row */}
         <nav
           className={`transition-all duration-300 ${
             scrolled
@@ -106,11 +105,11 @@ export default function Navbar() {
               : "bg-[#fbfaf5]/90 backdrop-blur-sm border-b border-gold/10 py-3.5"
           }`}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+          <div className="w-full max-w-[96%] mx-auto px-2 sm:px-4 flex items-center justify-between gap-4">
             
-            {/* Logo: Classy Cinzel font, ONLY "Organic Gold Garlic" */}
-            <Link href="/" className="flex items-center gap-3 shrink-0 group">
-              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-gold/60 shadow-sm transition-transform duration-300 group-hover:scale-105">
+            {/* Logo on the Far Left with Margin */}
+            <Link href="/" className="flex items-center gap-3 shrink-0 group ml-1 sm:ml-2">
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-gold/60 shadow-sm transition-transform duration-300 group-hover:scale-105 shrink-0">
                 <Image
                   src="/logo.png"
                   alt="Organic Gold Garlic - Buy Peeled Garlic"
@@ -121,83 +120,96 @@ export default function Navbar() {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-logo text-lg sm:text-xl font-bold tracking-[0.14em] text-[#14301c] uppercase leading-none group-hover:text-gold-dark transition-colors">
+                <span className="font-logo text-base sm:text-lg lg:text-xl font-bold tracking-[0.14em] text-[#14301c] uppercase leading-none group-hover:text-gold-dark transition-colors whitespace-nowrap">
                   Organic Gold Garlic
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.22em] text-[#93782b] font-medium leading-tight mt-1">
+                <span className="text-[10px] uppercase tracking-[0.22em] text-[#93782b] font-medium leading-tight mt-1 whitespace-nowrap">
                   Pure &bull; Fresh &bull; Healthy
                 </span>
               </div>
             </Link>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-8">
-              <Link
-                href="/"
-                className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/about"
-                className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
-              >
-                About Us
-              </Link>
-              <button
-                onClick={() => handleNav("/#products")}
-                className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
-              >
-                Peeled Garlic Packs
-              </button>
-              <Link
-                href="/contact"
-                className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
-              >
-                Contact
-              </Link>
-            </div>
-
-            {/* Right CTAs + Full Search Trigger */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Right Side Controls in a SINGLE ROW: Nav Links + Search + Bulk Enquiry + WhatsApp */}
+            <div className="hidden lg:flex items-center gap-6 xl:gap-8 mr-1 sm:mr-2">
               
-              {/* Search Icon button */}
+              {/* Inline Navigation Links */}
+              <div className="flex items-center gap-6 xl:gap-7 whitespace-nowrap">
+                <Link
+                  href="/"
+                  className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
+                >
+                  About Us
+                </Link>
+                <button
+                  onClick={() => handleNav("/#products")}
+                  className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
+                >
+                  Peeled Garlic Packs
+                </button>
+                <Link
+                  href="/contact"
+                  className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
+                >
+                  Contact
+                </Link>
+              </div>
+
+              {/* Search Icon Trigger */}
               <button
                 onClick={() => setSearchModalOpen(true)}
-                className="p-2 sm:px-3 sm:py-2 rounded-full border border-gray-200 hover:border-gold text-gray-700 hover:text-gold transition-all duration-200 flex items-center gap-1.5 bg-white/70 hover:bg-white"
+                className="p-2 px-3 rounded-full border border-gray-200 hover:border-gold text-gray-700 hover:text-gold transition-all duration-200 flex items-center gap-1.5 bg-white/70 hover:bg-white shrink-0"
                 aria-label="Search Peeled Garlic"
                 title="Search packs"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <span className="hidden sm:inline text-xs font-medium text-gray-600">Search</span>
+                <span className="text-xs font-medium text-gray-600">Search</span>
               </button>
 
+              {/* Bulk Enquiry in the Same Single Row */}
               <button
                 onClick={() => handleNav("/#enquiry")}
-                className="hidden sm:inline-block px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase border border-gold/70 text-gold-dark hover:bg-gold hover:text-white transition-all duration-200"
+                className="px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase border border-gold/70 text-gold-dark hover:bg-gold hover:text-white transition-all duration-200 shrink-0 whitespace-nowrap"
               >
                 Bulk Enquiry
               </button>
 
-              {/* WhatsApp with template */}
+              {/* WhatsApp Button */}
               <a
                 href={`https://wa.me/917488503664?text=${defaultWhatsAppText}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase bg-[#1a5c2a] hover:bg-[#13421e] text-white shadow-sm transition-all duration-200 flex items-center gap-1.5"
+                className="px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase bg-[#1a5c2a] hover:bg-[#13421e] text-white shadow-sm transition-all duration-200 flex items-center gap-1.5 shrink-0 whitespace-nowrap"
               >
                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
                 <span>WhatsApp</span>
               </a>
+            </div>
 
-              {/* Mobile hamburger */}
+            {/* Mobile / Tablet Controls */}
+            <div className="flex lg:hidden items-center gap-2">
+              <button
+                onClick={() => setSearchModalOpen(true)}
+                className="p-2 rounded-full border border-gray-200 text-gray-700 hover:text-gold"
+                aria-label="Search"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2 text-gray-800 hover:text-gold transition-colors"
+                className="p-2 text-gray-800 hover:text-gold transition-colors"
                 aria-label="Toggle Navigation"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +223,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Dropdown Panel */}
           {mobileOpen && (
             <div className="lg:hidden px-6 pt-4 pb-6 bg-[#fbfaf5] border-t border-gold/15 mt-3 space-y-4">
               <div className="flex flex-col space-y-3 pt-2">

@@ -85,6 +85,7 @@ export default function AdminDashboard() {
   const [theme, setTheme] = useState<AdminTheme>("classic");
   const [statsPeriod, setStatsPeriod] = useState<"all" | "30d" | "3m" | "6m">("all");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [orders, setOrders] = useState<OrderItem[]>([]);
@@ -1089,13 +1090,29 @@ export default function AdminDashboard() {
             color: #111827 !important;
           }
         }
+
+        /* Mobile drawer animation and utility */
+        @keyframes slideRight {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slideRight {
+          animation: slideRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}} />
       
-      {/* SIDEBAR NAVIGATION */}
+      {/* DESKTOP SIDEBAR NAVIGATION (Hidden on mobile) */}
       <aside
-        className={`${
+        className={`hidden md:flex ${
           sidebarOpen ? "w-64" : "w-20"
-        } transition-all duration-300 bg-[#08130b] text-white flex flex-col justify-between p-4 sticky top-0 h-screen z-40 border-r border-gold/20 shrink-0 print:hidden`}
+        } transition-all duration-300 bg-[#08130b] text-white flex-col justify-between p-4 sticky top-0 h-screen z-40 border-r border-gold/20 shrink-0 print:hidden`}
       >
         <div>
           {/* Logo Brand */}
@@ -1242,19 +1259,197 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
+      {/* MOBILE TOP APP BAR (Sticky header for mobile screens) */}
+      <header className="md:hidden sticky top-0 z-40 bg-[#08130b] border-b border-gold/20 px-3.5 py-2.5 flex items-center justify-between shadow-md print:hidden">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-1.5 -ml-1 rounded-xl text-gray-200 hover:text-gold hover:bg-white/10 active:scale-95 transition-all"
+            aria-label="Open navigation menu"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <div className="relative w-7 h-7 rounded-full overflow-hidden border border-gold shrink-0">
+              <Image src="/logo.png" alt="Organic Gold Garlic" fill className="object-contain" />
+            </div>
+            <div>
+              <span className="font-brand font-bold text-xs text-gold uppercase tracking-wider block leading-tight">
+                Organic Gold Garlic
+              </span>
+              <span className="text-[10px] text-gray-300 font-medium capitalize block leading-none">
+                {activeTab === "dashboard" ? "Dashboard" : activeTab.replace("-", " ")}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/order"
+            target="_blank"
+            className="px-2.5 py-1 rounded-full border border-gold/60 text-[11px] font-semibold text-gold hover:bg-gold hover:text-[#08130b] transition-all"
+          >
+            Order ↗
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              loadDashboardData();
+              toast.success("Refreshed!", { icon: "↻" });
+            }}
+            className="w-8 h-8 rounded-full bg-primary hover:bg-primary-dark text-white font-bold flex items-center justify-center text-sm shadow active:scale-95 transition-all"
+            title="Refresh"
+            aria-label="Refresh"
+          >
+            ↻
+          </button>
+        </div>
+      </header>
+
+      {/* MOBILE SLIDE-OVER DRAWER BACKDROP & PANEL */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex print:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Drawer Content */}
+          <div className="relative flex flex-col justify-between w-4/5 max-w-xs bg-[#08130b] text-white p-5 shadow-2xl border-r border-gold/30 z-10 animate-slideRight">
+            <div>
+              {/* Header inside drawer */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-9 h-9 rounded-full overflow-hidden border border-gold shrink-0">
+                    <Image src="/logo.png" alt="Organic Gold Garlic" fill className="object-contain" />
+                  </div>
+                  <div>
+                    <h2 className="font-logo text-xs font-bold tracking-widest text-gold uppercase">
+                      Organic Gold Garlic
+                    </h2>
+                    <span className="text-[10px] text-gray-400 tracking-wider uppercase block">
+                      Admin Portal
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Navigation Items */}
+              <nav className="mt-5 space-y-1.5 text-xs font-medium">
+                {[
+                  { id: "dashboard", label: "Dashboard", icon: "📊" },
+                  { id: "orders", label: "Orders Management", icon: "📦" },
+                  { id: "add-order", label: "Add New Order", icon: "➕" },
+                  { id: "enquiries", label: "Direct Enquiries", icon: "💬", badge: stats?.pendingEnquiries },
+                  { id: "settings", label: "Settings & Access", icon: "⚙️" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(item.id as typeof activeTab);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition-all ${
+                      activeTab === item.id
+                        ? "bg-gold text-[#08130b] font-bold shadow-md"
+                        : "text-gray-300 hover:bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-base">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && item.badge > 0 ? (
+                      <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {item.badge} New
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Footer with User info & Sign out */}
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              {user && (
+                <div className="px-2">
+                  <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                  <span className="text-[10px] text-gold uppercase tracking-wider block font-semibold">{user.role}</span>
+                  <span className="text-[9px] text-gray-400 truncate block">{user.email}</span>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800/30 text-red-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-2"
+              >
+                <span>🚪</span>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE BOTTOM NAVIGATION BAR (Thumb Friendly) */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#08130b]/95 backdrop-blur-md border-t border-gold/25 flex items-center justify-around py-2 px-1 shadow-[0_-4px_16px_rgba(0,0,0,0.4)] print:hidden">
+        {[
+          { id: "dashboard", label: "Home", icon: "📊" },
+          { id: "orders", label: "Orders", icon: "📦" },
+          { id: "add-order", label: "+ Order", icon: "➕" },
+          { id: "enquiries", label: "Enquiries", icon: "💬", badge: stats?.pendingEnquiries },
+          { id: "settings", label: "Settings", icon: "⚙️" },
+        ].map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setActiveTab(item.id as typeof activeTab)}
+            className={`flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl transition-all relative ${
+              activeTab === item.id
+                ? "text-gold font-bold scale-105"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <span className="text-base leading-none mb-0.5">{item.icon}</span>
+            <span className="text-[10px] tracking-tight">{item.label}</span>
+            {item.badge && item.badge > 0 ? (
+              <span className="absolute top-1 right-3 w-2 h-2 rounded-full bg-red-500 animate-ping" />
+            ) : null}
+            {activeTab === item.id && (
+              <span className="w-1 h-1 rounded-full bg-gold mt-0.5" />
+            )}
+          </button>
+        ))}
+      </nav>
+
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 p-4 sm:p-8 2xl:p-12 overflow-y-auto w-full max-w-none print:p-0 print:overflow-visible">
+      <main className="flex-1 p-3.5 sm:p-6 lg:p-8 2xl:p-12 pb-24 md:pb-8 overflow-y-auto w-full max-w-none print:p-0 print:overflow-visible">
         
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200 print:hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <h1 className="font-brand text-2xl sm:text-3xl 2xl:text-4xl font-bold text-primary capitalize">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200 print:hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <h1 className="font-brand text-2xl sm:text-3xl 2xl:text-4xl font-bold text-primary capitalize hidden md:block">
               {activeTab === "dashboard" ? "Dashboard" : activeTab.replace("-", " ")}
             </h1>
 
             {/* Time Period Filter for Dashboard Metrics */}
             {activeTab === "dashboard" && (
-              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-semibold">
+              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-semibold overflow-x-auto no-scrollbar w-full sm:w-auto">
                 {[
                   { id: "all", label: "All Time" },
                   { id: "30d", label: "Last 30 Days" },
@@ -1264,7 +1459,7 @@ export default function AdminDashboard() {
                   <button
                     key={t.id}
                     onClick={() => handlePeriodChange(t.id as typeof statsPeriod)}
-                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                    className={`px-3 py-1.5 rounded-lg transition-all shrink-0 ${
                       statsPeriod === t.id
                         ? "bg-primary text-white shadow font-bold"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -1277,7 +1472,7 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <Link
               href="/order"
               target="_blank"
@@ -1497,7 +1692,7 @@ export default function AdminDashboard() {
           <div className="space-y-6 mt-6">
             
             {/* Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
               {["All", ...SHOPIFY_STATUSES].map((st) => (
                 <button
                   key={st}
@@ -1505,7 +1700,7 @@ export default function AdminDashboard() {
                     setOrderFilter(st);
                     setCurrentPage(1);
                   }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider shrink-0 transition-colors ${
                     orderFilter === st
                       ? "bg-primary text-white shadow-sm"
                       : "bg-white border border-gray-200 text-gray-600 hover:border-gold"
@@ -1517,12 +1712,12 @@ export default function AdminDashboard() {
             </div>
 
             {/* Controls Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-              <div className="flex flex-wrap items-center gap-3 flex-1">
-                <div className="relative min-w-[200px] flex-1 max-w-sm">
+            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 flex-1">
+                <div className="relative w-full sm:min-w-[200px] sm:max-w-xs">
                   <input
                     type="text"
-                    placeholder="Search by order #, name, phone..."
+                    placeholder="Search order #, name, phone..."
                     value={orderSearch}
                     onChange={(e) => {
                       setOrderSearch(e.target.value);
@@ -1533,27 +1728,31 @@ export default function AdminDashboard() {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-gray-600">
-                  <span className="text-[11px] font-semibold text-gray-500">From:</span>
-                  <input
-                    type="date"
-                    value={orderStartDate}
-                    onChange={(e) => {
-                      setOrderStartDate(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="px-2.5 py-1.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-gold"
-                  />
-                  <span className="text-[11px] font-semibold text-gray-500">To:</span>
-                  <input
-                    type="date"
-                    value={orderEndDate}
-                    onChange={(e) => {
-                      setOrderEndDate(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="px-2.5 py-1.5 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-gold"
-                  />
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 text-xs text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] font-semibold text-gray-500">From:</span>
+                    <input
+                      type="date"
+                      value={orderStartDate}
+                      onChange={(e) => {
+                        setOrderStartDate(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-2 py-1.5 border border-gray-200 rounded-xl text-[11px] focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] font-semibold text-gray-500">To:</span>
+                    <input
+                      type="date"
+                      value={orderEndDate}
+                      onChange={(e) => {
+                        setOrderEndDate(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-2 py-1.5 border border-gray-200 rounded-xl text-[11px] focus:outline-none focus:border-gold"
+                    />
+                  </div>
                   {(orderStartDate || orderEndDate || orderSearch) && (
                     <button
                       onClick={() => {
@@ -1561,7 +1760,7 @@ export default function AdminDashboard() {
                         setOrderEndDate("");
                         setOrderSearch("");
                       }}
-                      className="text-xs text-red-500 hover:underline px-2 py-1"
+                      className="col-span-2 sm:col-span-1 text-xs text-red-500 hover:underline px-2 py-1 text-center"
                     >
                       Clear
                     </button>
@@ -1569,10 +1768,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
                 <button
                   onClick={handleExportCSV}
-                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow transition-colors"
+                  className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow transition-colors"
                 >
                   <span>📥</span> Export CSV
                 </button>
@@ -1638,157 +1837,291 @@ export default function AdminDashboard() {
               {filteredOrders.length === 0 ? (
                 <p className="text-xs text-gray-400 py-8 text-center">No orders matching your filters.</p>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs 2xl:text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-200 text-gray-400 uppercase tracking-wider font-semibold">
-                        <th className="pb-3 w-8">
-                          <input
-                            type="checkbox"
-                            checked={isAllCurrentPageSelected}
-                            onChange={toggleSelectAllCurrentPage}
-                            className="w-4 h-4 rounded text-primary focus:ring-gold"
-                            title="Select all on current page"
-                          />
-                        </th>
-                        <th className="pb-3">Order #</th>
-                        <th className="pb-3">Customer & Contact</th>
-                        <th className="pb-3">Address</th>
-                        <th className="pb-3">Product & Qty</th>
-                        <th className="pb-3">Invoice & Total</th>
-                        <th className="pb-3">Status</th>
-                        <th className="pb-3 text-right">Actions & Documents</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {paginatedOrders.map((ord) => (
-                        <tr key={ord.id} className="hover:bg-gray-50/50">
-                          <td className="py-3.5">
+                <>
+                  {/* Desktop Data Table (Hidden on Mobile) */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left text-xs 2xl:text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 text-gray-400 uppercase tracking-wider font-semibold">
+                          <th className="pb-3 w-8">
+                            <input
+                              type="checkbox"
+                              checked={isAllCurrentPageSelected}
+                              onChange={toggleSelectAllCurrentPage}
+                              className="w-4 h-4 rounded text-primary focus:ring-gold"
+                              title="Select all on current page"
+                            />
+                          </th>
+                          <th className="pb-3">Order #</th>
+                          <th className="pb-3">Customer & Contact</th>
+                          <th className="pb-3">Address</th>
+                          <th className="pb-3">Product & Qty</th>
+                          <th className="pb-3">Invoice & Total</th>
+                          <th className="pb-3">Status</th>
+                          <th className="pb-3 text-right">Actions & Documents</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {paginatedOrders.map((ord) => (
+                          <tr key={ord.id} className="hover:bg-gray-50/50">
+                            <td className="py-3.5">
+                              <input
+                                type="checkbox"
+                                checked={selectedOrderIds.includes(ord.id)}
+                                onChange={() => toggleSelectOrder(ord.id)}
+                                className="w-4 h-4 rounded text-primary focus:ring-gold"
+                              />
+                            </td>
+
+                            <td className="py-3.5 font-bold text-primary">
+                              <span>{ord.orderNumber}</span>
+                              <span className="block text-[10px] text-gray-400 font-normal">
+                                {new Date(ord.createdAt).toLocaleDateString()}
+                              </span>
+                            </td>
+
+                            <td className="py-3.5">
+                              <strong className="text-gray-900 block">{ord.customerName}</strong>
+                              <a
+                                href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                  `Hi ${ord.customerName}, this is Organic Gold Garlic regarding your Order #${ord.orderNumber}.`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-emerald-600 hover:underline inline-flex items-center gap-1 font-medium"
+                              >
+                                💬 {ord.customerPhone}
+                              </a>
+                              {ord.customerEmail && (
+                                <span className="text-[10px] text-gray-500 block truncate">{ord.customerEmail}</span>
+                              )}
+                            </td>
+
+                            <td className="py-3.5 max-w-[200px] text-gray-500 truncate" title={ord.deliveryAddress}>
+                              {ord.deliveryAddress}, {ord.city}
+                            </td>
+
+                            <td className="py-3.5 text-gray-700">
+                              {ord.product} &times; <strong>{ord.quantity}</strong>
+                            </td>
+
+                            <td className="py-3.5">
+                              {ord.invoiceAmount ? (
+                                <div>
+                                  <strong className="text-gray-900 font-bold block">₹{ord.invoiceAmount}</strong>
+                                  <span className="text-[10px] text-gold-dark font-medium block">
+                                    #{ord.invoiceNumber}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div>
+                                  <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-[10px] font-semibold block w-fit">
+                                    Price in Invoice
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="py-3.5">
+                              <select
+                                value={ord.status}
+                                onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
+                                className="px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-gold"
+                              >
+                                {SHOPIFY_STATUSES.map((st) => (
+                                  <option key={st} value={st}>
+                                    {st}
+                                  </option>
+                                ))}
+                              </select>
+
+                              {ord.trackingNumber && (
+                                <div className="mt-1 text-[10px] text-indigo-700 font-mono">
+                                  🚚 {ord.courierName}: {ord.trackingNumber}
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="py-3.5 text-right">
+                              <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                <button
+                                  onClick={() => openInvoiceModal(ord)}
+                                  className="px-2.5 py-1 rounded-md bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                  title="Generate or Edit Invoice"
+                                >
+                                  {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
+                                </button>
+
+                                {ord.invoiceNumber && (
+                                  <button
+                                    onClick={() => setPreviewInvoiceOrder(ord)}
+                                    className="px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                    title="View and Print Invoice"
+                                  >
+                                    📄 Print
+                                  </button>
+                                )}
+
+                                <button
+                                  onClick={() => openShippingModal(ord)}
+                                  className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                  title="Add Courier Tracking"
+                                >
+                                  🚚 Ship
+                                </button>
+
+                                <a
+                                  href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                    `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
+                                      ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
+                                    }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-2 py-1 rounded bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-[10px] uppercase tracking-wider"
+                                  title="Notify on WhatsApp"
+                                >
+                                  💬
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Order Cards View (Touch-friendly for phones) */}
+                  <div className="md:hidden space-y-3">
+                    {paginatedOrders.map((ord) => (
+                      <div
+                        key={ord.id}
+                        className="bg-white rounded-xl border border-gray-200/90 shadow-xs p-3.5 space-y-2.5"
+                      >
+                        {/* Header: Checkbox + Order # + Date + Status Select */}
+                        <div className="flex items-start justify-between gap-2 pb-2 border-b border-gray-100">
+                          <div className="flex items-center gap-2">
                             <input
                               type="checkbox"
                               checked={selectedOrderIds.includes(ord.id)}
                               onChange={() => toggleSelectOrder(ord.id)}
                               className="w-4 h-4 rounded text-primary focus:ring-gold"
                             />
-                          </td>
+                            <div>
+                              <span className="font-bold text-xs text-primary block leading-tight">{ord.orderNumber}</span>
+                              <span className="text-[10px] text-gray-400 font-medium">
+                                {new Date(ord.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
 
-                          <td className="py-3.5 font-bold text-primary">
-                            <span>{ord.orderNumber}</span>
-                            <span className="block text-[10px] text-gray-400 font-normal">
-                              {new Date(ord.createdAt).toLocaleDateString()}
-                            </span>
-                          </td>
+                          <select
+                            value={ord.status}
+                            onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border focus:outline-none ${getStatusBadgeClass(
+                              ord.status
+                            )}`}
+                          >
+                            {SHOPIFY_STATUSES.map((st) => (
+                              <option key={st} value={st}>
+                                {st}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-                          <td className="py-3.5">
-                            <strong className="text-gray-900 block">{ord.customerName}</strong>
+                        {/* Customer & Item Details */}
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">Customer</span>
+                            <strong className="text-gray-900 block truncate text-xs">{ord.customerName}</strong>
                             <a
                               href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
                                 `Hi ${ord.customerName}, this is Organic Gold Garlic regarding your Order #${ord.orderNumber}.`
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-emerald-600 hover:underline inline-flex items-center gap-1 font-medium"
+                              className="text-emerald-600 font-medium hover:underline text-[11px] inline-flex items-center gap-1 mt-0.5"
                             >
                               💬 {ord.customerPhone}
                             </a>
-                            {ord.customerEmail && (
-                              <span className="text-[10px] text-gray-500 block truncate">{ord.customerEmail}</span>
-                            )}
-                          </td>
+                          </div>
 
-                          <td className="py-3.5 max-w-[200px] text-gray-500 truncate" title={ord.deliveryAddress}>
-                            {ord.deliveryAddress}, {ord.city}
-                          </td>
-
-                          <td className="py-3.5 text-gray-700">
-                            {ord.product} &times; <strong>{ord.quantity}</strong>
-                          </td>
-
-                          <td className="py-3.5">
+                          <div>
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">Product & Total</span>
+                            <p className="font-medium text-gray-800 text-[11px] truncate">
+                              {ord.product} &times; <strong>{ord.quantity}</strong>
+                            </p>
                             {ord.invoiceAmount ? (
-                              <div>
-                                <strong className="text-gray-900 font-bold block">₹{ord.invoiceAmount}</strong>
-                                <span className="text-[10px] text-gold-dark font-medium block">
-                                  #{ord.invoiceNumber}
-                                </span>
-                              </div>
+                              <span className="font-bold text-gray-900 text-xs block mt-0.5">
+                                ₹{ord.invoiceAmount} <span className="text-[9px] text-gold-dark font-normal">#{ord.invoiceNumber}</span>
+                              </span>
                             ) : (
-                              <div>
-                                <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-[10px] font-semibold block w-fit">
-                                  Price in Invoice
-                                </span>
-                              </div>
+                              <span className="text-[9px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-medium inline-block mt-0.5">
+                                Price in Invoice
+                              </span>
                             )}
-                          </td>
+                          </div>
+                        </div>
 
-                          <td className="py-3.5">
-                            <select
-                              value={ord.status}
-                              onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                              className="px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-gold"
+                        {/* Address & Tracking */}
+                        <div className="text-[11px] text-gray-600 bg-gray-50/90 p-2 rounded-lg">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">
+                            Destination: {ord.city}
+                          </span>
+                          <p className="line-clamp-2 text-[10px] text-gray-700 leading-tight">
+                            {ord.deliveryAddress}
+                          </p>
+                          {ord.trackingNumber && (
+                            <p className="mt-1 text-[10px] text-indigo-700 font-mono font-medium">
+                              🚚 {ord.courierName}: {ord.trackingNumber}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Quick Action Buttons */}
+                        <div className="flex items-center gap-1.5 pt-1 overflow-x-auto no-scrollbar">
+                          <button
+                            onClick={() => openInvoiceModal(ord)}
+                            className="flex-1 py-1.5 rounded-lg bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-[10px] uppercase tracking-wider text-center transition-colors"
+                          >
+                            {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
+                          </button>
+
+                          {ord.invoiceNumber && (
+                            <button
+                              onClick={() => setPreviewInvoiceOrder(ord)}
+                              className="flex-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider text-center transition-colors"
                             >
-                              {SHOPIFY_STATUSES.map((st) => (
-                                <option key={st} value={st}>
-                                  {st}
-                                </option>
-                              ))}
-                            </select>
+                              📄 Print
+                            </button>
+                          )}
 
-                            {ord.trackingNumber && (
-                              <div className="mt-1 text-[10px] text-indigo-700 font-mono">
-                                🚚 {ord.courierName}: {ord.trackingNumber}
-                              </div>
-                            )}
-                          </td>
+                          <button
+                            onClick={() => openShippingModal(ord)}
+                            className="flex-1 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase tracking-wider text-center transition-colors"
+                          >
+                            🚚 Ship
+                          </button>
 
-                          <td className="py-3.5 text-right">
-                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                              <button
-                                onClick={() => openInvoiceModal(ord)}
-                                className="px-2.5 py-1 rounded-md bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                title="Generate or Edit Invoice"
-                              >
-                                {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
-                              </button>
-
-                              {ord.invoiceNumber && (
-                                <button
-                                  onClick={() => setPreviewInvoiceOrder(ord)}
-                                  className="px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                  title="View and Print Invoice"
-                                >
-                                  📄 Print
-                                </button>
-                              )}
-
-                              <button
-                                onClick={() => openShippingModal(ord)}
-                                className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                title="Add Courier Tracking"
-                              >
-                                🚚 Ship
-                              </button>
-
-                              <a
-                                href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                  `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
-                                    ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
-                                  }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-2 py-1 rounded bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-[10px] uppercase tracking-wider"
-                                title="Notify on WhatsApp"
-                              >
-                                💬
-                              </a>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          <a
+                            href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                              `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
+                                ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
+                              }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#25D366] text-white font-bold text-xs shadow flex items-center justify-center shrink-0"
+                            title="Chat on WhatsApp"
+                          >
+                            💬
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
 
               {/* Pagination Controls */}
@@ -1948,82 +2281,148 @@ export default function AdminDashboard() {
             {displayedEnquiries.length === 0 ? (
               <p className="text-xs text-gray-400 py-6 text-center">No enquiries matching filter.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs 2xl:text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-400 uppercase tracking-wider font-semibold">
-                      <th className="pb-3">Name</th>
-                      <th className="pb-3">Contact</th>
-                      <th className="pb-3">Product / Qty</th>
-                      <th className="pb-3">Message</th>
-                      <th className="pb-3">Status</th>
-                      <th className="pb-3">Date</th>
-                      <th className="pb-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {displayedEnquiries.map((enq) => (
-                      <tr key={enq.id} className="hover:bg-gray-50/50">
-                        <td className="py-3 font-bold text-gray-900">{enq.name}</td>
-                        <td className="py-3">
-                          <a
-                            href={`https://wa.me/91${enq.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                              `Hi ${enq.name}, this is Organic Gold Garlic responding to your enquiry about ${enq.product}.`
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-emerald-600 font-semibold hover:underline"
-                          >
-                            💬 {enq.phone}
-                          </a>
-                        </td>
-                        <td className="py-3 font-medium text-gray-700">{enq.product} ({enq.quantity})</td>
-                        <td className="py-3 max-w-[240px] text-gray-500 truncate" title={enq.message || ""}>
-                          {enq.message || "—"}
-                        </td>
-                        <td className="py-3">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            enq.status === "Pending" ? "bg-red-50 text-red-700 border border-red-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          }`}>
-                            {enq.status}
-                          </span>
-                        </td>
-                        <td className="py-3 text-gray-400 text-[11px]">{new Date(enq.createdAt).toLocaleDateString()}</td>
-                        <td className="py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {enq.status === "Pending" ? (
-                              <button
-                                onClick={() => updateEnquiryStatus(enq.id, "Answered", enq.name)}
-                                className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                              >
-                                Mark Answered ✓
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => updateEnquiryStatus(enq.id, "Pending", enq.name)}
-                                className="px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                              >
-                                Re-open
-                              </button>
-                            )}
-
+              <>
+                {/* Desktop Enquiries Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left text-xs 2xl:text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-gray-400 uppercase tracking-wider font-semibold">
+                        <th className="pb-3">Name</th>
+                        <th className="pb-3">Contact</th>
+                        <th className="pb-3">Product / Qty</th>
+                        <th className="pb-3">Message</th>
+                        <th className="pb-3">Status</th>
+                        <th className="pb-3">Date</th>
+                        <th className="pb-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {displayedEnquiries.map((enq) => (
+                        <tr key={enq.id} className="hover:bg-gray-50/50">
+                          <td className="py-3 font-bold text-gray-900">{enq.name}</td>
+                          <td className="py-3">
                             <a
                               href={`https://wa.me/91${enq.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                `Hi ${enq.name}, thank you for contacting Organic Gold Garlic. Our current wholesale rate for ${enq.product} is ready for dispatch.`
+                                `Hi ${enq.name}, this is Organic Gold Garlic responding to your enquiry about ${enq.product}.`
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 rounded bg-[#25D366] text-white font-bold text-[10px] uppercase tracking-wider shadow"
+                              className="text-emerald-600 font-semibold hover:underline"
                             >
-                              WhatsApp
+                              💬 {enq.phone}
                             </a>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          </td>
+                          <td className="py-3 font-medium text-gray-700">{enq.product} ({enq.quantity})</td>
+                          <td className="py-3 max-w-[240px] text-gray-500 truncate" title={enq.message || ""}>
+                            {enq.message || "—"}
+                          </td>
+                          <td className="py-3">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                              enq.status === "Pending" ? "bg-red-50 text-red-700 border border-red-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            }`}>
+                              {enq.status}
+                            </span>
+                          </td>
+                          <td className="py-3 text-gray-400 text-[11px]">{new Date(enq.createdAt).toLocaleDateString()}</td>
+                          <td className="py-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {enq.status === "Pending" ? (
+                                <button
+                                  onClick={() => updateEnquiryStatus(enq.id, "Answered", enq.name)}
+                                  className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                >
+                                  Mark Answered ✓
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => updateEnquiryStatus(enq.id, "Pending", enq.name)}
+                                  className="px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                >
+                                  Re-open
+                                </button>
+                              )}
+
+                              <a
+                                href={`https://wa.me/91${enq.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                  `Hi ${enq.name}, thank you for contacting Organic Gold Garlic. Our current wholesale rate for ${enq.product} is ready for dispatch.`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-2.5 py-1 rounded bg-[#25D366] text-white font-bold text-[10px] uppercase tracking-wider shadow"
+                              >
+                                WhatsApp
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Enquiries Card View (Phone Friendly) */}
+                <div className="md:hidden space-y-3">
+                  {displayedEnquiries.map((enq) => (
+                    <div key={enq.id} className="bg-white rounded-xl border border-gray-200/90 shadow-xs p-3.5 space-y-2.5">
+                      <div className="flex items-start justify-between gap-2 pb-2 border-b border-gray-100">
+                        <div>
+                          <strong className="text-gray-900 text-xs block">{enq.name}</strong>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {new Date(enq.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          enq.status === "Pending" ? "bg-red-50 text-red-700 border border-red-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        }`}>
+                          {enq.status}
+                        </span>
+                      </div>
+
+                      <div className="text-xs">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Product & Requested Qty</span>
+                        <p className="font-semibold text-primary text-xs">
+                          {enq.product} &times; <span className="font-bold text-gray-800">{enq.quantity}</span>
+                        </p>
+                      </div>
+
+                      {enq.message && (
+                        <div className="text-[11px] text-gray-600 bg-gray-50/90 p-2 rounded-lg italic">
+                          "{enq.message}"
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2 pt-1">
+                        {enq.status === "Pending" ? (
+                          <button
+                            onClick={() => updateEnquiryStatus(enq.id, "Answered", enq.name)}
+                            className="flex-1 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] uppercase tracking-wider text-center"
+                          >
+                            Mark Answered ✓
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => updateEnquiryStatus(enq.id, "Pending", enq.name)}
+                            className="flex-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-[10px] uppercase tracking-wider text-center"
+                          >
+                            Re-open
+                          </button>
+                        )}
+
+                        <a
+                          href={`https://wa.me/91${enq.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                            `Hi ${enq.name}, thank you for contacting Organic Gold Garlic regarding ${enq.product}.`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 py-1.5 rounded-lg bg-[#25D366] text-white font-bold text-[10px] uppercase tracking-wider shadow text-center flex items-center justify-center gap-1"
+                        >
+                          <span>💬</span> WhatsApp
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}
@@ -2033,7 +2432,7 @@ export default function AdminDashboard() {
           <div className="mt-6 space-y-6 max-w-4xl">
             
             {/* Settings Sub-Navigation Menu */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
+            <div className="flex items-center gap-2 border-b border-gray-200 pb-3 overflow-x-auto no-scrollbar">
               {[
                 { id: "themes", label: "🎨 Themes & Appearance" },
                 { id: "security", label: "🔒 Reset Password & Security" },
@@ -2048,7 +2447,7 @@ export default function AdminDashboard() {
                 <button
                   key={sub.id}
                   onClick={() => setSettingsSubTab(sub.id as typeof settingsSubTab)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all ${
                     settingsSubTab === sub.id
                       ? "bg-primary text-white shadow"
                       : "bg-white border border-gray-200 text-gray-700 hover:border-gold"
@@ -2852,8 +3251,8 @@ export default function AdminDashboard() {
 
       {/* MODAL 1: GENERATE INVOICE */}
       {selectedOrderForInvoice && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-gold/30 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-gold/30 animate-fadeIn max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-gold-dark block">
@@ -2936,8 +3335,8 @@ export default function AdminDashboard() {
 
       {/* MODAL 2: SHIPPING DETAILS & DISPATCH */}
       {selectedOrderForShipping && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-indigo-200 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-indigo-200 animate-fadeIn max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-700 block">

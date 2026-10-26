@@ -147,7 +147,7 @@ export default function AdminDashboard() {
       return;
     }
     const rect = e.currentTarget.getBoundingClientRect();
-    const menuHeight = 175;
+    const menuHeight = 120;
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUpward = spaceBelow < menuHeight && rect.top > menuHeight;
     const rightDist = Math.max(12, window.innerWidth - rect.right);
@@ -2491,21 +2491,54 @@ export default function AdminDashboard() {
                             </td>
 
                             <td className="py-3.5 text-right pr-3">
-                              <button
-                                type="button"
-                                onClick={(e) => toggleOrderMenu(e, ord)}
-                                className={`w-8 h-8 rounded-lg inline-flex items-center justify-center transition-colors focus:outline-none ${
-                                  activeFloatingOrderMenu?.order.id === ord.id
-                                    ? "bg-gold/25 text-gold-dark ring-2 ring-gold/40"
-                                    : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
-                                }`}
-                                title="Document & Actions Menu"
-                                aria-label="Document & Actions Menu"
-                              >
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                </svg>
-                              </button>
+                              <div className="inline-flex items-center justify-end gap-1">
+                                {/* Direct Print Icon Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewInvoiceOrder(ord)}
+                                  className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-gray-600 hover:text-gold-dark hover:bg-gold/15 transition-colors focus:outline-none"
+                                  title="Print / View Tax Invoice (A4 PDF)"
+                                  aria-label="Print / View Tax Invoice (A4 PDF)"
+                                >
+                                  <span className="text-sm">📄</span>
+                                </button>
+
+                                {/* Direct Courier Tracking Icon Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => openShippingModal(ord)}
+                                  className={`w-8 h-8 rounded-lg inline-flex items-center justify-center transition-colors focus:outline-none ${
+                                    ord.trackingNumber
+                                      ? "text-indigo-600 bg-indigo-50/80 hover:bg-indigo-100"
+                                      : "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                                  }`}
+                                  title={
+                                    ord.trackingNumber
+                                      ? `Courier: ${ord.courierName} | Tracking: ${ord.trackingNumber} (Click to edit)`
+                                      : "Add Courier & Tracking Details"
+                                  }
+                                  aria-label="Courier & Tracking Details"
+                                >
+                                  <span className="text-sm">🚚</span>
+                                </button>
+
+                                {/* Three-dot Menu for remaining actions */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => toggleOrderMenu(e, ord)}
+                                  className={`w-8 h-8 rounded-lg inline-flex items-center justify-center transition-colors focus:outline-none ${
+                                    activeFloatingOrderMenu?.order.id === ord.id
+                                      ? "bg-gold/25 text-gold-dark ring-2 ring-gold/40"
+                                      : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                                  }`}
+                                  title="More Actions (Generate Invoice, WhatsApp, Delete)"
+                                  aria-label="More Actions"
+                                >
+                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                  </svg>
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -2537,11 +2570,11 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1">
                             <select
                               value={ord.status}
                               onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                              className={`order-status-select px-2.5 py-1 rounded-lg text-[10px] font-bold border focus:outline-none transition-all shadow-xs ${getStatusBadgeClass(
+                              className={`order-status-select px-2 py-1 rounded-lg text-[10px] font-bold border focus:outline-none transition-all shadow-xs ${getStatusBadgeClass(
                                 ord.status
                               )}`}
                             >
@@ -2552,6 +2585,36 @@ export default function AdminDashboard() {
                               ))}
                             </select>
 
+                            {/* Direct Print Icon */}
+                            <button
+                              type="button"
+                              onClick={() => setPreviewInvoiceOrder(ord)}
+                              className="w-7 h-7 rounded-lg inline-flex items-center justify-center text-gray-600 hover:bg-gold/15 hover:text-gold-dark transition-colors focus:outline-none"
+                              title="Print / View Tax Invoice (A4 PDF)"
+                              aria-label="Print Invoice"
+                            >
+                              <span className="text-xs">📄</span>
+                            </button>
+
+                            {/* Direct Courier Tracking Icon */}
+                            <button
+                              type="button"
+                              onClick={() => openShippingModal(ord)}
+                              className={`w-7 h-7 rounded-lg inline-flex items-center justify-center transition-colors focus:outline-none ${
+                                ord.trackingNumber
+                                  ? "text-indigo-600 bg-indigo-50/80 hover:bg-indigo-100"
+                                  : "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                              }`}
+                              title={
+                                ord.trackingNumber
+                                  ? `Courier: ${ord.courierName} | Tracking: ${ord.trackingNumber}`
+                                  : "Add Courier & Tracking"
+                              }
+                              aria-label="Courier Tracking"
+                            >
+                              <span className="text-xs">🚚</span>
+                            </button>
+
                             {/* Mobile 3-dot Vertical Menu */}
                             <button
                               type="button"
@@ -2561,8 +2624,8 @@ export default function AdminDashboard() {
                                   ? "bg-gold/25 text-gold-dark ring-2 ring-gold/40"
                                   : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
                               }`}
-                              title="Document & Actions"
-                              aria-label="Document & Actions"
+                              title="More Actions"
+                              aria-label="More Actions"
                             >
                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -4327,21 +4390,7 @@ export default function AdminDashboard() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-1 space-y-0.5">
-              {/* Button 1: Print / View Invoice */}
-              <button
-                type="button"
-                onClick={() => {
-                  const ord = activeFloatingOrderMenu.order;
-                  setActiveFloatingOrderMenu(null);
-                  setPreviewInvoiceOrder(ord);
-                }}
-                className="menu-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs"
-              >
-                <span className="text-sm shrink-0">📄</span>
-                <span className="truncate">Print / View Invoice</span>
-              </button>
-
-              {/* Button 2: Generate / Edit Invoice */}
+              {/* Button 1: Generate / Edit Invoice */}
               <button
                 type="button"
                 onClick={() => {
@@ -4353,27 +4402,11 @@ export default function AdminDashboard() {
               >
                 <span className="text-sm shrink-0">📜</span>
                 <span className="truncate">
-                  {activeFloatingOrderMenu.order.invoiceNumber ? "Edit Invoice" : "Generate Invoice"}
+                  {activeFloatingOrderMenu.order.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
                 </span>
               </button>
 
-              {/* Button 3: Dispatch / Shipping */}
-              <button
-                type="button"
-                onClick={() => {
-                  const ord = activeFloatingOrderMenu.order;
-                  setActiveFloatingOrderMenu(null);
-                  openShippingModal(ord);
-                }}
-                className="menu-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs"
-              >
-                <span className="text-sm shrink-0">🚚</span>
-                <span className="truncate">
-                  {activeFloatingOrderMenu.order.trackingNumber ? "Edit Tracking" : "Courier / Ship"}
-                </span>
-              </button>
-
-              {/* Button 4: Notify on WhatsApp */}
+              {/* Button 2: Notify on WhatsApp */}
               <a
                 href={`https://wa.me/91${activeFloatingOrderMenu.order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
                   `Hi ${activeFloatingOrderMenu.order.customerName}, your Organic Gold Garlic Order #${activeFloatingOrderMenu.order.orderNumber} status is now: ${activeFloatingOrderMenu.order.status}.${

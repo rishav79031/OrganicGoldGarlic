@@ -132,8 +132,45 @@ export default function AdminDashboard() {
   // Invoice Preview / Print Modal State
   const [previewInvoiceOrder, setPreviewInvoiceOrder] = useState<OrderItem | null>(null);
 
-  // Orders Action Menu (Three-dot dropdown)
-  const [openOrderMenuId, setOpenOrderMenuId] = useState<number | null>(null);
+  // Orders Action Menu (Three-dot floating dropdown - z-[99999] portal)
+  const [activeFloatingOrderMenu, setActiveFloatingOrderMenu] = useState<{
+    order: OrderItem;
+    top: number;
+    right: number;
+    openUpward: boolean;
+  } | null>(null);
+
+  const toggleOrderMenu = (e: React.MouseEvent<HTMLButtonElement>, ord: OrderItem) => {
+    e.stopPropagation();
+    if (activeFloatingOrderMenu?.order.id === ord.id) {
+      setActiveFloatingOrderMenu(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const menuHeight = 310;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUpward = spaceBelow < menuHeight && rect.top > menuHeight;
+    const rightDist = Math.max(12, window.innerWidth - rect.right);
+
+    setActiveFloatingOrderMenu({
+      order: ord,
+      top: openUpward ? rect.top - 6 : rect.bottom + 6,
+      right: rightDist,
+      openUpward,
+    });
+  };
+
+  // Auto-close floating menu on scroll or resize so it stays strictly aligned
+  useEffect(() => {
+    if (!activeFloatingOrderMenu) return;
+    const close = () => setActiveFloatingOrderMenu(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [activeFloatingOrderMenu]);
 
   // Shipping Modal State (Clean, NO fake defaults)
   const [selectedOrderForShipping, setSelectedOrderForShipping] = useState<OrderItem | null>(null);
@@ -1460,6 +1497,214 @@ export default function AdminDashboard() {
           box-shadow: 12px 12px 24px #c2c9d6, -12px -12px 24px #ffffff !important;
         }
 
+        /* ================= ORDER ACTIONS FLOATING MENU (ALL THEMES) ================= */
+        .order-actions-floating-menu {
+          box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+          background-color: #ffffff !important;
+          color: #1e293b !important;
+          border-radius: 1rem !important;
+          transform: none !important;
+        }
+
+        /* Default / Classic / Light Theme */
+        .order-actions-floating-menu .menu-header {
+          background-color: #f8fafc;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .order-actions-floating-menu .menu-item {
+          color: #334155;
+          transition: all 0.15s ease;
+        }
+        .order-actions-floating-menu .menu-item:hover {
+          background-color: #f1f5f9;
+          color: #0f172a;
+        }
+        .order-actions-floating-menu .menu-item-icon {
+          background-color: #f1f5f9;
+          border: 1px solid #e2e8f0;
+        }
+        .order-actions-floating-menu .menu-delete-item {
+          color: #dc2626;
+        }
+        .order-actions-floating-menu .menu-delete-item:hover {
+          background-color: #fef2f2;
+          color: #b91c1c;
+        }
+        .order-actions-floating-menu .menu-delete-icon {
+          background-color: #fee2e2;
+          border: 1px solid #fecaca;
+        }
+
+        /* 1. Apple Frosted Glassmorphism Theme */
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu {
+          background: rgba(255, 255, 255, 0.98) !important;
+          backdrop-filter: blur(28px) saturate(200%) !important;
+          -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+          border: 1px solid rgba(0, 0, 0, 0.12) !important;
+          box-shadow: 0 24px 50px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+          color: #0f172a !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-header {
+          background: rgba(241, 245, 249, 0.9) !important;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-item {
+          color: #334155 !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-item:hover {
+          background: rgba(212, 175, 55, 0.12) !important;
+          color: #0f172a !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-item-icon {
+          background: rgba(0, 0, 0, 0.04) !important;
+          border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-delete-item {
+          color: #dc2626 !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-delete-item:hover {
+          background: rgba(239, 68, 68, 0.1) !important;
+          color: #b91c1c !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-delete-icon {
+          background: rgba(239, 68, 68, 0.12) !important;
+          border: 1px solid rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* 2. Midnight Dark Theme */
+        .admin-root[data-theme="dark"] .order-actions-floating-menu {
+          background: #101c14 !important;
+          border: 1px solid #1f3627 !important;
+          box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(212, 175, 55, 0.12) !important;
+          color: #f3f4f6 !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-header {
+          background: #09120c !important;
+          border-bottom: 1px solid #1f3627 !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-header .text-gray-900 {
+          color: #f3f4f6 !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-header .text-gray-500 {
+          color: #9ca3af !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-item {
+          color: #e5e7eb !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-item:hover {
+          background: #182e21 !important;
+          color: #ffffff !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-item-icon {
+          background: #182e21 !important;
+          border: 1px solid #23422e !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-delete-item {
+          color: #f87171 !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-delete-item:hover {
+          background: rgba(239, 68, 68, 0.18) !important;
+          color: #fca5a5 !important;
+        }
+        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-delete-icon {
+          background: rgba(239, 68, 68, 0.2) !important;
+          border: 1px solid rgba(239, 68, 68, 0.35) !important;
+        }
+
+        /* 3. Neomorphism (Soft UI) Theme */
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu {
+          background-color: #e8ecf4 !important;
+          border: 1px solid rgba(255, 255, 255, 0.8) !important;
+          box-shadow: 14px 14px 30px #c0c8d6, -14px -14px 30px #ffffff !important;
+          color: #2d3748 !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-header {
+          background-color: #e8ecf4 !important;
+          border-bottom: 2px solid #dbe2ef !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-item {
+          color: #2d3748 !important;
+          border-radius: 0.65rem !important;
+          margin: 2px 6px !important;
+          padding: 8px 10px !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-item:hover {
+          background-color: #e8ecf4 !important;
+          box-shadow: inset 3px 3px 6px #c8d0de, inset -3px -3px 6px #ffffff !important;
+          color: #b3831b !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-item-icon {
+          background-color: #e8ecf4 !important;
+          box-shadow: 2px 2px 4px #c8d0de, -2px -2px 4px #ffffff !important;
+          border: none !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-delete-item {
+          color: #dc2626 !important;
+          border-radius: 0.65rem !important;
+          margin: 2px 6px !important;
+          padding: 8px 10px !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-delete-item:hover {
+          background-color: #e8ecf4 !important;
+          box-shadow: inset 3px 3px 6px rgba(220, 38, 38, 0.25), inset -3px -3px 6px #ffffff !important;
+          color: #b91c1c !important;
+        }
+        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-delete-icon {
+          background-color: #e8ecf4 !important;
+          box-shadow: 2px 2px 4px rgba(220, 38, 38, 0.2) !important;
+          border: 1px solid rgba(220, 38, 38, 0.25) !important;
+        }
+
+        /* 4. Dark Neomorphism Theme */
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu {
+          background-color: #0c140e !important;
+          border: 1px solid #16261c !important;
+          box-shadow: 14px 14px 30px #040805, -14px -14px 30px #1a2d22 !important;
+          color: #f1f5f9 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-header {
+          background-color: #0c140e !important;
+          border-bottom: 2px solid #16261c !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-header .text-gray-900 {
+          color: #f1f5f9 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-header .text-gray-500 {
+          color: #94a3b8 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-item {
+          color: #cbd5e1 !important;
+          border-radius: 0.65rem !important;
+          margin: 2px 6px !important;
+          padding: 8px 10px !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-item:hover {
+          background-color: #0c140e !important;
+          box-shadow: inset 3px 3px 6px #050906, inset -3px -3px 6px #18281e !important;
+          color: #fbbf24 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-item-icon {
+          background-color: #0c140e !important;
+          box-shadow: 2px 2px 4px #050906, -2px -2px 4px #18281e !important;
+          border: 1px solid #16261c !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-delete-item {
+          color: #f87171 !important;
+          border-radius: 0.65rem !important;
+          margin: 2px 6px !important;
+          padding: 8px 10px !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-delete-item:hover {
+          background-color: #0c140e !important;
+          box-shadow: inset 3px 3px 6px rgba(239, 68, 68, 0.3), inset -3px -3px 6px #18281e !important;
+          color: #fca5a5 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-delete-icon {
+          background-color: #0c140e !important;
+          box-shadow: 2px 2px 4px #050906 !important;
+          border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }
+
         /* Mobile drawer animation and utility */
         @keyframes slideRight {
           from { transform: translateX(-100%); }
@@ -2311,153 +2556,22 @@ export default function AdminDashboard() {
                               )}
                             </td>
 
-                            <td className="py-3.5 text-right pr-2 relative">
-                              <div className="relative inline-block text-left">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenOrderMenuId(openOrderMenuId === ord.id ? null : ord.id);
-                                  }}
-                                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors focus:outline-none ${
-                                    openOrderMenuId === ord.id
-                                      ? "bg-gold/20 text-gold-dark ring-2 ring-gold/40"
-                                      : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
-                                  }`}
-                                  title="Document & Actions Menu"
-                                  aria-label="Document & Actions Menu"
-                                >
-                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                  </svg>
-                                </button>
-
-                                {openOrderMenuId === ord.id && (
-                                  <>
-                                    <div
-                                      className="fixed inset-0 z-40"
-                                      onClick={() => setOpenOrderMenuId(null)}
-                                    />
-                                    <div
-                                      className={`absolute right-0 ${
-                                        idx >= Math.max(0, paginatedOrders.length - 2) ? "bottom-full mb-1.5" : "top-full mt-1.5"
-                                      } w-60 bg-white rounded-2xl shadow-2xl border border-gray-200/90 py-1.5 z-50 animate-fadeIn text-left text-xs font-sans ring-1 ring-black/5`}
-                                    >
-                                      <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/60 rounded-t-2xl">
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                            Order #{ord.orderNumber}
-                                          </span>
-                                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadgeClass(ord.status)}`}>
-                                            {ord.status}
-                                          </span>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-900 truncate block mt-0.5">
-                                          {ord.customerName}
-                                        </span>
-                                        <span className="text-[10px] text-gray-500 block truncate">
-                                          {ord.product} &times; {ord.quantity} • ₹{ord.invoiceAmount || 0}
-                                        </span>
-                                      </div>
-
-                                      <div className="py-1">
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setOpenOrderMenuId(null);
-                                            setPreviewInvoiceOrder(ord);
-                                          }}
-                                          className="w-full px-3.5 py-2 text-left hover:bg-gold/10 hover:text-gold-dark font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                        >
-                                          <span className="text-base">📄</span>
-                                          <div>
-                                            <div className="font-semibold text-gray-900">Print / View Invoice</div>
-                                            <div className="text-[10px] text-gray-400">PDF & Isolated Tax Invoice Print</div>
-                                          </div>
-                                        </button>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setOpenOrderMenuId(null);
-                                            openInvoiceModal(ord);
-                                          }}
-                                          className="w-full px-3.5 py-2 text-left hover:bg-gray-50 font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                        >
-                                          <span className="text-base">📜</span>
-                                          <div>
-                                            <div className="font-semibold text-gray-900">
-                                              {ord.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
-                                            </div>
-                                            <div className="text-[10px] text-gray-400">
-                                              {ord.invoiceNumber ? `Inv #${ord.invoiceNumber} (₹${ord.invoiceAmount})` : "Assign bill number & amount"}
-                                            </div>
-                                          </div>
-                                        </button>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setOpenOrderMenuId(null);
-                                            openShippingModal(ord);
-                                          }}
-                                          className="w-full px-3.5 py-2 text-left hover:bg-indigo-50 hover:text-indigo-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                        >
-                                          <span className="text-base">🚚</span>
-                                          <div>
-                                            <div className="font-semibold text-gray-900">
-                                              {ord.trackingNumber ? "Edit Tracking / Courier" : "Dispatch & Courier Tracking"}
-                                            </div>
-                                            <div className="text-[10px] text-gray-400">
-                                              {ord.trackingNumber ? `${ord.courierName}: ${ord.trackingNumber}` : "Add tracking link & carrier"}
-                                            </div>
-                                          </div>
-                                        </button>
-
-                                        <a
-                                          href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                            `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
-                                              ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
-                                            }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
-                                          )}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          onClick={() => setOpenOrderMenuId(null)}
-                                          className="w-full px-3.5 py-2 text-left hover:bg-emerald-50 hover:text-emerald-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                        >
-                                          <span className="text-base">💬</span>
-                                          <div>
-                                            <div className="font-semibold text-gray-900">Notify on WhatsApp</div>
-                                            <div className="text-[10px] text-gray-400">Send status update to {ord.customerPhone}</div>
-                                          </div>
-                                        </a>
-                                      </div>
-
-                                      <div className="pt-1 border-t border-gray-100">
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setOpenOrderMenuId(null);
-                                            setDeleteConfirm({
-                                              type: "order",
-                                              id: ord.id,
-                                              title: `Order #${ord.orderNumber}`,
-                                              subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
-                                            });
-                                          }}
-                                          className="w-full px-3.5 py-2 text-left hover:bg-red-50 text-red-600 font-medium flex items-center gap-3 transition-colors"
-                                        >
-                                          <span className="text-base">🗑️</span>
-                                          <div>
-                                            <div className="font-semibold text-red-600">Delete Order</div>
-                                            <div className="text-[10px] text-red-400">Move to soft delete trash</div>
-                                          </div>
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
+                            <td className="py-3.5 text-right pr-3">
+                              <button
+                                type="button"
+                                onClick={(e) => toggleOrderMenu(e, ord)}
+                                className={`w-8 h-8 rounded-lg inline-flex items-center justify-center transition-colors focus:outline-none ${
+                                  activeFloatingOrderMenu?.order.id === ord.id
+                                    ? "bg-gold/25 text-gold-dark ring-2 ring-gold/40"
+                                    : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                                }`}
+                                title="Document & Actions Menu"
+                                aria-label="Document & Actions Menu"
+                              >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                </svg>
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -2505,148 +2619,21 @@ export default function AdminDashboard() {
                             </select>
 
                             {/* Mobile 3-dot Vertical Menu */}
-                            <div className="relative">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenOrderMenuId(openOrderMenuId === ord.id ? null : ord.id);
-                                }}
-                                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus:outline-none ${
-                                  openOrderMenuId === ord.id
-                                    ? "bg-gold/20 text-gold-dark ring-2 ring-gold/40"
-                                    : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
-                                }`}
-                                title="Document & Actions"
-                                aria-label="Document & Actions"
-                              >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                </svg>
-                              </button>
-
-                              {openOrderMenuId === ord.id && (
-                                <>
-                                  <div
-                                    className="fixed inset-0 z-40"
-                                    onClick={() => setOpenOrderMenuId(null)}
-                                  />
-                                  <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-2xl shadow-2xl border border-gray-200/90 py-1.5 z-50 animate-fadeIn text-left text-xs font-sans ring-1 ring-black/5">
-                                    <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/60 rounded-t-2xl">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                          Order #{ord.orderNumber}
-                                        </span>
-                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadgeClass(ord.status)}`}>
-                                          {ord.status}
-                                        </span>
-                                      </div>
-                                      <span className="text-xs font-bold text-gray-900 truncate block mt-0.5">
-                                        {ord.customerName}
-                                      </span>
-                                      <span className="text-[10px] text-gray-500 block truncate">
-                                        {ord.product} &times; {ord.quantity} • ₹{ord.invoiceAmount || 0}
-                                      </span>
-                                    </div>
-
-                                    <div className="py-1">
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setOpenOrderMenuId(null);
-                                          setPreviewInvoiceOrder(ord);
-                                        }}
-                                        className="w-full px-3.5 py-2 text-left hover:bg-gold/10 hover:text-gold-dark font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                      >
-                                        <span className="text-base">📄</span>
-                                        <div>
-                                          <div className="font-semibold text-gray-900">Print / View Invoice</div>
-                                          <div className="text-[10px] text-gray-400">PDF & Isolated Tax Invoice Print</div>
-                                        </div>
-                                      </button>
-
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setOpenOrderMenuId(null);
-                                          openInvoiceModal(ord);
-                                        }}
-                                        className="w-full px-3.5 py-2 text-left hover:bg-gray-50 font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                      >
-                                        <span className="text-base">📜</span>
-                                        <div>
-                                          <div className="font-semibold text-gray-900">
-                                            {ord.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
-                                          </div>
-                                          <div className="text-[10px] text-gray-400">
-                                            {ord.invoiceNumber ? `Inv #${ord.invoiceNumber} (₹${ord.invoiceAmount})` : "Assign bill number & amount"}
-                                          </div>
-                                        </div>
-                                      </button>
-
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setOpenOrderMenuId(null);
-                                          openShippingModal(ord);
-                                        }}
-                                        className="w-full px-3.5 py-2 text-left hover:bg-indigo-50 hover:text-indigo-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                      >
-                                        <span className="text-base">🚚</span>
-                                        <div>
-                                          <div className="font-semibold text-gray-900">
-                                            {ord.trackingNumber ? "Edit Tracking / Courier" : "Dispatch & Courier Tracking"}
-                                          </div>
-                                          <div className="text-[10px] text-gray-400">
-                                            {ord.trackingNumber ? `${ord.courierName}: ${ord.trackingNumber}` : "Add tracking link & carrier"}
-                                          </div>
-                                        </div>
-                                      </button>
-
-                                      <a
-                                        href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                          `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
-                                            ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
-                                          }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
-                                        )}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={() => setOpenOrderMenuId(null)}
-                                        className="w-full px-3.5 py-2 text-left hover:bg-emerald-50 hover:text-emerald-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
-                                      >
-                                        <span className="text-base">💬</span>
-                                        <div>
-                                          <div className="font-semibold text-gray-900">Notify on WhatsApp</div>
-                                          <div className="text-[10px] text-gray-400">Send status update to {ord.customerPhone}</div>
-                                        </div>
-                                      </a>
-                                    </div>
-
-                                    <div className="pt-1 border-t border-gray-100">
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setOpenOrderMenuId(null);
-                                          setDeleteConfirm({
-                                            type: "order",
-                                            id: ord.id,
-                                            title: `Order #${ord.orderNumber}`,
-                                            subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
-                                          });
-                                        }}
-                                        className="w-full px-3.5 py-2 text-left hover:bg-red-50 text-red-600 font-medium flex items-center gap-3 transition-colors"
-                                      >
-                                        <span className="text-base">🗑️</span>
-                                        <div>
-                                          <div className="font-semibold text-red-600">Delete Order</div>
-                                          <div className="text-[10px] text-red-400">Move to soft delete trash</div>
-                                        </div>
-                                      </button>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => toggleOrderMenu(e, ord)}
+                              className={`w-7 h-7 rounded-lg inline-flex items-center justify-center transition-colors focus:outline-none ${
+                                activeFloatingOrderMenu?.order.id === ord.id
+                                  ? "bg-gold/25 text-gold-dark ring-2 ring-gold/40"
+                                  : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                              }`}
+                              title="Document & Actions"
+                              aria-label="Document & Actions"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
 
@@ -4381,6 +4368,168 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* FLOATING ACTION & DOCUMENT MENU (Rendered at Root Level with z-[99999] so it NEVER overlaps or clips) */}
+      {activeFloatingOrderMenu && (
+        <>
+          {/* Transparent Backdrop for Outside-Click Dismiss */}
+          <div
+            className="fixed inset-0 z-[99990] bg-transparent cursor-default"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveFloatingOrderMenu(null);
+            }}
+          />
+
+          <div
+            className="order-actions-floating-menu fixed z-[99999] w-64 rounded-2xl shadow-2xl animate-fadeIn text-left text-xs font-sans overflow-hidden"
+            style={{
+              right: `${activeFloatingOrderMenu.right}px`,
+              ...(activeFloatingOrderMenu.openUpward
+                ? { bottom: `${window.innerHeight - activeFloatingOrderMenu.top}px` }
+                : { top: `${activeFloatingOrderMenu.top}px` }),
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header / Info Strip */}
+            <div className="menu-header px-3.5 py-2.5 flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
+                  Order #{activeFloatingOrderMenu.order.orderNumber}
+                </span>
+                <span className="text-xs font-bold text-gray-900 truncate block mt-0.5">
+                  {activeFloatingOrderMenu.order.customerName}
+                </span>
+                <span className="text-[10px] text-gray-500 block truncate">
+                  {activeFloatingOrderMenu.order.product} &times; {activeFloatingOrderMenu.order.quantity} • ₹{activeFloatingOrderMenu.order.invoiceAmount || 0}
+                </span>
+              </div>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${getStatusBadgeClass(activeFloatingOrderMenu.order.status)}`}>
+                {activeFloatingOrderMenu.order.status}
+              </span>
+            </div>
+
+            {/* Final Action Buttons List */}
+            <div className="p-1.5 space-y-1">
+              {/* Button 1: Print / View Invoice */}
+              <button
+                type="button"
+                onClick={() => {
+                  const ord = activeFloatingOrderMenu.order;
+                  setActiveFloatingOrderMenu(null);
+                  setPreviewInvoiceOrder(ord);
+                }}
+                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
+                  📄
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs truncate">Print / View Invoice</div>
+                  <div className="text-[10px] text-gray-400 truncate">Tax Invoice PDF & Print Engine</div>
+                </div>
+              </button>
+
+              {/* Button 2: Generate / Edit Invoice */}
+              <button
+                type="button"
+                onClick={() => {
+                  const ord = activeFloatingOrderMenu.order;
+                  setActiveFloatingOrderMenu(null);
+                  openInvoiceModal(ord);
+                }}
+                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
+                  📜
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs truncate">
+                    {activeFloatingOrderMenu.order.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
+                  </div>
+                  <div className="text-[10px] text-gray-400 truncate">
+                    {activeFloatingOrderMenu.order.invoiceNumber
+                      ? `Inv #${activeFloatingOrderMenu.order.invoiceNumber} (₹${activeFloatingOrderMenu.order.invoiceAmount})`
+                      : "Assign bill number & amount"}
+                  </div>
+                </div>
+              </button>
+
+              {/* Button 3: Dispatch / Shipping */}
+              <button
+                type="button"
+                onClick={() => {
+                  const ord = activeFloatingOrderMenu.order;
+                  setActiveFloatingOrderMenu(null);
+                  openShippingModal(ord);
+                }}
+                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
+                  🚚
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs truncate">
+                    {activeFloatingOrderMenu.order.trackingNumber ? "Edit Tracking / Courier" : "Dispatch & Courier Tracking"}
+                  </div>
+                  <div className="text-[10px] text-gray-400 truncate">
+                    {activeFloatingOrderMenu.order.trackingNumber
+                      ? `${activeFloatingOrderMenu.order.courierName}: ${activeFloatingOrderMenu.order.trackingNumber}`
+                      : "Add carrier & tracking link"}
+                  </div>
+                </div>
+              </button>
+
+              {/* Button 4: Notify on WhatsApp */}
+              <a
+                href={`https://wa.me/91${activeFloatingOrderMenu.order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                  `Hi ${activeFloatingOrderMenu.order.customerName}, your Organic Gold Garlic Order #${activeFloatingOrderMenu.order.orderNumber} status is now: ${activeFloatingOrderMenu.order.status}.${
+                    activeFloatingOrderMenu.order.invoiceNumber ? ` Invoice: ${activeFloatingOrderMenu.order.invoiceNumber} (₹${activeFloatingOrderMenu.order.invoiceAmount}).` : ""
+                  }${activeFloatingOrderMenu.order.trackingNumber ? ` Dispatched via ${activeFloatingOrderMenu.order.courierName} tracking: ${activeFloatingOrderMenu.order.trackingNumber}.` : ""}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setActiveFloatingOrderMenu(null)}
+                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer block"
+              >
+                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
+                  💬
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs truncate">Notify on WhatsApp</div>
+                  <div className="text-[10px] text-gray-400 truncate">Send update to {activeFloatingOrderMenu.order.customerPhone}</div>
+                </div>
+              </a>
+            </div>
+
+            {/* Button 5: Delete Order (Final Danger Action) */}
+            <div className="p-1.5 pt-1 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => {
+                  const ord = activeFloatingOrderMenu.order;
+                  setActiveFloatingOrderMenu(null);
+                  setDeleteConfirm({
+                    type: "order",
+                    id: ord.id,
+                    title: `Order #${ord.orderNumber}`,
+                    subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
+                  });
+                }}
+                className="menu-delete-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <div className="menu-delete-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
+                  🗑️
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs truncate">Delete Order</div>
+                  <div className="text-[10px] opacity-75 truncate">Move to soft delete trash</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
     </div>

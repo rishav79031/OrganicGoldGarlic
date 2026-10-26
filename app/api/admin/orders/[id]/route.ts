@@ -3,6 +3,34 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { sendOrderStatusEmail } from "@/lib/email";
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
+  const id = Number(params.id);
+  if (!id) {
+    return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+  }
+
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+    });
+    if (!order || order.isDeleted) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    return NextResponse.json({ order });
+  } catch (err) {
+    console.error("Get order error:", err);
+    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }

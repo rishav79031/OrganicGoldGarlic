@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { triggerPrintInvoice } from "@/lib/printInvoice";
 
 interface UserProfile {
   id: number;
@@ -1118,19 +1119,6 @@ export default function AdminDashboard() {
           box-shadow: 12px 12px 24px #c2c9d6, -12px -12px 24px #ffffff !important;
         }
 
-        /* Keep printed invoice strictly clean white on paper */
-        @media print {
-          .admin-root, .admin-root * {
-            background-color: transparent !important;
-            color: initial !important;
-            box-shadow: none !important;
-          }
-          #printable-invoice-sheet {
-            background-color: #ffffff !important;
-            color: #111827 !important;
-          }
-        }
-
         /* Mobile drawer animation and utility */
         @keyframes slideRight {
           from { transform: translateX(-100%); }
@@ -1992,15 +1980,13 @@ export default function AdminDashboard() {
                                   {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
                                 </button>
 
-                                {ord.invoiceNumber && (
-                                  <button
-                                    onClick={() => setPreviewInvoiceOrder(ord)}
-                                    className="px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                    title="View and Print Invoice"
-                                  >
-                                    📄 Print
-                                  </button>
-                                )}
+                                <button
+                                  onClick={() => setPreviewInvoiceOrder(ord)}
+                                  className="px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                  title="View and Print Invoice"
+                                >
+                                  📄 Print
+                                </button>
 
                                 <button
                                   onClick={() => openShippingModal(ord)}
@@ -2143,14 +2129,12 @@ export default function AdminDashboard() {
                             {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
                           </button>
 
-                          {ord.invoiceNumber && (
-                            <button
-                              onClick={() => setPreviewInvoiceOrder(ord)}
-                              className="flex-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider text-center transition-colors"
-                            >
-                              📄 Print
-                            </button>
-                          )}
+                          <button
+                            onClick={() => setPreviewInvoiceOrder(ord)}
+                            className="flex-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider text-center transition-colors"
+                          >
+                            📄 Print
+                          </button>
 
                           <button
                             onClick={() => openShippingModal(ord)}
@@ -3517,8 +3501,10 @@ export default function AdminDashboard() {
 
       {/* MODAL 3: INVOICE PREVIEW / PRINT - Guaranteed Exact Single-Page A4 Sheet */}
       {previewInvoiceOrder && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-white print:p-0">
-          
+        <div
+          id="invoice-modal-overlay"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-white print:p-0"
+        >
           {/* Print Specific CSS to Force Single Page A4 Format */}
           <style dangerouslySetInnerHTML={{ __html: `
             @media print {
@@ -3526,25 +3512,30 @@ export default function AdminDashboard() {
                 size: A4 portrait;
                 margin: 8mm 10mm;
               }
-              body * {
-                visibility: hidden !important;
+              body {
+                background: #ffffff !important;
+                color: #111827 !important;
+                overflow: visible !important;
               }
-              #printable-invoice-sheet, #printable-invoice-sheet * {
-                visibility: visible !important;
+              aside, header, nav, main, #admin-mobile-drawer {
+                display: none !important;
+              }
+              #invoice-modal-overlay {
+                position: static !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                display: block !important;
               }
               #printable-invoice-sheet {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
+                position: static !important;
                 width: 100% !important;
-                max-width: 190mm !important;
-                margin: 0 auto !important;
-                padding: 4mm 6mm !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 box-shadow: none !important;
-                border: 1px solid #ddd !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
+                border: none !important;
+                background: #ffffff !important;
+                color: #111827 !important;
               }
             }
           `}} />
@@ -3564,12 +3555,24 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => window.print()}
-                  className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold uppercase tracking-wider shadow flex items-center gap-1.5"
+                  type="button"
+                  onClick={() => triggerPrintInvoice(previewInvoiceOrder, settings)}
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold uppercase tracking-wider shadow flex items-center gap-1.5 transition-all"
+                  title="Direct 1-Click Print"
                 >
                   🖨️ Print / Save PDF
                 </button>
+                <a
+                  href={`/admin/invoice/${previewInvoiceOrder.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold tracking-wider transition-colors"
+                  title="Open full invoice in separate tab"
+                >
+                  ↗ Open in Tab
+                </a>
                 <button
+                  type="button"
                   onClick={() => setPreviewInvoiceOrder(null)}
                   className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
                 >

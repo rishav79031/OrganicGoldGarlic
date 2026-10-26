@@ -132,6 +132,9 @@ export default function AdminDashboard() {
   // Invoice Preview / Print Modal State
   const [previewInvoiceOrder, setPreviewInvoiceOrder] = useState<OrderItem | null>(null);
 
+  // Orders Action Menu (Three-dot dropdown)
+  const [openOrderMenuId, setOpenOrderMenuId] = useState<number | null>(null);
+
   // Shipping Modal State (Clean, NO fake defaults)
   const [selectedOrderForShipping, setSelectedOrderForShipping] = useState<OrderItem | null>(null);
   const [shippingForm, setShippingForm] = useState({
@@ -2065,7 +2068,7 @@ export default function AdminDashboard() {
               ) : (
                 <>
                   {/* Desktop Data Table (Hidden on Mobile) */}
-                  <div className="hidden md:block overflow-x-auto">
+                  <div className="hidden md:block overflow-x-auto min-h-[360px]">
                     <table className="w-full text-left text-xs 2xl:text-sm">
                       <thead>
                         <tr className="border-b border-gray-200 text-gray-400 uppercase tracking-wider font-semibold">
@@ -2084,11 +2087,11 @@ export default function AdminDashboard() {
                           <th className="pb-3">Product & Qty</th>
                           <th className="pb-3">Invoice & Total</th>
                           <th className="pb-3">Status</th>
-                          <th className="pb-3 text-right">Actions & Documents</th>
+                          <th className="pb-3 text-right pr-3">Document</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {paginatedOrders.map((ord) => (
+                        {paginatedOrders.map((ord, idx) => (
                           <tr key={ord.id} className="hover:bg-gray-50/50">
                             <td className="py-3.5">
                               <input
@@ -2168,60 +2171,152 @@ export default function AdminDashboard() {
                               )}
                             </td>
 
-                            <td className="py-3.5 text-right">
-                              <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            <td className="py-3.5 text-right pr-2 relative">
+                              <div className="relative inline-block text-left">
                                 <button
-                                  onClick={() => openInvoiceModal(ord)}
-                                  className="px-2.5 py-1 rounded-md bg-gold/15 hover:bg-gold/30 text-gold-dark font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                  title="Generate or Edit Invoice"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenOrderMenuId(openOrderMenuId === ord.id ? null : ord.id);
+                                  }}
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors focus:outline-none ${
+                                    openOrderMenuId === ord.id
+                                      ? "bg-gold/20 text-gold-dark ring-2 ring-gold/40"
+                                      : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                                  }`}
+                                  title="Document & Actions Menu"
+                                  aria-label="Document & Actions Menu"
                                 >
-                                  {ord.invoiceNumber ? "Edit Inv" : "+ Invoice"}
+                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                  </svg>
                                 </button>
 
-                                <button
-                                  onClick={() => setPreviewInvoiceOrder(ord)}
-                                  className="px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                  title="View and Print Invoice"
-                                >
-                                  📄 Print
-                                </button>
+                                {openOrderMenuId === ord.id && (
+                                  <>
+                                    <div
+                                      className="fixed inset-0 z-40"
+                                      onClick={() => setOpenOrderMenuId(null)}
+                                    />
+                                    <div
+                                      className={`absolute right-0 ${
+                                        idx >= Math.max(0, paginatedOrders.length - 2) ? "bottom-full mb-1.5" : "top-full mt-1.5"
+                                      } w-60 bg-white rounded-2xl shadow-2xl border border-gray-200/90 py-1.5 z-50 animate-fadeIn text-left text-xs font-sans ring-1 ring-black/5`}
+                                    >
+                                      <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/60 rounded-t-2xl">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                            Order #{ord.orderNumber}
+                                          </span>
+                                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadgeClass(ord.status)}`}>
+                                            {ord.status}
+                                          </span>
+                                        </div>
+                                        <span className="text-xs font-bold text-gray-900 truncate block mt-0.5">
+                                          {ord.customerName}
+                                        </span>
+                                        <span className="text-[10px] text-gray-500 block truncate">
+                                          {ord.product} &times; {ord.quantity} • ₹{ord.invoiceAmount || 0}
+                                        </span>
+                                      </div>
 
-                                <button
-                                  onClick={() => openShippingModal(ord)}
-                                  className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                  title="Add Courier Tracking"
-                                >
-                                  🚚 Ship
-                                </button>
+                                      <div className="py-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOpenOrderMenuId(null);
+                                            setPreviewInvoiceOrder(ord);
+                                          }}
+                                          className="w-full px-3.5 py-2 text-left hover:bg-gold/10 hover:text-gold-dark font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                        >
+                                          <span className="text-base">📄</span>
+                                          <div>
+                                            <div className="font-semibold text-gray-900">Print / View Invoice</div>
+                                            <div className="text-[10px] text-gray-400">PDF & Isolated Tax Invoice Print</div>
+                                          </div>
+                                        </button>
 
-                                <a
-                                  href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                    `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
-                                      ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
-                                    }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
-                                  )}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-2 py-1 rounded bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-[10px] uppercase tracking-wider"
-                                  title="Notify on WhatsApp"
-                                >
-                                  💬
-                                </a>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOpenOrderMenuId(null);
+                                            openInvoiceModal(ord);
+                                          }}
+                                          className="w-full px-3.5 py-2 text-left hover:bg-gray-50 font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                        >
+                                          <span className="text-base">📜</span>
+                                          <div>
+                                            <div className="font-semibold text-gray-900">
+                                              {ord.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
+                                            </div>
+                                            <div className="text-[10px] text-gray-400">
+                                              {ord.invoiceNumber ? `Inv #${ord.invoiceNumber} (₹${ord.invoiceAmount})` : "Assign bill number & amount"}
+                                            </div>
+                                          </div>
+                                        </button>
 
-                                <button
-                                  onClick={() =>
-                                    setDeleteConfirm({
-                                      type: "order",
-                                      id: ord.id,
-                                      title: `Order #${ord.orderNumber}`,
-                                      subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
-                                    })
-                                  }
-                                  className="px-2 py-1 rounded bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] uppercase tracking-wider transition-colors"
-                                  title="Delete Order (Soft Delete)"
-                                >
-                                  🗑️
-                                </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOpenOrderMenuId(null);
+                                            openShippingModal(ord);
+                                          }}
+                                          className="w-full px-3.5 py-2 text-left hover:bg-indigo-50 hover:text-indigo-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                        >
+                                          <span className="text-base">🚚</span>
+                                          <div>
+                                            <div className="font-semibold text-gray-900">
+                                              {ord.trackingNumber ? "Edit Tracking / Courier" : "Dispatch & Courier Tracking"}
+                                            </div>
+                                            <div className="text-[10px] text-gray-400">
+                                              {ord.trackingNumber ? `${ord.courierName}: ${ord.trackingNumber}` : "Add tracking link & carrier"}
+                                            </div>
+                                          </div>
+                                        </button>
+
+                                        <a
+                                          href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                            `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
+                                              ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
+                                            }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
+                                          )}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={() => setOpenOrderMenuId(null)}
+                                          className="w-full px-3.5 py-2 text-left hover:bg-emerald-50 hover:text-emerald-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                        >
+                                          <span className="text-base">💬</span>
+                                          <div>
+                                            <div className="font-semibold text-gray-900">Notify on WhatsApp</div>
+                                            <div className="text-[10px] text-gray-400">Send status update to {ord.customerPhone}</div>
+                                          </div>
+                                        </a>
+                                      </div>
+
+                                      <div className="pt-1 border-t border-gray-100">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOpenOrderMenuId(null);
+                                            setDeleteConfirm({
+                                              type: "order",
+                                              id: ord.id,
+                                              title: `Order #${ord.orderNumber}`,
+                                              subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
+                                            });
+                                          }}
+                                          className="w-full px-3.5 py-2 text-left hover:bg-red-50 text-red-600 font-medium flex items-center gap-3 transition-colors"
+                                        >
+                                          <span className="text-base">🗑️</span>
+                                          <div>
+                                            <div className="font-semibold text-red-600">Delete Order</div>
+                                            <div className="text-[10px] text-red-400">Move to soft delete trash</div>
+                                          </div>
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -2254,19 +2349,165 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          <select
-                            value={ord.status}
-                            onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border focus:outline-none ${getStatusBadgeClass(
-                              ord.status
-                            )}`}
-                          >
-                            {SHOPIFY_STATUSES.map((st) => (
-                              <option key={st} value={st}>
-                                {st}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="flex items-center gap-1.5">
+                            <select
+                              value={ord.status}
+                              onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
+                              className={`px-2 py-1 rounded-lg text-[10px] font-bold border focus:outline-none ${getStatusBadgeClass(
+                                ord.status
+                              )}`}
+                            >
+                              {SHOPIFY_STATUSES.map((st) => (
+                                <option key={st} value={st}>
+                                  {st}
+                                </option>
+                              ))}
+                            </select>
+
+                            {/* Mobile 3-dot Vertical Menu */}
+                            <div className="relative">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenOrderMenuId(openOrderMenuId === ord.id ? null : ord.id);
+                                }}
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus:outline-none ${
+                                  openOrderMenuId === ord.id
+                                    ? "bg-gold/20 text-gold-dark ring-2 ring-gold/40"
+                                    : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                                }`}
+                                title="Document & Actions"
+                                aria-label="Document & Actions"
+                              >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                </svg>
+                              </button>
+
+                              {openOrderMenuId === ord.id && (
+                                <>
+                                  <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setOpenOrderMenuId(null)}
+                                  />
+                                  <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-2xl shadow-2xl border border-gray-200/90 py-1.5 z-50 animate-fadeIn text-left text-xs font-sans ring-1 ring-black/5">
+                                    <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/60 rounded-t-2xl">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                          Order #{ord.orderNumber}
+                                        </span>
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadgeClass(ord.status)}`}>
+                                          {ord.status}
+                                        </span>
+                                      </div>
+                                      <span className="text-xs font-bold text-gray-900 truncate block mt-0.5">
+                                        {ord.customerName}
+                                      </span>
+                                      <span className="text-[10px] text-gray-500 block truncate">
+                                        {ord.product} &times; {ord.quantity} • ₹{ord.invoiceAmount || 0}
+                                      </span>
+                                    </div>
+
+                                    <div className="py-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setOpenOrderMenuId(null);
+                                          setPreviewInvoiceOrder(ord);
+                                        }}
+                                        className="w-full px-3.5 py-2 text-left hover:bg-gold/10 hover:text-gold-dark font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                      >
+                                        <span className="text-base">📄</span>
+                                        <div>
+                                          <div className="font-semibold text-gray-900">Print / View Invoice</div>
+                                          <div className="text-[10px] text-gray-400">PDF & Isolated Tax Invoice Print</div>
+                                        </div>
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setOpenOrderMenuId(null);
+                                          openInvoiceModal(ord);
+                                        }}
+                                        className="w-full px-3.5 py-2 text-left hover:bg-gray-50 font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                      >
+                                        <span className="text-base">📜</span>
+                                        <div>
+                                          <div className="font-semibold text-gray-900">
+                                            {ord.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
+                                          </div>
+                                          <div className="text-[10px] text-gray-400">
+                                            {ord.invoiceNumber ? `Inv #${ord.invoiceNumber} (₹${ord.invoiceAmount})` : "Assign bill number & amount"}
+                                          </div>
+                                        </div>
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setOpenOrderMenuId(null);
+                                          openShippingModal(ord);
+                                        }}
+                                        className="w-full px-3.5 py-2 text-left hover:bg-indigo-50 hover:text-indigo-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                      >
+                                        <span className="text-base">🚚</span>
+                                        <div>
+                                          <div className="font-semibold text-gray-900">
+                                            {ord.trackingNumber ? "Edit Tracking / Courier" : "Dispatch & Courier Tracking"}
+                                          </div>
+                                          <div className="text-[10px] text-gray-400">
+                                            {ord.trackingNumber ? `${ord.courierName}: ${ord.trackingNumber}` : "Add tracking link & carrier"}
+                                          </div>
+                                        </div>
+                                      </button>
+
+                                      <a
+                                        href={`https://wa.me/91${ord.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                          `Hi ${ord.customerName}, your Organic Gold Garlic Order #${ord.orderNumber} status is now: ${ord.status}.${
+                                            ord.invoiceNumber ? ` Invoice: ${ord.invoiceNumber} (₹${ord.invoiceAmount}).` : ""
+                                          }${ord.trackingNumber ? ` Dispatched via ${ord.courierName} tracking: ${ord.trackingNumber}.` : ""}`
+                                        )}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => setOpenOrderMenuId(null)}
+                                        className="w-full px-3.5 py-2 text-left hover:bg-emerald-50 hover:text-emerald-700 font-medium flex items-center gap-3 transition-colors text-gray-700"
+                                      >
+                                        <span className="text-base">💬</span>
+                                        <div>
+                                          <div className="font-semibold text-gray-900">Notify on WhatsApp</div>
+                                          <div className="text-[10px] text-gray-400">Send status update to {ord.customerPhone}</div>
+                                        </div>
+                                      </a>
+                                    </div>
+
+                                    <div className="pt-1 border-t border-gray-100">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setOpenOrderMenuId(null);
+                                          setDeleteConfirm({
+                                            type: "order",
+                                            id: ord.id,
+                                            title: `Order #${ord.orderNumber}`,
+                                            subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
+                                          });
+                                        }}
+                                        className="w-full px-3.5 py-2 text-left hover:bg-red-50 text-red-600 font-medium flex items-center gap-3 transition-colors"
+                                      >
+                                        <span className="text-base">🗑️</span>
+                                        <div>
+                                          <div className="font-semibold text-red-600">Delete Order</div>
+                                          <div className="text-[10px] text-red-400">Move to soft delete trash</div>
+                                        </div>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
 
                         {/* Customer & Item Details */}

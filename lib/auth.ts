@@ -5,7 +5,7 @@ import crypto from "crypto";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET ?? "goldgarlic-jwt-secret-2024";
 const SUPERADMIN_EMAIL = "rishav79031@gmail.com";
-const DEFAULT_PASS = process.env.ADMIN_PASSWORD ?? "GoldGarlic@2024";
+const DEFAULT_PASS = process.env.ADMIN_PASSWORD ?? "Rish@1234";
 
 export function getSecretKey() {
   return new TextEncoder().encode(ADMIN_SECRET);

@@ -6,7 +6,7 @@ import {
   hashPassword,
 } from "@/lib/auth";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "GoldGarlic@2024";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "Rish@1234";
 const SUPERADMIN_EMAIL = "rishav79031@gmail.com";
 
 export async function POST(request: NextRequest) {

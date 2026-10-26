@@ -194,7 +194,7 @@ export default function AdminDashboard() {
     }
     const themeNames: Record<AdminTheme, string> = {
       classic: "Classic Gold (Light)",
-      glassmorphism: "Frosted Glassmorphism (Aurora Glass)",
+      glassmorphism: "Apple Frosted Glass (Light Acrylic)",
       neomorphism: "Neomorphism Light (Soft UI)",
       "dark-neomorphism": "Dark Neomorphism (Cyber Soft-UI)",
       dark: "Midnight Gold (Dark)",
@@ -248,37 +248,40 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const activePeriod = periodParam !== undefined ? periodParam : statsPeriod;
-      const statsRes = await fetch(`/api/admin/stats?period=${activePeriod}`);
+
+      // Parallel concurrent fetching: eliminates waterfall delay
+      const [statsRes, ordersRes, enquiriesRes, settingsRes, usersRes] = await Promise.all([
+        fetch(`/api/admin/stats?period=${activePeriod}`),
+        fetch(`/api/admin/orders?status=${encodeURIComponent(orderFilter)}`),
+        fetch("/api/admin/enquiries"),
+        fetch("/api/admin/settings"),
+        fetch("/api/admin/users"),
+      ]);
+
       if (statsRes.status === 401) {
         router.push("/admin/login");
         return;
       }
-      const statsData = await statsRes.json();
+
+      const [statsData, ordersData, enquiriesData, settingsData, usersData] = await Promise.all([
+        statsRes.json().catch(() => ({})),
+        ordersRes.json().catch(() => ({})),
+        enquiriesRes.json().catch(() => ({})),
+        settingsRes.json().catch(() => ({})),
+        usersRes.json().catch(() => ({})),
+      ]);
+
       if (statsData.user) setUser(statsData.user);
       if (statsData.stats) setStats(statsData.stats);
-
-      const ordersRes = await fetch(`/api/admin/orders?status=${encodeURIComponent(orderFilter)}`);
-      const ordersData = await ordersRes.json();
       if (ordersData.orders) setOrders(ordersData.orders);
-
-      const enquiriesRes = await fetch("/api/admin/enquiries");
-      const enquiriesData = await enquiriesRes.json();
       if (enquiriesData.enquiries) setEnquiries(enquiriesData.enquiries);
-
-      const settingsRes = await fetch("/api/admin/settings");
-      const settingsData = await settingsRes.json();
       if (settingsData.settings) {
         setSettings((prev) => ({ ...prev, ...settingsData.settings }));
         if (settingsData.settings.active_theme && !localStorage.getItem("admin_theme")) {
           setTheme(settingsData.settings.active_theme as AdminTheme);
         }
       }
-
-      if (statsData.user && (statsData.user.role === "Superadmin" || statsData.user.role === "Admin")) {
-        const usersRes = await fetch("/api/admin/users");
-        const usersData = await usersRes.json();
-        if (usersData.users) setUsersList(usersData.users);
-      }
+      if (usersData.users) setUsersList(usersData.users);
     } catch (e) {
       console.error(e);
       toast.error("Error loading dashboard data");
@@ -291,7 +294,14 @@ export default function AdminDashboard() {
     setStatsPeriod(p);
     const labelMap = { all: "All Time", "30d": "Last 30 Days", "3m": "Last 3 Months", "6m": "Last 6 Months" };
     toast.success(`Displaying metrics for ${labelMap[p]}`, { icon: "📅" });
-    loadDashboardData(p);
+    try {
+      // Instant metrics update without blocking full page
+      const res = await fetch(`/api/admin/stats?period=${p}`);
+      const data = await res.json();
+      if (data.stats) setStats(data.stats);
+    } catch {
+      loadDashboardData(p);
+    }
   }
 
   // Realtime User Status Toggle (Active <-> Disabled)
@@ -874,7 +884,7 @@ export default function AdminDashboard() {
       data-theme={theme}
       className={`admin-root min-h-screen flex flex-col md:flex-row w-full transition-colors duration-200 ${
         theme === "glassmorphism"
-          ? "bg-[#07110a] text-slate-100"
+          ? "bg-[#f1f4f9] text-slate-800"
           : theme === "dark" || theme === "dark-neomorphism"
           ? "bg-[#0b130e] text-gray-100"
           : theme === "neomorphism"
@@ -884,27 +894,36 @@ export default function AdminDashboard() {
     >
       {/* Theme Dynamic Scoped CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
-        /* ================= GLASSMORPHISM (FROSTED AURORA GLASS) THEME ================= */
+        /* ================= APPLE LIGHT FROSTED GLASSMORPHISM THEME ================= */
         .admin-root[data-theme="glassmorphism"] {
-          background-color: #060e09 !important;
+          background-color: #f1f4f9 !important;
           background-image: 
-            radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.16) 0%, transparent 45%),
-            radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.14) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(6, 78, 59, 0.18) 0%, transparent 65%) !important;
+            radial-gradient(circle at 10% 15%, rgba(255, 255, 255, 0.95) 0%, transparent 45%),
+            radial-gradient(circle at 90% 85%, rgba(212, 175, 55, 0.1) 0%, transparent 45%),
+            radial-gradient(circle at 50% 50%, rgba(226, 232, 240, 0.6) 0%, transparent 60%) !important;
           background-attachment: fixed !important;
-          color: #f1f5f9 !important;
+          color: #1e293b !important;
         }
 
-        /* Desktop Sidebar Navigation */
+        /* Apple Frosted Acrylic Desktop Sidebar */
         .admin-root[data-theme="glassmorphism"] aside {
-          background: rgba(7, 16, 11, 0.85) !important;
-          backdrop-filter: blur(24px) saturate(180%) !important;
-          -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-          border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-          box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45) !important;
+          background: rgba(248, 250, 252, 0.8) !important;
+          backdrop-filter: blur(28px) saturate(190%) !important;
+          -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+          border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+          box-shadow: 2px 0 20px rgba(0, 0, 0, 0.03) !important;
+          color: #334155 !important;
         }
 
-        /* Desktop Sidebar & Mobile Drawer Nav Buttons */
+        .admin-root[data-theme="glassmorphism"] aside .text-white {
+          color: #0f172a !important;
+        }
+        .admin-root[data-theme="glassmorphism"] aside .text-gray-400,
+        .admin-root[data-theme="glassmorphism"] aside .text-gray-300 {
+          color: #64748b !important;
+        }
+
+        /* Sidebar & Mobile Nav Buttons (Apple Liquid Glass) */
         .admin-root[data-theme="glassmorphism"] aside nav button,
         .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button {
           border-radius: 0.85rem !important;
@@ -915,132 +934,150 @@ export default function AdminDashboard() {
 
         .admin-root[data-theme="glassmorphism"] aside nav button:not(.bg-gold),
         .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button:not(.bg-gold) {
-          background: rgba(255, 255, 255, 0.03) !important;
-          border: 1px solid rgba(255, 255, 255, 0.06) !important;
-          color: #94a3b8 !important;
+          background: transparent !important;
+          border: 1px solid transparent !important;
+          color: #475569 !important;
         }
 
         .admin-root[data-theme="glassmorphism"] aside nav button:not(.bg-gold):hover,
         .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button:not(.bg-gold):hover {
-          background: rgba(255, 255, 255, 0.08) !important;
-          border-color: rgba(255, 255, 255, 0.16) !important;
-          color: #ffffff !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
-          transform: translateX(2px) !important;
+          background: rgba(0, 0, 0, 0.05) !important;
+          color: #0f172a !important;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
         }
 
         .admin-root[data-theme="glassmorphism"] aside nav button.bg-gold,
         .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button.bg-gold {
-          background: linear-gradient(135deg, rgba(212, 175, 55, 0.32) 0%, rgba(16, 185, 129, 0.2) 100%) !important;
-          border: 1px solid rgba(212, 175, 55, 0.65) !important;
-          color: #fef08a !important;
-          box-shadow: 0 0 20px -2px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+          background: rgba(212, 175, 55, 0.18) !important;
+          border: 1px solid rgba(212, 175, 55, 0.45) !important;
+          color: #854d0e !important;
+          box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
           backdrop-filter: blur(12px) !important;
           font-weight: 700 !important;
         }
 
         .admin-root[data-theme="glassmorphism"] aside nav button.bg-gold svg,
         .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button.bg-gold svg {
-          stroke: #fef08a !important;
+          stroke: #854d0e !important;
         }
 
-        /* Mobile Slide-Over Drawer */
+        /* Apple Liquid Glass Panels & Cards */
+        .admin-root[data-theme="glassmorphism"] .bg-white,
+        .admin-root[data-theme="glassmorphism"] .bg-gray-50 {
+          background: rgba(255, 255, 255, 0.75) !important;
+          backdrop-filter: blur(20px) saturate(180%) !important;
+          -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+          border: 1px solid rgba(255, 255, 255, 0.85) !important;
+          border-radius: 1.25rem !important;
+          box-shadow: 0 8px 30px 0 rgba(15, 23, 42, 0.05), 0 1px 2px 0 rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+          color: #1e293b !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .bg-white:hover,
+        .admin-root[data-theme="glassmorphism"] .bg-gray-50:hover {
+          box-shadow: 0 14px 36px 0 rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 1) !important;
+          border-color: rgba(212, 175, 55, 0.35) !important;
+          transform: translateY(-2px) !important;
+        }
+
+        /* Apple Frosted Inputs & Selects */
+        .admin-root[data-theme="glassmorphism"] input:not([type="checkbox"]),
+        .admin-root[data-theme="glassmorphism"] select,
+        .admin-root[data-theme="glassmorphism"] textarea {
+          background: rgba(255, 255, 255, 0.82) !important;
+          backdrop-filter: blur(12px) !important;
+          -webkit-backdrop-filter: blur(12px) !important;
+          border: 1px solid rgba(0, 0, 0, 0.1) !important;
+          border-radius: 0.75rem !important;
+          color: #0f172a !important;
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] input:focus,
+        .admin-root[data-theme="glassmorphism"] select:focus,
+        .admin-root[data-theme="glassmorphism"] textarea:focus {
+          background: #ffffff !important;
+          border-color: #d4af37 !important;
+          box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25) !important;
+          outline: none !important;
+        }
+
+        /* Apple Glass Table Styles */
+        .admin-root[data-theme="glassmorphism"] thead tr {
+          background: rgba(241, 245, 249, 0.7) !important;
+          backdrop-filter: blur(10px) !important;
+          color: #64748b !important;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] tbody tr {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] tbody tr:hover {
+          background: rgba(212, 175, 55, 0.04) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .text-gray-900,
+        .admin-root[data-theme="glassmorphism"] .text-gray-800,
+        .admin-root[data-theme="glassmorphism"] .text-gray-700 {
+          color: #0f172a !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .text-gray-600,
+        .admin-root[data-theme="glassmorphism"] .text-gray-500 {
+          color: #64748b !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .border-gray-200,
+        .admin-root[data-theme="glassmorphism"] .border-gray-300,
+        .admin-root[data-theme="glassmorphism"] .border-gray-100 {
+          border-color: rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .text-primary {
+          color: #064e3b !important;
+        }
+
+        /* Mobile Drawer (Apple Light Frosted Acrylic) */
         .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer {
-          background: rgba(7, 16, 11, 0.9) !important;
+          background: rgba(255, 255, 255, 0.9) !important;
           backdrop-filter: blur(28px) saturate(200%) !important;
           -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
-          border-right: 1px solid rgba(212, 175, 55, 0.3) !important;
-          box-shadow: 8px 0 40px rgba(0, 0, 0, 0.7) !important;
+          border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+          color: #0f172a !important;
+          box-shadow: 8px 0 40px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer .text-white {
+          color: #0f172a !important;
         }
 
         /* Mobile Header & Bottom Navigation */
         .admin-root[data-theme="glassmorphism"] header {
-          background: rgba(6, 14, 9, 0.85) !important;
+          background: rgba(255, 255, 255, 0.85) !important;
           backdrop-filter: blur(16px) !important;
           -webkit-backdrop-filter: blur(16px) !important;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+          color: #0f172a !important;
         }
+
+        .admin-root[data-theme="glassmorphism"] header .text-gray-200,
+        .admin-root[data-theme="glassmorphism"] header .text-gray-300 {
+          color: #334155 !important;
+        }
+
         .admin-root[data-theme="glassmorphism"] nav.md\\:hidden {
-          background: rgba(6, 14, 9, 0.88) !important;
+          background: rgba(255, 255, 255, 0.88) !important;
           backdrop-filter: blur(20px) !important;
           -webkit-backdrop-filter: blur(20px) !important;
-          border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+          border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
         }
-        .admin-root[data-theme="glassmorphism"] .bg-white,
-        .admin-root[data-theme="glassmorphism"] .bg-gray-50 {
-          background: rgba(13, 26, 18, 0.65) !important;
-          backdrop-filter: blur(16px) saturate(160%) !important;
-          -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-          border: 1px solid rgba(255, 255, 255, 0.12) !important;
-          border-radius: 1.25rem !important;
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-          color: #f1f5f9 !important;
+        .admin-root[data-theme="glassmorphism"] nav.md\\:hidden button:not(.text-gold) {
+          color: #64748b !important;
         }
-        .admin-root[data-theme="glassmorphism"] .bg-white:hover,
-        .admin-root[data-theme="glassmorphism"] .bg-gray-50:hover {
-          border-color: rgba(212, 175, 55, 0.4) !important;
-          box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(212, 175, 55, 0.25) !important;
-          transform: translateY(-2px) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] input:not([type="checkbox"]),
-        .admin-root[data-theme="glassmorphism"] select,
-        .admin-root[data-theme="glassmorphism"] textarea {
-          background: rgba(255, 255, 255, 0.06) !important;
-          backdrop-filter: blur(10px) !important;
-          -webkit-backdrop-filter: blur(10px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.14) !important;
-          border-radius: 0.85rem !important;
-          color: #ffffff !important;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] input:focus,
-        .admin-root[data-theme="glassmorphism"] select:focus,
-        .admin-root[data-theme="glassmorphism"] textarea:focus {
-          background: rgba(255, 255, 255, 0.09) !important;
-          border-color: #d4af37 !important;
-          box-shadow: 0 0 15px rgba(212, 175, 55, 0.35), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-          outline: none !important;
-        }
-        .admin-root[data-theme="glassmorphism"] thead tr {
-          background: rgba(255, 255, 255, 0.05) !important;
-          backdrop-filter: blur(8px) !important;
-          color: #cbd5e1 !important;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] tbody tr {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] tbody tr:hover {
-          background: rgba(255, 255, 255, 0.07) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] .text-gray-900,
-        .admin-root[data-theme="glassmorphism"] .text-gray-800,
-        .admin-root[data-theme="glassmorphism"] .text-gray-700 {
-          color: #f8fafc !important;
-        }
-        .admin-root[data-theme="glassmorphism"] .text-gray-600,
-        .admin-root[data-theme="glassmorphism"] .text-gray-500 {
-          color: #94a3b8 !important;
-        }
-        .admin-root[data-theme="glassmorphism"] .border-gray-200,
-        .admin-root[data-theme="glassmorphism"] .border-gray-300,
-        .admin-root[data-theme="glassmorphism"] .border-gray-100 {
-          border-color: rgba(255, 255, 255, 0.1) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] .text-primary {
-          color: #f59e0b !important;
-        }
-        .admin-root[data-theme="glassmorphism"] header {
-          background: rgba(5, 12, 8, 0.8) !important;
-          backdrop-filter: blur(16px) !important;
-          -webkit-backdrop-filter: blur(16px) !important;
-          border-bottom: 1px solid rgba(212, 175, 55, 0.25) !important;
-        }
-        .admin-root[data-theme="glassmorphism"] nav {
-          background: rgba(5, 12, 8, 0.85) !important;
-          backdrop-filter: blur(20px) !important;
-          -webkit-backdrop-filter: blur(20px) !important;
-          border-top: 1px solid rgba(212, 175, 55, 0.25) !important;
+        .admin-root[data-theme="glassmorphism"] nav.md\\:hidden button.text-gold {
+          color: #854d0e !important;
         }
         /* ================= DARK THEME ================= */
         .admin-root[data-theme="dark"] {
@@ -2770,49 +2807,49 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Option 2: Frosted Glassmorphism (Aurora Glass) */}
+                  {/* Option 2: Apple Light Frosted Glassmorphism */}
                   <div
                     onClick={() => handleThemeChange("glassmorphism")}
                     className={`cursor-pointer rounded-xl p-3 sm:p-3.5 border-2 transition-all relative flex flex-col justify-between ${
                       theme === "glassmorphism"
-                        ? "border-emerald-400 bg-[#07110a] shadow-[0_4px_24px_rgba(16,185,129,0.3)] ring-2 ring-emerald-400/30"
-                        : "border-gray-800 bg-[#07110a] hover:border-emerald-500/50 hover:shadow-xs"
+                        ? "border-[#d4af37] bg-white shadow-[0_8px_30px_rgba(212,175,55,0.2)] ring-2 ring-[#d4af37]/30"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-xs"
                     }`}
                   >
                     <div>
-                      {/* Mini Visual Strip */}
-                      <div className="h-14 sm:h-16 rounded-lg bg-gradient-to-br from-[#064e3b]/60 via-[#07110a] to-[#d4af37]/25 border border-emerald-400/30 p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-inner backdrop-blur-md relative">
-                        <div className="w-5 h-8 bg-white/10 backdrop-blur-md border border-white/25 rounded flex flex-col items-center justify-center gap-1 shrink-0">
-                          <div className="w-2 h-2 rounded-full bg-gold shadow-[0_0_6px_rgba(212,175,55,0.8)]"></div>
-                          <div className="w-2.5 h-0.5 rounded bg-white/50"></div>
+                      {/* Mini Visual Strip (Apple Frosted Acrylic) */}
+                      <div className="h-14 sm:h-16 rounded-lg bg-gradient-to-br from-[#f1f4f9] via-white to-[#e2e8f0] border border-white/80 p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_4px_12px_rgba(0,0,0,0.04)] backdrop-blur-md relative">
+                        <div className="w-5 h-8 bg-white/70 backdrop-blur-md border border-black/5 rounded shadow-xs flex flex-col items-center justify-center gap-1 shrink-0">
+                          <div className="w-2 h-2 rounded-full bg-gold"></div>
+                          <div className="w-2.5 h-0.5 rounded bg-gray-400"></div>
                         </div>
                         <div className="flex-1 ml-2 space-y-1">
-                          <div className="h-3 bg-white/10 backdrop-blur-md rounded border border-white/20 flex items-center px-1">
-                            <div className="w-6 h-1 bg-white/60 rounded"></div>
+                          <div className="h-3 bg-white/80 backdrop-blur-md rounded border border-white/90 shadow-2xs flex items-center px-1">
+                            <div className="w-6 h-1 bg-gray-400 rounded"></div>
                           </div>
-                          <div className="h-3 bg-emerald-500/20 rounded border border-emerald-400/30 flex items-center px-1">
-                            <div className="w-4 h-1 bg-emerald-400 rounded"></div>
+                          <div className="h-3 bg-amber-50/80 rounded border border-amber-200/60 flex items-center px-1">
+                            <div className="w-4 h-1 bg-amber-700 rounded"></div>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between gap-1 mb-1">
-                        <h4 className="font-bold text-xs sm:text-sm text-emerald-300 truncate">Glassmorphism</h4>
-                        <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/40 shrink-0">
-                          Aurora
+                        <h4 className="font-bold text-xs sm:text-sm text-gray-900 truncate">Apple Glass</h4>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded border border-amber-200/80 shrink-0">
+                          Frosted Light
                         </span>
                       </div>
-                      <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight line-clamp-2 mb-2">
-                        Translucent frosted glass, specular border glows & ambient emerald lighting.
+                      <p className="text-[10px] sm:text-[11px] text-gray-600 leading-tight line-clamp-2 mb-2">
+                        White-greyish Apple frosted acrylic, liquid glass cards & specular light borders.
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-semibold">
-                      <span className={theme === "glassmorphism" ? "text-emerald-300 font-bold" : "text-gray-400"}>
+                    <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] font-semibold">
+                      <span className={theme === "glassmorphism" ? "text-gold-dark font-bold" : "text-gray-500"}>
                         {theme === "glassmorphism" ? "✓ Active" : "Select"}
                       </span>
                       <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
-                        theme === "glassmorphism" ? "border-emerald-400 bg-emerald-400 text-[#07110a] text-[9px] font-bold" : "border-gray-600"
+                        theme === "glassmorphism" ? "border-gold bg-gold text-[#08130b] text-[9px] font-bold" : "border-gray-300"
                       }`}>
                         {theme === "glassmorphism" && "✓"}
                       </div>

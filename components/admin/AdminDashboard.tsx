@@ -147,7 +147,7 @@ export default function AdminDashboard() {
       return;
     }
     const rect = e.currentTarget.getBoundingClientRect();
-    const menuHeight = 310;
+    const menuHeight = 175;
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUpward = spaceBelow < menuHeight && rect.top > menuHeight;
     const rightDist = Math.max(12, window.innerWidth - rect.right);
@@ -889,23 +889,23 @@ export default function AdminDashboard() {
   function getStatusBadgeClass(status: string) {
     switch (status) {
       case "Order Received":
-        return "bg-amber-50 text-amber-800 border-amber-300";
+        return "bg-amber-50 text-amber-900 border-amber-300 font-bold shadow-xs";
       case "Order Accepted":
-        return "bg-blue-50 text-blue-800 border-blue-300";
+        return "bg-blue-50 text-blue-900 border-blue-300 font-bold shadow-xs";
       case "Invoice Generated":
-        return "bg-yellow-50 text-yellow-800 border-yellow-400";
+        return "bg-yellow-50 text-yellow-900 border-yellow-400 font-bold shadow-xs";
       case "Payment Received":
-        return "bg-teal-50 text-teal-800 border-teal-300";
+        return "bg-teal-50 text-teal-900 border-teal-300 font-bold shadow-xs";
       case "Shipped":
-        return "bg-indigo-50 text-indigo-800 border-indigo-300";
+        return "bg-indigo-50 text-indigo-700 border-indigo-300 font-bold ring-1 ring-indigo-200/70 shadow-xs";
       case "Delivered":
-        return "bg-emerald-50 text-emerald-800 border-emerald-300";
+        return "bg-emerald-50 text-emerald-800 border-emerald-300 font-bold ring-1 ring-emerald-200/70 shadow-xs";
       case "Order Processed":
-        return "bg-purple-50 text-purple-800 border-purple-300 font-bold";
+        return "bg-purple-50 text-purple-900 border-purple-300 font-bold shadow-xs";
       case "Cancelled":
-        return "bg-red-50 text-red-800 border-red-300";
+        return "bg-red-50 text-red-800 border-red-300 font-bold shadow-xs";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-300";
+        return "bg-gray-100 text-gray-700 border-gray-300 font-medium";
     }
   }
 
@@ -1497,20 +1497,32 @@ export default function AdminDashboard() {
           box-shadow: 12px 12px 24px #c2c9d6, -12px -12px 24px #ffffff !important;
         }
 
-        /* ================= ORDER ACTIONS FLOATING MENU (ALL THEMES) ================= */
+        /* ================= ORDER STATUS BADGE SELECT ================= */
+        .order-status-select {
+          appearance: none !important;
+          -webkit-appearance: none !important;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236366f1'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e") !important;
+          background-repeat: no-repeat !important;
+          background-position: right 0.45rem center !important;
+          background-size: 1rem 1rem !important;
+          padding-right: 1.6rem !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] .order-status-select {
+          backdrop-filter: blur(12px) !important;
+          -webkit-backdrop-filter: blur(12px) !important;
+        }
+
+        /* ================= COMPACT ORDER ACTIONS FLOATING MENU ================= */
         .order-actions-floating-menu {
-          box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+          box-shadow: 0 18px 40px -8px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
           background-color: #ffffff !important;
           color: #1e293b !important;
-          border-radius: 1rem !important;
+          border-radius: 0.95rem !important;
           transform: none !important;
         }
 
         /* Default / Classic / Light Theme */
-        .order-actions-floating-menu .menu-header {
-          background-color: #f8fafc;
-          border-bottom: 1px solid #e2e8f0;
-        }
         .order-actions-floating-menu .menu-item {
           color: #334155;
           transition: all 0.15s ease;
@@ -1519,20 +1531,13 @@ export default function AdminDashboard() {
           background-color: #f1f5f9;
           color: #0f172a;
         }
-        .order-actions-floating-menu .menu-item-icon {
-          background-color: #f1f5f9;
-          border: 1px solid #e2e8f0;
-        }
         .order-actions-floating-menu .menu-delete-item {
           color: #dc2626;
+          transition: all 0.15s ease;
         }
         .order-actions-floating-menu .menu-delete-item:hover {
           background-color: #fef2f2;
           color: #b91c1c;
-        }
-        .order-actions-floating-menu .menu-delete-icon {
-          background-color: #fee2e2;
-          border: 1px solid #fecaca;
         }
 
         /* 1. Apple Frosted Glassmorphism Theme */
@@ -1541,23 +1546,15 @@ export default function AdminDashboard() {
           backdrop-filter: blur(28px) saturate(200%) !important;
           -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
           border: 1px solid rgba(0, 0, 0, 0.12) !important;
-          box-shadow: 0 24px 50px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+          box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
           color: #0f172a !important;
-        }
-        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-header {
-          background: rgba(241, 245, 249, 0.9) !important;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
         }
         .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-item {
           color: #334155 !important;
         }
         .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-item:hover {
-          background: rgba(212, 175, 55, 0.12) !important;
+          background: rgba(212, 175, 55, 0.14) !important;
           color: #0f172a !important;
-        }
-        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-item-icon {
-          background: rgba(0, 0, 0, 0.04) !important;
-          border: 1px solid rgba(0, 0, 0, 0.06) !important;
         }
         .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-delete-item {
           color: #dc2626 !important;
@@ -1566,27 +1563,13 @@ export default function AdminDashboard() {
           background: rgba(239, 68, 68, 0.1) !important;
           color: #b91c1c !important;
         }
-        .admin-root[data-theme="glassmorphism"] .order-actions-floating-menu .menu-delete-icon {
-          background: rgba(239, 68, 68, 0.12) !important;
-          border: 1px solid rgba(239, 68, 68, 0.2) !important;
-        }
 
         /* 2. Midnight Dark Theme */
         .admin-root[data-theme="dark"] .order-actions-floating-menu {
           background: #101c14 !important;
           border: 1px solid #1f3627 !important;
-          box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(212, 175, 55, 0.12) !important;
+          box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(212, 175, 55, 0.12) !important;
           color: #f3f4f6 !important;
-        }
-        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-header {
-          background: #09120c !important;
-          border-bottom: 1px solid #1f3627 !important;
-        }
-        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-header .text-gray-900 {
-          color: #f3f4f6 !important;
-        }
-        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-header .text-gray-500 {
-          color: #9ca3af !important;
         }
         .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-item {
           color: #e5e7eb !important;
@@ -1595,114 +1578,60 @@ export default function AdminDashboard() {
           background: #182e21 !important;
           color: #ffffff !important;
         }
-        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-item-icon {
-          background: #182e21 !important;
-          border: 1px solid #23422e !important;
-        }
         .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-delete-item {
           color: #f87171 !important;
         }
         .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-delete-item:hover {
-          background: rgba(239, 68, 68, 0.18) !important;
-          color: #fca5a5 !important;
-        }
-        .admin-root[data-theme="dark"] .order-actions-floating-menu .menu-delete-icon {
           background: rgba(239, 68, 68, 0.2) !important;
-          border: 1px solid rgba(239, 68, 68, 0.35) !important;
+          color: #fca5a5 !important;
         }
 
         /* 3. Neomorphism (Soft UI) Theme */
         .admin-root[data-theme="neomorphism"] .order-actions-floating-menu {
           background-color: #e8ecf4 !important;
           border: 1px solid rgba(255, 255, 255, 0.8) !important;
-          box-shadow: 14px 14px 30px #c0c8d6, -14px -14px 30px #ffffff !important;
+          box-shadow: 10px 10px 24px #c0c8d6, -10px -10px 24px #ffffff !important;
           color: #2d3748 !important;
-        }
-        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-header {
-          background-color: #e8ecf4 !important;
-          border-bottom: 2px solid #dbe2ef !important;
         }
         .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-item {
           color: #2d3748 !important;
-          border-radius: 0.65rem !important;
-          margin: 2px 6px !important;
-          padding: 8px 10px !important;
         }
         .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-item:hover {
           background-color: #e8ecf4 !important;
-          box-shadow: inset 3px 3px 6px #c8d0de, inset -3px -3px 6px #ffffff !important;
+          box-shadow: inset 2px 2px 5px #c8d0de, inset -2px -2px 5px #ffffff !important;
           color: #b3831b !important;
-        }
-        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-item-icon {
-          background-color: #e8ecf4 !important;
-          box-shadow: 2px 2px 4px #c8d0de, -2px -2px 4px #ffffff !important;
-          border: none !important;
         }
         .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-delete-item {
           color: #dc2626 !important;
-          border-radius: 0.65rem !important;
-          margin: 2px 6px !important;
-          padding: 8px 10px !important;
         }
         .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-delete-item:hover {
           background-color: #e8ecf4 !important;
-          box-shadow: inset 3px 3px 6px rgba(220, 38, 38, 0.25), inset -3px -3px 6px #ffffff !important;
+          box-shadow: inset 2px 2px 5px rgba(220, 38, 38, 0.25), inset -2px -2px 5px #ffffff !important;
           color: #b91c1c !important;
-        }
-        .admin-root[data-theme="neomorphism"] .order-actions-floating-menu .menu-delete-icon {
-          background-color: #e8ecf4 !important;
-          box-shadow: 2px 2px 4px rgba(220, 38, 38, 0.2) !important;
-          border: 1px solid rgba(220, 38, 38, 0.25) !important;
         }
 
         /* 4. Dark Neomorphism Theme */
         .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu {
           background-color: #0c140e !important;
           border: 1px solid #16261c !important;
-          box-shadow: 14px 14px 30px #040805, -14px -14px 30px #1a2d22 !important;
+          box-shadow: 10px 10px 24px #040805, -10px -10px 24px #1a2d22 !important;
           color: #f1f5f9 !important;
-        }
-        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-header {
-          background-color: #0c140e !important;
-          border-bottom: 2px solid #16261c !important;
-        }
-        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-header .text-gray-900 {
-          color: #f1f5f9 !important;
-        }
-        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-header .text-gray-500 {
-          color: #94a3b8 !important;
         }
         .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-item {
           color: #cbd5e1 !important;
-          border-radius: 0.65rem !important;
-          margin: 2px 6px !important;
-          padding: 8px 10px !important;
         }
         .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-item:hover {
           background-color: #0c140e !important;
-          box-shadow: inset 3px 3px 6px #050906, inset -3px -3px 6px #18281e !important;
+          box-shadow: inset 2px 2px 5px #050906, inset -2px -2px 5px #18281e !important;
           color: #fbbf24 !important;
-        }
-        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-item-icon {
-          background-color: #0c140e !important;
-          box-shadow: 2px 2px 4px #050906, -2px -2px 4px #18281e !important;
-          border: 1px solid #16261c !important;
         }
         .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-delete-item {
           color: #f87171 !important;
-          border-radius: 0.65rem !important;
-          margin: 2px 6px !important;
-          padding: 8px 10px !important;
         }
         .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-delete-item:hover {
           background-color: #0c140e !important;
-          box-shadow: inset 3px 3px 6px rgba(239, 68, 68, 0.3), inset -3px -3px 6px #18281e !important;
+          box-shadow: inset 2px 2px 5px rgba(239, 68, 68, 0.3), inset -2px -2px 5px #18281e !important;
           color: #fca5a5 !important;
-        }
-        .admin-root[data-theme="dark-neomorphism"] .order-actions-floating-menu .menu-delete-icon {
-          background-color: #0c140e !important;
-          box-shadow: 2px 2px 4px #050906 !important;
-          border: 1px solid rgba(239, 68, 68, 0.3) !important;
         }
 
         /* Mobile drawer animation and utility */
@@ -2540,18 +2469,23 @@ export default function AdminDashboard() {
                               <select
                                 value={ord.status}
                                 onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                                className="px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-gold"
+                                className={`order-status-select px-2.5 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold/30 shadow-xs ${getStatusBadgeClass(
+                                  ord.status
+                                )}`}
                               >
                                 {SHOPIFY_STATUSES.map((st) => (
-                                  <option key={st} value={st}>
+                                  <option key={st} value={st} className="bg-white text-gray-900 font-medium">
                                     {st}
                                   </option>
                                 ))}
                               </select>
 
                               {ord.trackingNumber && (
-                                <div className="mt-1 text-[10px] text-indigo-700 font-mono">
-                                  🚚 {ord.courierName}: {ord.trackingNumber}
+                                <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-indigo-700 font-mono font-semibold bg-indigo-50/80 px-2 py-0.5 rounded border border-indigo-200/80">
+                                  <span>🚚</span>
+                                  <span className="truncate max-w-[150px]" title={`${ord.courierName}: ${ord.trackingNumber}`}>
+                                    {ord.courierName}: {ord.trackingNumber}
+                                  </span>
                                 </div>
                               )}
                             </td>
@@ -2607,12 +2541,12 @@ export default function AdminDashboard() {
                             <select
                               value={ord.status}
                               onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                              className={`px-2 py-1 rounded-lg text-[10px] font-bold border focus:outline-none ${getStatusBadgeClass(
+                              className={`order-status-select px-2.5 py-1 rounded-lg text-[10px] font-bold border focus:outline-none transition-all shadow-xs ${getStatusBadgeClass(
                                 ord.status
                               )}`}
                             >
                               {SHOPIFY_STATUSES.map((st) => (
-                                <option key={st} value={st}>
+                                <option key={st} value={st} className="bg-white text-gray-900 font-medium">
                                   {st}
                                 </option>
                               ))}
@@ -4383,7 +4317,7 @@ export default function AdminDashboard() {
           />
 
           <div
-            className="order-actions-floating-menu fixed z-[99999] w-64 rounded-2xl shadow-2xl animate-fadeIn text-left text-xs font-sans overflow-hidden"
+            className="order-actions-floating-menu fixed z-[99999] w-48 rounded-xl shadow-xl animate-fadeIn text-left text-xs font-sans overflow-hidden py-1"
             style={{
               right: `${activeFloatingOrderMenu.right}px`,
               ...(activeFloatingOrderMenu.openUpward
@@ -4392,26 +4326,7 @@ export default function AdminDashboard() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header / Info Strip */}
-            <div className="menu-header px-3.5 py-2.5 flex items-center justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
-                  Order #{activeFloatingOrderMenu.order.orderNumber}
-                </span>
-                <span className="text-xs font-bold text-gray-900 truncate block mt-0.5">
-                  {activeFloatingOrderMenu.order.customerName}
-                </span>
-                <span className="text-[10px] text-gray-500 block truncate">
-                  {activeFloatingOrderMenu.order.product} &times; {activeFloatingOrderMenu.order.quantity} • ₹{activeFloatingOrderMenu.order.invoiceAmount || 0}
-                </span>
-              </div>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${getStatusBadgeClass(activeFloatingOrderMenu.order.status)}`}>
-                {activeFloatingOrderMenu.order.status}
-              </span>
-            </div>
-
-            {/* Final Action Buttons List */}
-            <div className="p-1.5 space-y-1">
+            <div className="px-1 space-y-0.5">
               {/* Button 1: Print / View Invoice */}
               <button
                 type="button"
@@ -4420,15 +4335,10 @@ export default function AdminDashboard() {
                   setActiveFloatingOrderMenu(null);
                   setPreviewInvoiceOrder(ord);
                 }}
-                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="menu-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs"
               >
-                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
-                  📄
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs truncate">Print / View Invoice</div>
-                  <div className="text-[10px] text-gray-400 truncate">Tax Invoice PDF & Print Engine</div>
-                </div>
+                <span className="text-sm shrink-0">📄</span>
+                <span className="truncate">Print / View Invoice</span>
               </button>
 
               {/* Button 2: Generate / Edit Invoice */}
@@ -4439,21 +4349,12 @@ export default function AdminDashboard() {
                   setActiveFloatingOrderMenu(null);
                   openInvoiceModal(ord);
                 }}
-                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="menu-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs"
               >
-                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
-                  📜
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs truncate">
-                    {activeFloatingOrderMenu.order.invoiceNumber ? "Edit Invoice Details" : "Generate Invoice"}
-                  </div>
-                  <div className="text-[10px] text-gray-400 truncate">
-                    {activeFloatingOrderMenu.order.invoiceNumber
-                      ? `Inv #${activeFloatingOrderMenu.order.invoiceNumber} (₹${activeFloatingOrderMenu.order.invoiceAmount})`
-                      : "Assign bill number & amount"}
-                  </div>
-                </div>
+                <span className="text-sm shrink-0">📜</span>
+                <span className="truncate">
+                  {activeFloatingOrderMenu.order.invoiceNumber ? "Edit Invoice" : "Generate Invoice"}
+                </span>
               </button>
 
               {/* Button 3: Dispatch / Shipping */}
@@ -4464,21 +4365,12 @@ export default function AdminDashboard() {
                   setActiveFloatingOrderMenu(null);
                   openShippingModal(ord);
                 }}
-                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="menu-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs"
               >
-                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
-                  🚚
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs truncate">
-                    {activeFloatingOrderMenu.order.trackingNumber ? "Edit Tracking / Courier" : "Dispatch & Courier Tracking"}
-                  </div>
-                  <div className="text-[10px] text-gray-400 truncate">
-                    {activeFloatingOrderMenu.order.trackingNumber
-                      ? `${activeFloatingOrderMenu.order.courierName}: ${activeFloatingOrderMenu.order.trackingNumber}`
-                      : "Add carrier & tracking link"}
-                  </div>
-                </div>
+                <span className="text-sm shrink-0">🚚</span>
+                <span className="truncate">
+                  {activeFloatingOrderMenu.order.trackingNumber ? "Edit Tracking" : "Courier / Ship"}
+                </span>
               </button>
 
               {/* Button 4: Notify on WhatsApp */}
@@ -4491,20 +4383,15 @@ export default function AdminDashboard() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setActiveFloatingOrderMenu(null)}
-                className="menu-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer block"
+                className="menu-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs block"
               >
-                <div className="menu-item-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
-                  💬
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs truncate">Notify on WhatsApp</div>
-                  <div className="text-[10px] text-gray-400 truncate">Send update to {activeFloatingOrderMenu.order.customerPhone}</div>
-                </div>
+                <span className="text-sm shrink-0">💬</span>
+                <span className="truncate">WhatsApp Chat</span>
               </a>
             </div>
 
-            {/* Button 5: Delete Order (Final Danger Action) */}
-            <div className="p-1.5 pt-1 border-t border-gray-100">
+            {/* Button 5: Delete Order (Danger) */}
+            <div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-800 px-1">
               <button
                 type="button"
                 onClick={() => {
@@ -4517,15 +4404,10 @@ export default function AdminDashboard() {
                     subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
                   });
                 }}
-                className="menu-delete-item w-full px-3 py-2 rounded-xl text-left font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="menu-delete-item w-full px-2.5 py-1.5 rounded-lg text-left font-semibold flex items-center gap-2 transition-colors cursor-pointer text-xs"
               >
-                <div className="menu-delete-icon w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm">
-                  🗑️
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs truncate">Delete Order</div>
-                  <div className="text-[10px] opacity-75 truncate">Move to soft delete trash</div>
-                </div>
+                <span className="text-sm shrink-0">🗑️</span>
+                <span className="truncate">Delete Order</span>
               </button>
             </div>
           </div>

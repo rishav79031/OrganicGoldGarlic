@@ -886,32 +886,85 @@ export default function AdminDashboard() {
       <style dangerouslySetInnerHTML={{ __html: `
         /* ================= GLASSMORPHISM (FROSTED AURORA GLASS) THEME ================= */
         .admin-root[data-theme="glassmorphism"] {
-          background-color: #07110a !important;
+          background-color: #060e09 !important;
           background-image: 
-            radial-gradient(circle at 12% 18%, rgba(16, 185, 129, 0.18) 0%, transparent 40%),
-            radial-gradient(circle at 88% 75%, rgba(212, 175, 55, 0.16) 0%, transparent 45%),
-            radial-gradient(circle at 50% 50%, rgba(6, 78, 59, 0.22) 0%, transparent 60%) !important;
+            radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.16) 0%, transparent 45%),
+            radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.14) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(6, 78, 59, 0.18) 0%, transparent 65%) !important;
           background-attachment: fixed !important;
           color: #f1f5f9 !important;
         }
+
+        /* Desktop Sidebar Navigation */
         .admin-root[data-theme="glassmorphism"] aside {
-          background: rgba(5, 12, 8, 0.75) !important;
-          backdrop-filter: blur(20px) saturate(180%) !important;
-          -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-          border-right: 1px solid rgba(212, 175, 55, 0.25) !important;
-          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4) !important;
+          background: rgba(7, 16, 11, 0.85) !important;
+          backdrop-filter: blur(24px) saturate(180%) !important;
+          -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45) !important;
         }
-        .admin-root[data-theme="glassmorphism"] aside button.bg-gold {
-          background: rgba(212, 175, 55, 0.2) !important;
-          border: 1px solid rgba(212, 175, 55, 0.5) !important;
-          color: #facc15 !important;
-          backdrop-filter: blur(12px) !important;
-          box-shadow: 0 4px 16px rgba(212, 175, 55, 0.25) !important;
+
+        /* Desktop Sidebar & Mobile Drawer Nav Buttons */
+        .admin-root[data-theme="glassmorphism"] aside nav button,
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button {
+          border-radius: 0.85rem !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          padding: 0.65rem 0.85rem !important;
+          font-weight: 500 !important;
         }
-        .admin-root[data-theme="glassmorphism"] aside button:not(.bg-gold):hover {
+
+        .admin-root[data-theme="glassmorphism"] aside nav button:not(.bg-gold),
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button:not(.bg-gold) {
+          background: rgba(255, 255, 255, 0.03) !important;
+          border: 1px solid rgba(255, 255, 255, 0.06) !important;
+          color: #94a3b8 !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] aside nav button:not(.bg-gold):hover,
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button:not(.bg-gold):hover {
           background: rgba(255, 255, 255, 0.08) !important;
-          border-color: rgba(255, 255, 255, 0.15) !important;
+          border-color: rgba(255, 255, 255, 0.16) !important;
           color: #ffffff !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+          transform: translateX(2px) !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] aside nav button.bg-gold,
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button.bg-gold {
+          background: linear-gradient(135deg, rgba(212, 175, 55, 0.32) 0%, rgba(16, 185, 129, 0.2) 100%) !important;
+          border: 1px solid rgba(212, 175, 55, 0.65) !important;
+          color: #fef08a !important;
+          box-shadow: 0 0 20px -2px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+          backdrop-filter: blur(12px) !important;
+          font-weight: 700 !important;
+        }
+
+        .admin-root[data-theme="glassmorphism"] aside nav button.bg-gold svg,
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer nav button.bg-gold svg {
+          stroke: #fef08a !important;
+        }
+
+        /* Mobile Slide-Over Drawer */
+        .admin-root[data-theme="glassmorphism"] .admin-mobile-drawer {
+          background: rgba(7, 16, 11, 0.9) !important;
+          backdrop-filter: blur(28px) saturate(200%) !important;
+          -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+          border-right: 1px solid rgba(212, 175, 55, 0.3) !important;
+          box-shadow: 8px 0 40px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        /* Mobile Header & Bottom Navigation */
+        .admin-root[data-theme="glassmorphism"] header {
+          background: rgba(6, 14, 9, 0.85) !important;
+          backdrop-filter: blur(16px) !important;
+          -webkit-backdrop-filter: blur(16px) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] nav.md\\:hidden {
+          background: rgba(6, 14, 9, 0.88) !important;
+          backdrop-filter: blur(20px) !important;
+          -webkit-backdrop-filter: blur(20px) !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
         }
         .admin-root[data-theme="glassmorphism"] .bg-white,
         .admin-root[data-theme="glassmorphism"] .bg-gray-50 {
@@ -1457,7 +1510,7 @@ export default function AdminDashboard() {
           />
 
           {/* Drawer Content */}
-          <div className="relative flex flex-col justify-between w-4/5 max-w-xs bg-[#08130b] text-white p-5 shadow-2xl border-r border-gold/30 z-10 animate-slideRight">
+          <div className="admin-mobile-drawer relative flex flex-col justify-between w-4/5 max-w-xs bg-[#08130b] text-white p-5 shadow-2xl border-r border-gold/30 z-10 animate-slideRight">
             <div>
               {/* Header inside drawer */}
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
@@ -2621,7 +2674,7 @@ export default function AdminDashboard() {
 
         {/* TAB 5: SETTINGS & SUBMENUS (Themes, Security, and Admin Invoice/Team/General) */}
         {activeTab === "settings" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="mt-6 space-y-6 max-w-6xl w-full">
             
             {/* Settings Sub-Navigation Menu */}
             <div className="flex items-center gap-2 border-b border-gray-200 pb-3 overflow-x-auto no-scrollbar">
@@ -2652,78 +2705,67 @@ export default function AdminDashboard() {
 
             {/* SUBMENU 0: THEMES & APPEARANCE */}
             {settingsSubTab === "themes" && (
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-6">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-brand text-lg font-bold text-primary mb-1">Themes & Visual Appearance</h3>
-                      <p className="text-xs text-gray-500">
-                        Customize your management portal. Choose between Classic Gold, Frosted Glassmorphism, Soft-UI Neomorphism, or Midnight Dark Mode.
-                      </p>
-                    </div>
-                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold/15 text-gold-dark border border-gold/40">
-                      Active: <span className="capitalize font-black">{theme}</span>
-                    </span>
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 lg:p-7 space-y-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-brand text-base sm:text-lg font-bold text-primary mb-0.5">Themes & Visual Appearance</h3>
+                    <p className="text-xs text-gray-500">
+                      Choose between Classic, Frosted Glassmorphism, Neomorphism, or Midnight Dark.
+                    </p>
                   </div>
+                  <span className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gold/15 text-gold-dark border border-gold/40">
+                    Active: <span className="capitalize font-black">{theme}</span>
+                  </span>
                 </div>
 
-                {/* 5 Theme Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 pt-2">
+                {/* 5 Theme Cards Grid - Space-efficient & Mobile Responsive */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5 sm:gap-3.5 pt-1">
                   
                   {/* Option 1: Classic Light */}
                   <div
                     onClick={() => handleThemeChange("classic")}
-                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                    className={`cursor-pointer rounded-xl p-3 sm:p-3.5 border-2 transition-all relative flex flex-col justify-between ${
                       theme === "classic"
                         ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20"
-                        : "border-gray-200 bg-white hover:border-gray-300"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-xs"
                     }`}
                   >
                     <div>
-                      {/* Mini UI Mockup */}
-                      <div className="h-28 rounded-xl bg-[#f8f9fa] border border-gray-200 p-2.5 mb-4 flex gap-2 overflow-hidden shadow-inner">
-                        <div className="w-8 bg-[#08130b] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5">
-                          <div className="w-3 h-3 rounded-full bg-gold"></div>
-                          <div className="w-4 h-1 rounded bg-white/40"></div>
-                          <div className="w-4 h-1 rounded bg-white/20"></div>
+                      {/* Mini Visual Strip */}
+                      <div className="h-14 sm:h-16 rounded-lg bg-[#f4f6f8] border border-gray-200 p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-inner">
+                        <div className="w-5 h-8 bg-[#08130b] rounded flex flex-col items-center justify-center gap-1 shrink-0">
+                          <div className="w-2 h-2 rounded-full bg-gold"></div>
+                          <div className="w-2.5 h-0.5 rounded bg-white/40"></div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
-                          <div className="h-4 bg-white rounded border border-gray-200 flex items-center px-1.5 justify-between">
-                            <div className="w-8 h-1.5 bg-gray-300 rounded"></div>
-                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                        <div className="flex-1 ml-2 space-y-1">
+                          <div className="h-3 bg-white rounded border border-gray-200 flex items-center px-1">
+                            <div className="w-6 h-1 bg-gray-300 rounded"></div>
                           </div>
-                          <div className="grid grid-cols-2 gap-1">
-                            <div className="h-10 bg-white rounded border border-gray-200 p-1 flex flex-col justify-between">
-                              <div className="w-6 h-1 bg-gray-300 rounded"></div>
-                              <div className="w-8 h-2 bg-emerald-600 rounded"></div>
-                            </div>
-                            <div className="h-10 bg-white rounded border border-gray-200 p-1 flex flex-col justify-between">
-                              <div className="w-6 h-1 bg-gray-300 rounded"></div>
-                              <div className="w-8 h-2 bg-primary rounded"></div>
-                            </div>
+                          <div className="h-3 bg-emerald-50 rounded border border-emerald-200 flex items-center px-1">
+                            <div className="w-4 h-1 bg-emerald-600 rounded"></div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-sm text-gray-900">Classic Gold</h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-bold text-xs sm:text-sm text-gray-900 truncate">Classic Gold</h4>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
                           Light
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                        Crisp white cards, forest green sidebar, and emerald status badges. Optimized for bright daylight clarity.
+                      <p className="text-[10px] sm:text-[11px] text-gray-500 leading-tight line-clamp-2 mb-2">
+                        Crisp white cards, emerald badges & forest green accents for daytime clarity.
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-gray-700">
-                        {theme === "classic" ? "✓ Currently Active" : "Click to Activate"}
+                    <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] font-semibold">
+                      <span className={theme === "classic" ? "text-primary font-bold" : "text-gray-500"}>
+                        {theme === "classic" ? "✓ Active" : "Select"}
                       </span>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
-                        theme === "classic" ? "border-primary bg-primary text-white" : "border-gray-300"
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                        theme === "classic" ? "border-primary bg-primary text-white text-[9px]" : "border-gray-300"
                       }`}>
-                        {theme === "classic" && <span className="text-xs font-bold">✓</span>}
+                        {theme === "classic" && "✓"}
                       </div>
                     </div>
                   </div>
@@ -2731,234 +2773,195 @@ export default function AdminDashboard() {
                   {/* Option 2: Frosted Glassmorphism (Aurora Glass) */}
                   <div
                     onClick={() => handleThemeChange("glassmorphism")}
-                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                    className={`cursor-pointer rounded-xl p-3 sm:p-3.5 border-2 transition-all relative flex flex-col justify-between ${
                       theme === "glassmorphism"
-                        ? "border-emerald-400 bg-[#07110a]/90 shadow-[0_8px_32px_rgba(16,185,129,0.35)] ring-2 ring-emerald-400/40"
-                        : "border-gray-800 bg-[#07110a] hover:border-emerald-500/50 hover:shadow-[0_4px_20px_rgba(16,185,129,0.2)]"
+                        ? "border-emerald-400 bg-[#07110a] shadow-[0_4px_24px_rgba(16,185,129,0.3)] ring-2 ring-emerald-400/30"
+                        : "border-gray-800 bg-[#07110a] hover:border-emerald-500/50 hover:shadow-xs"
                     }`}
                   >
                     <div>
-                      {/* Mini UI Mockup */}
-                      <div className="h-28 rounded-xl bg-gradient-to-br from-[#064e3b]/50 via-[#07110a] to-[#d4af37]/20 border border-emerald-500/30 p-2.5 mb-4 flex gap-2 overflow-hidden shadow-inner backdrop-blur-md relative">
-                        <div className="absolute -top-3 -right-3 w-12 h-12 bg-emerald-500/20 rounded-full blur-md"></div>
-                        <div className="absolute -bottom-3 -left-3 w-12 h-12 bg-gold/20 rounded-full blur-md"></div>
-                        
-                        <div className="w-8 bg-white/10 backdrop-blur-md rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 border border-white/20 z-10">
-                          <div className="w-3 h-3 rounded-full bg-gold shadow-[0_0_8px_rgba(212,175,55,0.8)]"></div>
-                          <div className="w-4 h-1 rounded bg-white/50"></div>
-                          <div className="w-4 h-1 rounded bg-white/30"></div>
+                      {/* Mini Visual Strip */}
+                      <div className="h-14 sm:h-16 rounded-lg bg-gradient-to-br from-[#064e3b]/60 via-[#07110a] to-[#d4af37]/25 border border-emerald-400/30 p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-inner backdrop-blur-md relative">
+                        <div className="w-5 h-8 bg-white/10 backdrop-blur-md border border-white/25 rounded flex flex-col items-center justify-center gap-1 shrink-0">
+                          <div className="w-2 h-2 rounded-full bg-gold shadow-[0_0_6px_rgba(212,175,55,0.8)]"></div>
+                          <div className="w-2.5 h-0.5 rounded bg-white/50"></div>
                         </div>
-                        <div className="flex-1 space-y-1.5 z-10">
-                          <div className="h-4 bg-white/10 backdrop-blur-md rounded border border-white/20 flex items-center px-1.5 justify-between">
-                            <div className="w-8 h-1.5 bg-white/60 rounded"></div>
-                            <div className="w-3 h-1.5 bg-emerald-400 rounded"></div>
+                        <div className="flex-1 ml-2 space-y-1">
+                          <div className="h-3 bg-white/10 backdrop-blur-md rounded border border-white/20 flex items-center px-1">
+                            <div className="w-6 h-1 bg-white/60 rounded"></div>
                           </div>
-                          <div className="grid grid-cols-2 gap-1">
-                            <div className="h-10 bg-white/10 backdrop-blur-md rounded border border-white/20 p-1 flex flex-col justify-between">
-                              <div className="w-6 h-1 bg-white/50 rounded"></div>
-                              <div className="w-8 h-2 bg-gold rounded shadow-[0_0_6px_rgba(212,175,55,0.6)]"></div>
-                            </div>
-                            <div className="h-10 bg-white/10 backdrop-blur-md rounded border border-white/20 p-1 flex flex-col justify-between">
-                              <div className="w-6 h-1 bg-white/50 rounded"></div>
-                              <div className="w-8 h-2 bg-emerald-400 rounded shadow-[0_0_6px_rgba(52,211,153,0.6)]"></div>
-                            </div>
+                          <div className="h-3 bg-emerald-500/20 rounded border border-emerald-400/30 flex items-center px-1">
+                            <div className="w-4 h-1 bg-emerald-400 rounded"></div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-sm text-emerald-300">Glassmorphism</h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">
-                          Aurora Glass
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-bold text-xs sm:text-sm text-emerald-300 truncate">Glassmorphism</h4>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/40 shrink-0">
+                          Aurora
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                        Translucent frosted glass panels with specular borders, backdrop blurs & glowing ambient accents.
+                      <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight line-clamp-2 mb-2">
+                        Translucent frosted glass, specular border glows & ambient emerald lighting.
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-emerald-200">
-                        {theme === "glassmorphism" ? "✓ Currently Active" : "Click to Activate"}
+                    <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-semibold">
+                      <span className={theme === "glassmorphism" ? "text-emerald-300 font-bold" : "text-gray-400"}>
+                        {theme === "glassmorphism" ? "✓ Active" : "Select"}
                       </span>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
-                        theme === "glassmorphism" ? "border-emerald-400 bg-emerald-400 text-[#07110a] font-bold" : "border-slate-600"
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                        theme === "glassmorphism" ? "border-emerald-400 bg-emerald-400 text-[#07110a] text-[9px] font-bold" : "border-gray-600"
                       }`}>
-                        {theme === "glassmorphism" && <span className="text-xs font-bold">✓</span>}
+                        {theme === "glassmorphism" && "✓"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Option 2: Neomorphism (Soft UI) */}
+                  {/* Option 3: Neomorphism (Soft UI) */}
                   <div
                     onClick={() => handleThemeChange("neomorphism")}
-                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                    className={`cursor-pointer rounded-xl p-3 sm:p-3.5 border-2 transition-all relative flex flex-col justify-between ${
                       theme === "neomorphism"
-                        ? "border-gold bg-[#e8ecf4] shadow-[8px_8px_18px_#c8d0de,-8px_-8px_18px_#ffffff] ring-2 ring-gold/30"
-                        : "border-gray-200 bg-[#e8ecf4] hover:shadow-[5px_5px_12px_#c8d0de,-5px_-5px_12px_#ffffff]"
+                        ? "border-gold bg-[#e8ecf4] shadow-[6px_6px_14px_#c8d0de,-6px_-6px_14px_#ffffff] ring-2 ring-gold/30"
+                        : "border-gray-200 bg-[#e8ecf4] hover:shadow-[4px_4px_8px_#c8d0de,-4px_-4px_8px_#ffffff]"
                     }`}
                   >
                     <div>
-                      {/* Mini UI Mockup */}
-                      <div className="h-28 rounded-xl bg-[#e8ecf4] p-2.5 mb-4 flex gap-2 overflow-hidden shadow-[inset_3px_3px_6px_#c8d0de,inset_-3px_-3px_6px_#ffffff]">
-                        <div className="w-8 bg-[#e8ecf4] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 shadow-[2px_2px_5px_#c8d0de,-2px_-2px_5px_#ffffff]">
-                          <div className="w-3 h-3 rounded-full bg-gold"></div>
-                          <div className="w-4 h-1 rounded bg-[#c8d0de]"></div>
-                          <div className="w-4 h-1 rounded bg-[#c8d0de]"></div>
+                      {/* Mini Visual Strip */}
+                      <div className="h-14 sm:h-16 rounded-lg bg-[#e8ecf4] p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-[inset_2px_2px_4px_#c8d0de,inset_-2px_-2px_4px_#ffffff]">
+                        <div className="w-5 h-8 bg-[#e8ecf4] rounded shadow-[2px_2px_4px_#c8d0de,-2px_-2px_4px_#ffffff] flex flex-col items-center justify-center gap-1 shrink-0">
+                          <div className="w-2 h-2 rounded-full bg-gold"></div>
+                          <div className="w-2.5 h-0.5 rounded bg-[#c8d0de]"></div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
-                          <div className="h-4 bg-[#e8ecf4] rounded-lg flex items-center px-1.5 justify-between shadow-[inset_2px_2px_4px_#c8d0de,inset_-2px_-2px_4px_#ffffff]">
-                            <div className="w-8 h-1.5 bg-[#a0aec0] rounded"></div>
-                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                        <div className="flex-1 ml-2 space-y-1">
+                          <div className="h-3 bg-[#e8ecf4] rounded shadow-[inset_1px_1px_2px_#c8d0de,inset_-1px_-1px_2px_#ffffff] flex items-center px-1">
+                            <div className="w-6 h-1 bg-[#a0aec0] rounded"></div>
                           </div>
-                          <div className="grid grid-cols-2 gap-1">
-                            <div className="h-10 bg-[#e8ecf4] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#c8d0de,-3px_-3px_6px_#ffffff]">
-                              <div className="w-6 h-1 bg-[#a0aec0] rounded"></div>
-                              <div className="w-8 h-2 bg-gold-dark rounded"></div>
-                            </div>
-                            <div className="h-10 bg-[#e8ecf4] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#c8d0de,-3px_-3px_6px_#ffffff]">
-                              <div className="w-6 h-1 bg-[#a0aec0] rounded"></div>
-                              <div className="w-8 h-2 bg-[#2d3748] rounded"></div>
-                            </div>
+                          <div className="h-3 bg-[#e8ecf4] rounded shadow-[2px_2px_4px_#c8d0de,-2px_-2px_4px_#ffffff] flex items-center px-1">
+                            <div className="w-4 h-1 bg-gold-dark rounded"></div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-sm text-slate-800">Neomorphism</h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-gold-dark bg-gold/15 px-2 py-0.5 rounded">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-bold text-xs sm:text-sm text-slate-800 truncate">Neomorphism</h4>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gold-dark bg-gold/15 px-1.5 py-0.5 rounded shrink-0">
                           Soft UI
                         </span>
                       </div>
-                      <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                        Modern extruded dual-shadow panels, recessed inset form fields, and smooth tactile buttons.
+                      <p className="text-[10px] sm:text-[11px] text-slate-600 leading-tight line-clamp-2 mb-2">
+                        Dual-shadow extruded tactile cards, recessed inputs & soft pastel feel.
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-[#c8d0de] flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-800">
-                        {theme === "neomorphism" ? "✓ Currently Active" : "Click to Activate"}
+                    <div className="pt-2 border-t border-[#c8d0de] flex items-center justify-between text-[11px] font-semibold">
+                      <span className={theme === "neomorphism" ? "text-gold-dark font-bold" : "text-slate-500"}>
+                        {theme === "neomorphism" ? "✓ Active" : "Select"}
                       </span>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
-                        theme === "neomorphism" ? "border-gold bg-gold text-[#08130b] font-bold" : "border-slate-400"
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                        theme === "neomorphism" ? "border-gold bg-gold text-[#08130b] text-[9px] font-bold" : "border-slate-400"
                       }`}>
-                        {theme === "neomorphism" && <span className="text-xs font-bold">✓</span>}
+                        {theme === "neomorphism" && "✓"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Option 3: Dark Neomorphism (Dark Soft-UI) */}
+                  {/* Option 4: Dark Neomorphism (Dark Soft-UI) */}
                   <div
                     onClick={() => handleThemeChange("dark-neomorphism")}
-                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                    className={`cursor-pointer rounded-xl p-3 sm:p-3.5 border-2 transition-all relative flex flex-col justify-between ${
                       theme === "dark-neomorphism"
-                        ? "border-gold bg-[#0c140e] shadow-[8px_8px_18px_#050906,-8px_-8px_18px_#18281e] ring-2 ring-gold/40"
-                        : "border-gray-800 bg-[#0c140e] hover:shadow-[5px_5px_12px_#050906,-5px_-5px_12px_#18281e]"
+                        ? "border-gold bg-[#0c140e] shadow-[6px_6px_14px_#050906,-6px_-6px_14px_#18281e] ring-2 ring-gold/40"
+                        : "border-gray-800 bg-[#0c140e] hover:shadow-[4px_4px_8px_#050906,-4px_-4px_8px_#18281e]"
                     }`}
                   >
                     <div>
-                      {/* Mini UI Mockup */}
-                      <div className="h-28 rounded-xl bg-[#0c140e] p-2.5 mb-4 flex gap-2 overflow-hidden shadow-[inset_3px_3px_6px_#050906,inset_-3px_-3px_6px_#18281e]">
-                        <div className="w-8 bg-[#0c140e] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 shadow-[2px_2px_5px_#050906,-2px_-2px_5px_#18281e]">
-                          <div className="w-3 h-3 rounded-full bg-gold shadow-[0_0_8px_rgba(212,175,55,0.8)]"></div>
-                          <div className="w-4 h-1 rounded bg-[#203428]"></div>
-                          <div className="w-4 h-1 rounded bg-[#203428]"></div>
+                      {/* Mini Visual Strip */}
+                      <div className="h-14 sm:h-16 rounded-lg bg-[#0c140e] p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-[inset_2px_2px_4px_#050906,inset_-2px_-2px_4px_#18281e]">
+                        <div className="w-5 h-8 bg-[#0c140e] rounded shadow-[2px_2px_4px_#050906,-2px_-2px_4px_#18281e] flex flex-col items-center justify-center gap-1 shrink-0">
+                          <div className="w-2 h-2 rounded-full bg-gold shadow-[0_0_6px_rgba(212,175,55,0.8)]"></div>
+                          <div className="w-2.5 h-0.5 rounded bg-[#203428]"></div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
-                          <div className="h-4 bg-[#0c140e] rounded-lg flex items-center px-1.5 justify-between shadow-[inset_2px_2px_4px_#050906,inset_-2px_-2px_4px_#18281e]">
-                            <div className="w-8 h-1.5 bg-[#4a6354] rounded"></div>
-                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                        <div className="flex-1 ml-2 space-y-1">
+                          <div className="h-3 bg-[#0c140e] rounded shadow-[inset_1px_1px_2px_#050906,inset_-1px_-1px_2px_#18281e] flex items-center px-1">
+                            <div className="w-6 h-1 bg-[#4a6354] rounded"></div>
                           </div>
-                          <div className="grid grid-cols-2 gap-1">
-                            <div className="h-10 bg-[#101c15] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#050906,-3px_-3px_6px_#1a2d21]">
-                              <div className="w-6 h-1 bg-[#4a6354] rounded"></div>
-                              <div className="w-8 h-2 bg-gold-dark rounded"></div>
-                            </div>
-                            <div className="h-10 bg-[#101c15] rounded-lg p-1 flex flex-col justify-between shadow-[3px_3px_6px_#050906,-3px_-3px_6px_#1a2d21]">
-                              <div className="w-6 h-1 bg-[#4a6354] rounded"></div>
-                              <div className="w-8 h-2 bg-emerald-400 rounded"></div>
-                            </div>
+                          <div className="h-3 bg-[#101c15] rounded shadow-[2px_2px_4px_#050906,-2px_-2px_4px_#1a2d21] flex items-center px-1">
+                            <div className="w-4 h-1 bg-gold-dark rounded"></div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-sm text-gold">Dark Neomorphism</h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-gold bg-gold/20 px-2 py-0.5 rounded border border-gold/40">
-                          Dark Soft-UI
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-bold text-xs sm:text-sm text-gold truncate">Dark Soft-UI</h4>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gold bg-gold/20 px-1.5 py-0.5 rounded border border-gold/40 shrink-0">
+                          Cyber
                         </span>
                       </div>
-                      <p className="text-xs text-gray-300 leading-relaxed mb-4">
-                        Dark obsidian soft surfaces with dual shadows, recessed dark inputs & gold glow.
+                      <p className="text-[10px] sm:text-[11px] text-gray-300 leading-tight line-clamp-2 mb-2">
+                        Obsidian soft surfaces with dual shadows, recessed dark fields & gold glow.
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-[#18281e] flex items-center justify-between">
-                      <span className="text-xs font-semibold text-gray-200">
-                        {theme === "dark-neomorphism" ? "✓ Currently Active" : "Click to Activate"}
+                    <div className="pt-2 border-t border-[#18281e] flex items-center justify-between text-[11px] font-semibold">
+                      <span className={theme === "dark-neomorphism" ? "text-gold font-bold" : "text-gray-400"}>
+                        {theme === "dark-neomorphism" ? "✓ Active" : "Select"}
                       </span>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
-                        theme === "dark-neomorphism" ? "border-gold bg-gold text-[#08130b] font-bold" : "border-gray-700"
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                        theme === "dark-neomorphism" ? "border-gold bg-gold text-[#08130b] text-[9px] font-bold" : "border-gray-700"
                       }`}>
-                        {theme === "dark-neomorphism" && <span className="text-xs font-bold">✓</span>}
+                        {theme === "dark-neomorphism" && "✓"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Option 4: Midnight Gold (Dark Theme) */}
+                  {/* Option 5: Midnight Gold (Dark Theme) */}
                   <div
                     onClick={() => handleThemeChange("dark")}
-                    className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                    className={`cursor-pointer rounded-xl p-3 sm:p-3.5 border-2 transition-all relative flex flex-col justify-between ${
                       theme === "dark"
                         ? "border-gold bg-[#0b130e] shadow-xl ring-2 ring-gold/30"
                         : "border-gray-700 bg-[#0b130e] hover:border-gold/50"
                     }`}
                   >
                     <div>
-                      {/* Mini UI Mockup */}
-                      <div className="h-28 rounded-xl bg-[#060b08] border border-[#1f3627] p-2.5 mb-4 flex gap-2 overflow-hidden shadow-inner">
-                        <div className="w-8 bg-[#030604] rounded-lg shrink-0 flex flex-col items-center pt-2 gap-1.5 border-r border-[#1f3627]">
-                          <div className="w-3 h-3 rounded-full bg-gold shadow-[0_0_8px_rgba(212,175,55,0.6)]"></div>
-                          <div className="w-4 h-1 rounded bg-white/20"></div>
-                          <div className="w-4 h-1 rounded bg-white/10"></div>
+                      {/* Mini Visual Strip */}
+                      <div className="h-14 sm:h-16 rounded-lg bg-[#060b08] border border-[#1f3627] p-2 mb-2.5 flex items-center justify-between overflow-hidden shadow-inner">
+                        <div className="w-5 h-8 bg-[#030604] rounded border-r border-[#1f3627] flex flex-col items-center justify-center gap-1 shrink-0">
+                          <div className="w-2 h-2 rounded-full bg-gold shadow-[0_0_6px_rgba(212,175,55,0.6)]"></div>
+                          <div className="w-2.5 h-0.5 rounded bg-white/20"></div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
-                          <div className="h-4 bg-[#122017] rounded border border-[#1f3627] flex items-center px-1.5 justify-between">
-                            <div className="w-8 h-1.5 bg-gray-500 rounded"></div>
-                            <div className="w-3 h-1.5 bg-gold rounded"></div>
+                        <div className="flex-1 ml-2 space-y-1">
+                          <div className="h-3 bg-[#122017] rounded border border-[#1f3627] flex items-center px-1">
+                            <div className="w-6 h-1 bg-gray-500 rounded"></div>
                           </div>
-                          <div className="grid grid-cols-2 gap-1">
-                            <div className="h-10 bg-[#122017] rounded border border-[#1f3627] p-1 flex flex-col justify-between">
-                              <div className="w-6 h-1 bg-gray-500 rounded"></div>
-                              <div className="w-8 h-2 bg-gold rounded"></div>
-                            </div>
-                            <div className="h-10 bg-[#122017] rounded border border-[#1f3627] p-1 flex flex-col justify-between">
-                              <div className="w-6 h-1 bg-gray-500 rounded"></div>
-                              <div className="w-8 h-2 bg-emerald-400 rounded"></div>
-                            </div>
+                          <div className="h-3 bg-[#122017] rounded border border-[#1f3627] flex items-center px-1">
+                            <div className="w-4 h-1 bg-gold rounded"></div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-sm text-gray-100">Midnight Gold</h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-gold bg-gold/15 px-2 py-0.5 rounded border border-gold/30">
-                          Dark Mode
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-bold text-xs sm:text-sm text-gray-100 truncate">Midnight Gold</h4>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gold bg-gold/15 px-1.5 py-0.5 rounded border border-gold/30 shrink-0">
+                          Dark
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 leading-relaxed mb-4">
-                        Deep obsidian emerald backdrop with glowing gold accents. Minimizes eye fatigue for night work.
+                      <p className="text-[10px] sm:text-[11px] text-gray-400 leading-tight line-clamp-2 mb-2">
+                        Deep obsidian emerald backdrop with glowing gold accents for low-light night work.
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-[#1f3627] flex items-center justify-between">
-                      <span className="text-xs font-semibold text-gray-200">
-                        {theme === "dark" ? "✓ Currently Active" : "Click to Activate"}
+                    <div className="pt-2 border-t border-[#1f3627] flex items-center justify-between text-[11px] font-semibold">
+                      <span className={theme === "dark" ? "text-gold font-bold" : "text-gray-400"}>
+                        {theme === "dark" ? "✓ Active" : "Select"}
                       </span>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
-                        theme === "dark" ? "border-gold bg-gold text-[#08130b] font-bold" : "border-gray-600"
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                        theme === "dark" ? "border-gold bg-gold text-[#08130b] text-[9px] font-bold" : "border-gray-600"
                       }`}>
-                        {theme === "dark" && <span className="text-xs font-bold">✓</span>}
+                        {theme === "dark" && "✓"}
                       </div>
                     </div>
                   </div>

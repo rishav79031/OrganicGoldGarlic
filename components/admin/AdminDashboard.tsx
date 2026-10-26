@@ -1082,6 +1082,59 @@ export default function AdminDashboard() {
         .admin-root[data-theme="glassmorphism"] nav.md\\:hidden button.text-gold {
           color: #854d0e !important;
         }
+
+        /* Apple Glass Vivid Red Sign Out Button */
+        .admin-root[data-theme="glassmorphism"] .admin-logout-btn {
+          background: rgba(239, 68, 68, 0.12) !important;
+          border: 1px solid rgba(239, 68, 68, 0.35) !important;
+          color: #dc2626 !important;
+          font-weight: 700 !important;
+          box-shadow: 0 2px 6px rgba(220, 38, 38, 0.1) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .admin-logout-btn:hover {
+          background: #dc2626 !important;
+          border-color: #dc2626 !important;
+          color: #ffffff !important;
+          box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .admin-logout-btn svg {
+          stroke: #dc2626 !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .admin-logout-btn:hover svg {
+          stroke: #ffffff !important;
+        }
+
+        /* Apple Glass Settings Sub-Tabs */
+        .admin-root[data-theme="glassmorphism"] .settings-subtabs-nav {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .settings-subtab-btn {
+          border-radius: 0.85rem !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .settings-subtab-btn.settings-subtab-inactive {
+          background: rgba(255, 255, 255, 0.6) !important;
+          border: 1px solid rgba(0, 0, 0, 0.08) !important;
+          color: #475569 !important;
+          backdrop-filter: blur(14px) !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+          transform: none !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .settings-subtab-btn.settings-subtab-inactive:hover {
+          background: rgba(255, 255, 255, 0.9) !important;
+          color: #0f172a !important;
+          border-color: rgba(0, 0, 0, 0.14) !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+        }
+        .admin-root[data-theme="glassmorphism"] .settings-subtab-btn.settings-subtab-active {
+          background: rgba(212, 175, 55, 0.16) !important;
+          border: 1px solid rgba(212, 175, 55, 0.45) !important;
+          color: #854d0e !important;
+          font-weight: 800 !important;
+          backdrop-filter: blur(16px) !important;
+          box-shadow: 0 3px 10px rgba(212, 175, 55, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+          transform: none !important;
+        }
         /* ================= DARK THEME ================= */
         .admin-root[data-theme="dark"] {
           background-color: #0b130e !important;
@@ -1215,6 +1268,60 @@ export default function AdminDashboard() {
           color: #0b1c10 !important;
         }
 
+        /* ================= NEOMORPHISM SETTINGS SUB-TABS & PILLS ================= */
+        .admin-root[data-theme="neomorphism"] .settings-subtabs-nav {
+          border-bottom: 2px solid rgba(200, 208, 222, 0.6) !important;
+          box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        }
+        .admin-root[data-theme="neomorphism"] .settings-subtab-btn {
+          border-radius: 0.85rem !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .admin-root[data-theme="neomorphism"] .settings-subtab-btn.settings-subtab-inactive,
+        .admin-root[data-theme="neomorphism"] .settings-subtabs-nav button:not(.settings-subtab-active) {
+          background-color: #e8ecf4 !important;
+          border: none !important;
+          color: #4a5568 !important;
+          box-shadow: 4px 4px 8px #c8d0de, -4px -4px 8px #ffffff !important;
+          transform: none !important;
+        }
+        .admin-root[data-theme="neomorphism"] .settings-subtab-btn.settings-subtab-inactive:hover,
+        .admin-root[data-theme="neomorphism"] .settings-subtabs-nav button:not(.settings-subtab-active):hover {
+          box-shadow: 5px 5px 10px #c0c8d6, -5px -5px 10px #ffffff !important;
+          color: #1a202c !important;
+          transform: translateY(-1px) !important;
+        }
+        .admin-root[data-theme="neomorphism"] .settings-subtab-btn.settings-subtab-active,
+        .admin-root[data-theme="neomorphism"] .settings-subtabs-nav button.settings-subtab-active {
+          background-color: #e8ecf4 !important;
+          border: 1px solid rgba(212, 175, 55, 0.45) !important;
+          color: #b3831b !important;
+          font-weight: 800 !important;
+          box-shadow: inset 3px 3px 6px #c8d0de, inset -3px -3px 6px #ffffff !important;
+          transform: none !important;
+        }
+
+        /* Neomorphism Vivid Red Sign Out Button */
+        .admin-root[data-theme="neomorphism"] .admin-logout-btn {
+          background-color: #e8ecf4 !important;
+          border: 1px solid rgba(239, 68, 68, 0.25) !important;
+          color: #dc2626 !important;
+          font-weight: 700 !important;
+          box-shadow: 4px 4px 8px #c8d0de, -4px -4px 8px #ffffff !important;
+        }
+        .admin-root[data-theme="neomorphism"] .admin-logout-btn:hover {
+          background-color: #dc2626 !important;
+          border-color: #dc2626 !important;
+          color: #ffffff !important;
+          box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.25) !important;
+        }
+        .admin-root[data-theme="neomorphism"] .admin-logout-btn svg {
+          stroke: #dc2626 !important;
+        }
+        .admin-root[data-theme="neomorphism"] .admin-logout-btn:hover svg {
+          stroke: #ffffff !important;
+        }
+
         /* ================= DARK NEOMORPHISM (CYBER SOFT-UI) ================= */
         .admin-root[data-theme="dark-neomorphism"] {
           background-color: #0c140e !important;
@@ -1298,6 +1405,39 @@ export default function AdminDashboard() {
         }
         .admin-root[data-theme="dark-neomorphism"] .text-primary {
           color: #f59e0b !important;
+        }
+
+        /* ================= DARK NEOMORPHISM SETTINGS SUB-TABS ================= */
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtabs-nav {
+          border-bottom: 2px solid #16261c !important;
+          box-shadow: 0 1px 0 #050906 !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtab-btn {
+          border-radius: 0.85rem !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtab-btn.settings-subtab-inactive,
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtabs-nav button:not(.settings-subtab-active) {
+          background-color: #0c140e !important;
+          border: none !important;
+          color: #94a3b8 !important;
+          box-shadow: 4px 4px 8px #050906, -4px -4px 8px #18281e !important;
+          transform: none !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtab-btn.settings-subtab-inactive:hover,
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtabs-nav button:not(.settings-subtab-active):hover {
+          box-shadow: 5px 5px 10px #030704, -5px -5px 10px #1e3327 !important;
+          color: #f8fafc !important;
+          transform: translateY(-1px) !important;
+        }
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtab-btn.settings-subtab-active,
+        .admin-root[data-theme="dark-neomorphism"] .settings-subtabs-nav button.settings-subtab-active {
+          background-color: #0c140e !important;
+          border: 1px solid rgba(251, 191, 36, 0.45) !important;
+          color: #fbbf24 !important;
+          font-weight: 800 !important;
+          box-shadow: inset 3px 3px 6px #050906, inset -3px -3px 6px #18281e !important;
+          transform: none !important;
         }
 
         /* ================= CARD HOVER & UI ANIMATIONS ================= */
@@ -1474,7 +1614,7 @@ export default function AdminDashboard() {
             {/* Sign Out / Exit Button */}
             <button
               onClick={handleLogout}
-              className={`w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800/30 text-red-300 hover:text-white transition-all text-xs font-semibold flex items-center ${
+              className={`admin-logout-btn w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800/30 text-red-300 hover:text-white transition-all text-xs font-semibold flex items-center ${
                 sidebarOpen ? "justify-start gap-3" : "justify-center"
               }`}
               title="Sign Out"
@@ -1625,7 +1765,7 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800/30 text-red-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-2"
+                className="admin-logout-btn w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800/30 text-red-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-2"
               >
                 <span>🚪</span>
                 <span>Sign Out</span>
@@ -2955,7 +3095,7 @@ export default function AdminDashboard() {
           <div className="mt-6 space-y-6 max-w-6xl w-full">
             
             {/* Settings Sub-Navigation Menu */}
-            <div className="flex items-center gap-2 border-b border-gray-200 pb-3 overflow-x-auto no-scrollbar">
+            <div className="settings-subtabs-nav flex items-center gap-2.5 border-b border-gray-200 pb-3 pt-1 px-1 overflow-x-auto no-scrollbar">
               {[
                 { id: "themes", label: "🎨 Themes & Appearance" },
                 { id: "security", label: "🔒 Reset Password & Security" },
@@ -2970,10 +3110,10 @@ export default function AdminDashboard() {
                 <button
                   key={sub.id}
                   onClick={() => setSettingsSubTab(sub.id as typeof settingsSubTab)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all ${
+                  className={`settings-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-all ${
                     settingsSubTab === sub.id
-                      ? "bg-primary text-white shadow"
-                      : "bg-white border border-gray-200 text-gray-700 hover:border-gold"
+                      ? "settings-subtab-active bg-primary text-white shadow-sm"
+                      : "settings-subtab-inactive bg-white border border-gray-200 text-gray-700 hover:border-gold hover:text-gray-900"
                   }`}
                 >
                   {sub.label}

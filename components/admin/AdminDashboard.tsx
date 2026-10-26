@@ -111,6 +111,15 @@ export default function AdminDashboard() {
   // Enquiry Filter State
   const [enquiryFilter, setEnquiryFilter] = useState<"All" | "Pending" | "Answered">("All");
 
+  // Soft Delete Confirmation Modal State
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    type: "order" | "enquiry";
+    id: number;
+    title: string;
+    subtitle?: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Invoice Modal State
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<OrderItem | null>(null);
   const [invoiceForm, setInvoiceForm] = useState({
@@ -684,6 +693,37 @@ export default function AdminDashboard() {
       }
     } catch {
       toast.error("Failed to update enquiry status", { id: toastId });
+    }
+  }
+
+  async function handleConfirmDelete() {
+    if (!deleteConfirm) return;
+    setIsDeleting(true);
+    const toastId = toast.loading(`Deleting ${deleteConfirm.type === "order" ? "order" : "enquiry"}...`);
+    try {
+      const endpoint =
+        deleteConfirm.type === "order"
+          ? `/api/admin/orders/${deleteConfirm.id}`
+          : `/api/admin/enquiry/${deleteConfirm.id}`;
+      const res = await fetch(endpoint, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        if (deleteConfirm.type === "order") {
+          setOrders((prev) => prev.filter((o) => o.id !== deleteConfirm.id));
+          toast.success("Order deleted successfully (soft delete).", { id: toastId, icon: "🗑️" });
+        } else {
+          setEnquiries((prev) => prev.filter((e) => e.id !== deleteConfirm.id));
+          toast.success("Enquiry deleted successfully (soft delete).", { id: toastId, icon: "🗑️" });
+        }
+        setDeleteConfirm(null);
+        loadDashboardData();
+      } else {
+        toast.error(data.error || "Failed to delete", { id: toastId });
+      }
+    } catch {
+      toast.error("Network error while deleting", { id: toastId });
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -1983,6 +2023,21 @@ export default function AdminDashboard() {
                                 >
                                   💬
                                 </a>
+
+                                <button
+                                  onClick={() =>
+                                    setDeleteConfirm({
+                                      type: "order",
+                                      id: ord.id,
+                                      title: `Order #${ord.orderNumber}`,
+                                      subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
+                                    })
+                                  }
+                                  className="px-2 py-1 rounded bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                  title="Delete Order (Soft Delete)"
+                                >
+                                  🗑️
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -2117,6 +2172,21 @@ export default function AdminDashboard() {
                           >
                             💬
                           </a>
+
+                          <button
+                            onClick={() =>
+                              setDeleteConfirm({
+                                type: "order",
+                                id: ord.id,
+                                title: `Order #${ord.orderNumber}`,
+                                subtitle: `${ord.customerName} • ₹${ord.invoiceAmount || 0} • ${ord.product}`,
+                              })
+                            }
+                            className="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs shadow-xs flex items-center justify-center shrink-0"
+                            title="Delete Order (Soft Delete)"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -2352,6 +2422,21 @@ export default function AdminDashboard() {
                               >
                                 WhatsApp
                               </a>
+
+                              <button
+                                onClick={() =>
+                                  setDeleteConfirm({
+                                    type: "enquiry",
+                                    id: enq.id,
+                                    title: `Enquiry from ${enq.name}`,
+                                    subtitle: `${enq.product} (${enq.quantity}) • ${enq.phone}`,
+                                  })
+                                }
+                                className="px-2 py-1 rounded bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                                title="Delete Enquiry (Soft Delete)"
+                              >
+                                🗑️
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -2418,6 +2503,21 @@ export default function AdminDashboard() {
                         >
                           <span>💬</span> WhatsApp
                         </a>
+
+                        <button
+                          onClick={() =>
+                            setDeleteConfirm({
+                              type: "enquiry",
+                              id: enq.id,
+                              title: `Enquiry from ${enq.name}`,
+                              subtitle: `${enq.product} (${enq.quantity}) • ${enq.phone}`,
+                            })
+                          }
+                          className="py-1.5 px-3 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] uppercase tracking-wider text-center flex items-center justify-center shrink-0"
+                          title="Delete Enquiry (Soft Delete)"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -3630,6 +3730,62 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: SOFT DELETE CONFIRMATION */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 animate-fadeIn">
+            <div className="flex items-center gap-3 pb-3 border-b border-gray-100 text-red-600">
+              <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center text-xl shrink-0">
+                ⚠️
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-gray-900">
+                  Delete {deleteConfirm.type === "order" ? "Order" : "Enquiry"}?
+                </h3>
+                <span className="text-[11px] text-gray-500 font-medium">Confirmation required</span>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div className="bg-red-50/60 p-3.5 rounded-2xl border border-red-100">
+                <p className="font-bold text-gray-900 text-sm">{deleteConfirm.title}</p>
+                {deleteConfirm.subtitle && (
+                  <p className="text-xs text-gray-600 mt-0.5">{deleteConfirm.subtitle}</p>
+                )}
+              </div>
+
+              <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-emerald-800 text-xs">
+                <p className="font-bold flex items-center gap-1.5">
+                  <span>🛡️</span> Soft Delete Protection Active
+                </p>
+                <p className="text-[11px] text-emerald-700 mt-1 leading-relaxed">
+                  This record will be removed from your active dashboard and reports, but remains safely archived in the database. No data is lost permanently.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

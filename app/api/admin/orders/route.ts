@@ -12,7 +12,10 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get("status");
 
   try {
-    const where = status && status !== "All" ? { status } : {};
+    const where: Record<string, unknown> = { isDeleted: false };
+    if (status && status !== "All") {
+      where.status = status;
+    }
     const orders = await prisma.order.findMany({
       where,
       orderBy: { createdAt: "desc" },

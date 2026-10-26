@@ -9,7 +9,7 @@ generator client {
 }
 
 model Enquiry {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   phone     String
   email     String?
@@ -17,8 +17,10 @@ model Enquiry {
   product   String
   quantity  String
   message   String?
-  status    String   @default("Pending")
-  createdAt DateTime @default(now())
+  status    String    @default("Pending")
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model Order {
@@ -43,6 +45,8 @@ model Order {
   trackingNumber  String?
   shippingDetails String?
   notes           String?
+  isDeleted       Boolean   @default(false)
+  deletedAt       DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }

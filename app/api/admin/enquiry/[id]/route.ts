@@ -60,3 +60,36 @@ export async function PATCH(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  if (!(await verifyAdmin(request))) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
+  const id = parseInt(params.id, 10);
+  if (isNaN(id)) {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  }
+
+  try {
+    const deleted = await prisma.enquiry.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Enquiry from ${deleted.name} deleted successfully (soft delete).`,
+      enquiry: deleted,
+    });
+  } catch (error) {
+    console.error("Delete enquiry error:", error);
+    return NextResponse.json({ error: "Failed to delete enquiry" }, { status: 500 });
+  }
+}

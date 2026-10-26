@@ -90,14 +90,28 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const session = await getSession();
-  if (!session || (session.role !== "Superadmin" && session.role !== "Admin")) {
-    return NextResponse.json({ error: "Only Superadmin/Admin can delete orders." }, { status: 403 });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
   }
 
   const id = Number(params.id);
+  if (!id) {
+    return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+  }
+
   try {
-    await prisma.order.delete({ where: { id } });
-    return NextResponse.json({ success: true, message: "Order deleted successfully." });
+    const deleted = await prisma.order.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+    return NextResponse.json({
+      success: true,
+      message: `Order #${deleted.orderNumber} deleted successfully (soft delete).`,
+      order: deleted,
+    });
   } catch (err) {
     console.error("Delete order error:", err);
     return NextResponse.json({ error: "Failed to delete order" }, { status: 500 });

@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const enquiries = await prisma.enquiry.findMany({
+      where: { isDeleted: false },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ enquiries }, { status: 200 });

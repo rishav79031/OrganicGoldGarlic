@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
       startDate = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
     }
 
-    const orderWhere = startDate ? { createdAt: { gte: startDate } } : {};
-    const enquiryWhere = startDate ? { createdAt: { gte: startDate } } : {};
+    const orderWhere = startDate ? { createdAt: { gte: startDate }, isDeleted: false } : { isDeleted: false };
+    const enquiryWhere = startDate ? { createdAt: { gte: startDate }, isDeleted: false } : { isDeleted: false };
 
     const [
       totalEnquiries,

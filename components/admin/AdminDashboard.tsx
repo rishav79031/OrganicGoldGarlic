@@ -110,7 +110,7 @@ export default function AdminDashboard() {
   const [bulkLoading, setBulkLoading] = useState(false);
 
   // Enquiry Filter State
-  const [enquiryFilter, setEnquiryFilter] = useState<"All" | "Pending" | "Answered">("All");
+  const [enquiryFilter, setEnquiryFilter] = useState<"All" | "Franchise" | "Pending" | "Answered">("All");
 
   // Soft Delete Confirmation Modal State
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -910,6 +910,9 @@ export default function AdminDashboard() {
   }
 
   const displayedEnquiries = useMemo(() => {
+    if (enquiryFilter === "Franchise") {
+      return enquiries.filter((e) => (e.product || "").toLowerCase().includes("franchise"));
+    }
     if (enquiryFilter === "Pending") {
       return enquiries.filter((e) => e.status === "Pending");
     }
@@ -2878,18 +2881,20 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <h2 className="font-brand text-lg 2xl:text-xl font-bold text-primary">Website Direct Enquiries</h2>
               
-              <div className="flex items-center gap-2">
-                {(["All", "Pending", "Answered"] as const).map((fil) => (
+              <div className="flex flex-wrap items-center gap-2">
+                {(["All", "Franchise", "Pending", "Answered"] as const).map((fil) => (
                   <button
                     key={fil}
                     onClick={() => setEnquiryFilter(fil)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors flex items-center gap-1 ${
                       enquiryFilter === fil
-                        ? "bg-primary text-white"
+                        ? fil === "Franchise"
+                          ? "bg-amber-600 text-white shadow-sm font-bold"
+                          : "bg-primary text-white shadow-sm"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {fil === "Pending" ? "Fresh (Pending)" : fil}
+                    {fil === "Franchise" ? "✨ Franchise Enquiries" : fil === "Pending" ? "Fresh (Pending)" : fil}
                   </button>
                 ))}
               </div>
@@ -2920,7 +2925,9 @@ export default function AdminDashboard() {
                           <td className="py-3">
                             <a
                               href={`https://wa.me/91${enq.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                `Hi ${enq.name}, this is Organic Gold Garlic responding to your enquiry about ${enq.product}.`
+                                (enq.product || "").toLowerCase().includes("franchise")
+                                  ? `Hi ${enq.name}, this is Organic Gold Garlic following up on your Franchise & Machine Setup application.`
+                                  : `Hi ${enq.name}, this is Organic Gold Garlic responding to your enquiry about ${enq.product}.`
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -2929,7 +2936,15 @@ export default function AdminDashboard() {
                               💬 {enq.phone}
                             </a>
                           </td>
-                          <td className="py-3 font-medium text-gray-700">{enq.product} ({enq.quantity})</td>
+                          <td className="py-3 font-medium text-gray-700">
+                            {(enq.product || "").toLowerCase().includes("franchise") ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                ✨ Franchise Setup ({enq.quantity})
+                              </span>
+                            ) : (
+                              `${enq.product} (${enq.quantity})`
+                            )}
+                          </td>
                           <td className="py-3 max-w-[240px] text-gray-500 truncate" title={enq.message || ""}>
                             {enq.message || "—"}
                           </td>
@@ -3012,9 +3027,15 @@ export default function AdminDashboard() {
 
                       <div className="text-xs">
                         <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Product & Requested Qty</span>
-                        <p className="font-semibold text-primary text-xs">
-                          {enq.product} &times; <span className="font-bold text-gray-800">{enq.quantity}</span>
-                        </p>
+                        {(enq.product || "").toLowerCase().includes("franchise") ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                            ✨ Franchise Setup ({enq.quantity})
+                          </span>
+                        ) : (
+                          <p className="font-semibold text-primary text-xs">
+                            {enq.product} &times; <span className="font-bold text-gray-800">{enq.quantity}</span>
+                          </p>
+                        )}
                       </div>
 
                       {enq.message && (

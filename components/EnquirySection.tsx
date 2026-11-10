@@ -188,7 +188,8 @@ export default function EnquirySection() {
                 >
                   <option value="Bulk">Bulk Order</option>
                   <option value="250g">250g Pack – ₹100</option>
-                  <option value="1kg">1 kg Pack – ₹200</option>
+                  <option value="1kg">1 kg Pack – ₹300</option>
+                  <option value="Franchise">Franchise (Full Machine Setup)</option>
                   <option value="Custom">Order Status Check / Existing Order Query</option>
                 </select>
                 {errors.product && (

@@ -5,6 +5,7 @@ import ProductsSection from "@/components/ProductsSection";
 import AboutSection from "@/components/AboutSection";
 import VideoSection from "@/components/VideoSection";
 import WhyChooseUs from "@/components/WhyChooseUs";
+import FranchiseSection from "@/components/FranchiseSection";
 import EnquirySection from "@/components/EnquirySection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -66,13 +67,16 @@ export default function HomePage() {
       {/* 5. Why Choose Us */}
       <WhyChooseUs />
 
-      {/* 6. Bulk Order Enquiry Form */}
+      {/* 6. Turnkey Franchise & Machine Setup Section */}
+      <FranchiseSection />
+
+      {/* 7. Bulk Order Enquiry Form */}
       <EnquirySection />
 
-      {/* 7. Contact Details */}
+      {/* 8. Contact Details */}
       <ContactSection />
 
-      {/* 8. Footer */}
+      {/* 9. Footer */}
       <Footer />
     </main>
   );

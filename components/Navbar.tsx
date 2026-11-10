@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 
 const ALL_PRODUCTS = [
   { id: "250g", name: "250g Pack", price: "₹100", desc: "Buy fresh peeled garlic for kitchen & cooking", href: "/#products" },
-  { id: "1kg", name: "1 kg Pack", price: "₹200", desc: "Buy organic peeled garlic - Chef & family size", href: "/#products" },
+  { id: "1kg", name: "1 kg Pack", price: "₹300", desc: "Buy organic peeled garlic - Chef & family size", href: "/#products" },
   { id: "bulk", name: "Bulk Peeled Garlic Supply", price: "Enquire for Rate", desc: "Buy bulk peeled garlic - Pan-India restaurant delivery", href: "/#products" },
+  { id: "franchise", name: "Franchise & Machine Setup", price: "Turnkey Setup", desc: "Start peeled garlic processing business with full machinery", href: "/franchise" },
 ];
 
 export default function Navbar() {
@@ -162,6 +163,13 @@ export default function Navbar() {
                   Order Online
                 </Link>
                 <Link
+                  href="/franchise"
+                  className="text-xs uppercase tracking-[0.18em] font-bold text-amber-800 hover:text-gold transition-colors flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Franchise
+                </Link>
+                <Link
                   href="/contact"
                   className="text-xs uppercase tracking-[0.18em] font-medium text-gray-700 hover:text-gold transition-colors"
                 >
@@ -262,6 +270,14 @@ export default function Navbar() {
                   className="text-xs uppercase tracking-widest font-bold text-emerald-700"
                 >
                   Order Online
+                </Link>
+                <Link
+                  href="/franchise"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-xs uppercase tracking-widest font-bold text-amber-800 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Take Franchise (Machine Setup)
                 </Link>
                 <Link
                   href="/contact"

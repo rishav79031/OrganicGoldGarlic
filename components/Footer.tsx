@@ -40,6 +40,12 @@ export default function Footer() {
             <Link href="/about" className="hover:text-gold transition-colors">
               About Us
             </Link>
+            <Link href="/order" className="hover:text-gold text-emerald-400 font-semibold transition-colors">
+              Order Online
+            </Link>
+            <Link href="/franchise" className="hover:text-gold text-amber-300 font-semibold transition-colors">
+              Franchise & Machines
+            </Link>
             <Link href="/#products" className="hover:text-gold transition-colors">
               Buy Peeled Garlic
             </Link>

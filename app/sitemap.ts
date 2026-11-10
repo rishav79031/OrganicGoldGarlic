@@ -15,7 +15,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/order`,
       lastModified,
       changeFrequency: "daily",
-      priority: 0.9,
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/franchise`,
+      lastModified,
+      changeFrequency: "daily",
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/#products`,

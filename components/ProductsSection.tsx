@@ -27,8 +27,8 @@ const products = [
   {
     id: "1kg",
     name: "1 kg Family & Chef Pack",
-    price: "₹200",
-    originalPrice: "₹260",
+    price: "₹300",
+    originalPrice: "₹380",
     weight: "1 Kilogram (1000g)",
     badge: "Best Value",
     badgeColor: "bg-primary text-white",

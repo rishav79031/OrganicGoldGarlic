@@ -134,7 +134,7 @@ npm start
 | Pack | Price |
 |------|-------|
 | 250g | ₹100  |
-| 1 kg | ₹200  |
+| 1 kg | ₹300  |
 
 Custom bulk orders available – use the enquiry form or WhatsApp.
 

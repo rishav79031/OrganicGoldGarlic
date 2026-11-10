@@ -204,7 +204,7 @@ export default function HeroSection() {
                 </div>
                 <div className="text-center p-2.5 rounded-xl bg-black/30 border border-gold/40">
                   <span className="text-[10px] uppercase tracking-wider text-gold-light block font-medium">1 kg</span>
-                  <strong className="text-white text-lg font-brand">₹200</strong>
+                  <strong className="text-white text-lg font-brand">₹300</strong>
                 </div>
                 <div className="text-center p-2.5 rounded-xl bg-black/30">
                   <span className="text-[10px] uppercase tracking-wider text-gray-400 block">Bulk</span>

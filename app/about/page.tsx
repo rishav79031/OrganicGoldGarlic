@@ -116,7 +116,7 @@ export default function AboutPage() {
                 <span className="text-xs text-gray-600 font-medium">250g Household Pack</span>
               </div>
               <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-600/20">
-                <span className="text-2xl font-brand font-bold text-primary block">₹200</span>
+                <span className="text-2xl font-brand font-bold text-primary block">₹300</span>
                 <span className="text-xs text-gray-600 font-medium">1kg Chef Value Pack</span>
               </div>
             </div>

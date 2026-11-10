@@ -604,7 +604,7 @@ export default function AdminDashboard() {
 
   function openInvoiceModal(order: OrderItem) {
     setSelectedOrderForInvoice(order);
-    const defaultAmount = order.invoiceAmount || order.totalAmount || order.quantity * 200;
+    const defaultAmount = order.invoiceAmount || order.totalAmount || order.quantity * 300;
     setInvoiceForm({
       invoiceNumber: order.invoiceNumber || `INV-${order.orderNumber.replace("OGG-", "")}`,
       invoiceAmount: defaultAmount,

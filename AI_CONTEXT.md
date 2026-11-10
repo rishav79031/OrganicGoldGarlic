@@ -160,3 +160,8 @@ npm run build
 3. **Apple Glassmorphism**: Transitioned glassmorphism from low-contrast dark cards to Apple-style frosted light glass with translucent grey-white backgrounds and dark charcoal text for high readability.
 4. **Action Menu Portal**: Refactored the table action menu from standard relative dropdowns to a fixed coordinate portal (`position: fixed`, `z-[99999]`) to eliminate table cell clipping caused by `overflow-x: auto`.
 5. **Separation of Print & Tracking**: Moved Print (`📄`) and Courier Tracking (`🚚`) out of the three-dot menu onto the table row with hover tooltips for instant 1-click operation, slimming the action menu down to infrequent administrative actions.
+6. **Default Price Update & Franchise Machine Setup**:
+   - Updated default 1 kg pack price across all customer-facing and admin default calculators from ₹200 to ₹300.
+   - Built turnkey Franchise section (`components/FranchiseSection.tsx`) on homepage highlighting complete industrial peeling machine setup, pneumatic air peeler, air compressor, raw garlic farm supply, and direct WhatsApp contact.
+   - Built dedicated SEO-optimized Franchise page (`/franchise`) with Schema.org `Service` and `BreadcrumbList` structured data.
+   - Upgraded `/order` page SEO with Schema.org `Product` (1kg at ₹300 and 250g at ₹100), offers, and updated `sitemap.ts`.

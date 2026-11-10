@@ -277,6 +277,32 @@ export default function OrderPage() {
                 </div>
               </div>
 
+              {/* FSSAI & Quality Guarantee Box */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/70 via-white to-amber-50/60 border border-emerald-200/80 flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative w-20 h-10 bg-white rounded-xl p-1 border border-gray-200 shrink-0 flex items-center justify-center shadow-xs">
+                  <Image
+                    src="/fssai-logo.png"
+                    alt="FSSAI Certified Unit"
+                    width={76}
+                    height={38}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="text-center sm:text-left text-xs">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <span className="font-bold text-gray-900">
+                      FSSAI Certified Food Processing Unit
+                    </span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                      100% Food Safe
+                    </span>
+                  </div>
+                  <p className="text-gray-500 text-[11px] mt-0.5">
+                    Compliant with Food Safety and Standards Authority of India. Zero chemicals, unbleached, and vacuum packed.
+                  </p>
+                </div>
+              </div>
+
               {/* Step 4: Summary & Submit */}
               <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>

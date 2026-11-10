@@ -390,7 +390,7 @@ export default function FranchisePage() {
                 As an Organic Gold Garlic franchise partner, you get direct sourcing contracts from garlic farms in Bihar, Neemuch/Mandsaur (MP), and Kota (Rajasthan). We stabilize your input costs so your manufacturing plant operates with healthy margins year-round.
               </p>
 
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
                   <span className="text-base font-bold text-primary block mb-1">🏢 HoReCa Demand</span>
                   <p className="text-xs text-gray-500">Hotels, restaurants & cloud kitchens consume 20kg to 200kg peeled garlic weekly.</p>
@@ -398,6 +398,21 @@ export default function FranchisePage() {
                 <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
                   <span className="text-base font-bold text-primary block mb-1">🏷️ Branded Pouches</span>
                   <p className="text-xs text-gray-500">Food-grade pre-printed 250g, 1kg & bulk vacuum pouches provided with barcodes.</p>
+                </div>
+                <div className="sm:col-span-2 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+                  <div className="relative w-16 h-9 bg-white shrink-0 flex items-center justify-center p-0.5 border border-gray-200 rounded-lg">
+                    <Image
+                      src="/fssai-logo.png"
+                      alt="FSSAI Certified Unit"
+                      width={64}
+                      height={32}
+                      className="object-contain"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-primary block">FSSAI Certified Plant Standard</span>
+                    <p className="text-[11px] text-gray-500">Full licensing assistance, hygiene SOPs, and compliance guidelines provided for your unit.</p>
+                  </div>
                 </div>
               </div>
             </div>

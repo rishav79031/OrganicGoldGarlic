@@ -66,6 +66,42 @@ export default function Footer() {
           </nav>
         </div>
 
+        {/* FSSAI Certification & Quality Trust Strip */}
+        <div className="py-8 border-b border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 bg-white/[0.04] border border-white/10 rounded-2xl p-3 sm:px-5 sm:py-3.5 backdrop-blur-sm w-full md:w-auto">
+            <div className="relative w-20 h-10 sm:w-24 sm:h-12 bg-white rounded-xl p-1 shrink-0 flex items-center justify-center shadow-md">
+              <Image
+                src="/fssai-logo.png"
+                alt="FSSAI Certified - Food Safety and Standards Authority of India"
+                width={88}
+                height={44}
+                className="object-contain"
+              />
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">FSSAI Certified Unit</span>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">100% Food Safe</span>
+              </div>
+              <p className="text-[11px] text-white/60 mt-0.5">
+                Food Safety and Standards Authority of India &bull; Zero Chemicals &bull; Hygienic Vacuum Pack
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-2 text-xs text-white/60">
+            <span className="flex items-center gap-1.5">
+              <span className="text-emerald-400 font-bold">✓</span> 100% Natural Garlic
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-emerald-400 font-bold">✓</span> Chemical-Free Peeling
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-emerald-400 font-bold">✓</span> Vacuum Sealed Freshness
+            </span>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[11px] text-white/40">
           <p>
